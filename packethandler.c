@@ -246,7 +246,7 @@ int receiveFile(int socket, struct t_packet *packet)
         {
             if(serverPacket.tipo == DATA)
             {
-                printf("Recebi DATA: %d\n", serverPacket.tamanho);
+                printf("Recebi DATA: %d -> %s\n", serverPacket.tamanho, serverPacket.dados);
                 // Escreve no arquivo
                 fwrite(serverPacket.dados, 1, serverPacket.tamanho, file);
                 // Send OK

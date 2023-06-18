@@ -322,6 +322,7 @@ int receiveFile(int socket, struct t_packet *packet)
         {
             printf("Recebi pacote com erro de paridade\n");
             printPacket(&clientPacket);
+            printf("Paridade recebida: %d\n", clientPacket.paridade);
             // Enviar novamente
             createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
             sendPacket(socket, &serverPacket);

@@ -124,6 +124,7 @@ int sendFile(int socket, char *filename)
         if (readPacket(socket, &serverPacket, 5) == 1)
         {
             printf("Timeout Receber confirmacao de inicio\n");
+            fclose(file);
             return 1;
         }
         // Recebeu mensagem, verifica OK ou NACK
@@ -161,6 +162,7 @@ int sendFile(int socket, char *filename)
             if (readPacket(socket, &serverPacket, 5) == 1)
             {
                 printf("Timeout enviar dados do arquivo\n");
+                fclose(file);
                 return 1;
             }
             // Recebeu mensagem, verifica OK ou NACK
@@ -192,6 +194,7 @@ int sendFile(int socket, char *filename)
         if (readPacket(socket, &serverPacket, 5) == 1)
         {
             printf("Timeout receber confirmacao de fim\n");
+            fclose(file);
             return 1;
         }
         // Recebeu mensagem, verifica OK ou NACK
@@ -199,6 +202,7 @@ int sendFile(int socket, char *filename)
         {
             if(serverPacket.tipo == OK)
             {
+                fclose(file);
                 break;
             }
             else if(serverPacket.tipo == NACK)
@@ -241,6 +245,7 @@ int receiveFile(int socket, struct t_packet *packet)
         if (readPacket(socket, &clientPacket, 5) == 1)
         {
             printf("Timeout dados do arquivo\n");
+            fclose(file);
             return 1;
         }
         // Recebeu mensagem, verifica OK ou NACK
@@ -266,6 +271,7 @@ int receiveFile(int socket, struct t_packet *packet)
             else if(clientPacket.tipo == FIM_ARQ)
             {
                 printf("Recebi FIM_ARQ\n");
+                fclose(file);
                 // Send OK
                 createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
                 sendPacket(socket, &serverPacket);

@@ -29,6 +29,9 @@ void printPacket(struct t_packet *packet)
 unsigned int calculateParity(struct t_packet *packet)
 {
     unsigned int parity = 0;
+    parity ^= packet->tamanho;
+    parity ^= packet->sequencia;
+    parity ^= packet->tipo;
     if(packet->tamanho > 0)
     {
         for (int i = 0; i < packet->tamanho; i++)

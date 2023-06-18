@@ -172,6 +172,7 @@ int sendFile(int socket, char *filename)
             {
                 if(serverPacket.tipo == OK)
                 {
+                    printf("OK sequencia %d\n", sequence);
                     sequence++;
                     break;
                 }
@@ -188,7 +189,7 @@ int sendFile(int socket, char *filename)
     }
 
     // Enviar solicitacao de fim de envio de arquivo para servidor
-    createPacket(&packet, 0, sequence, FIM_ARQ, packet.dados);
+    createPacket(&packet, 0, sequence, FIM_ARQ, NULL);
     while(1)
     {
         sendPacket(socket, &packet);
@@ -266,7 +267,7 @@ int receiveFile(int socket, struct t_packet *packet)
                 sendPacket(socket, &serverPacket);
                 expectedSequence++;
             }
-            else if(serverPacket.tipo == FIM_ARQ)
+            else if(clientPacket.tipo == FIM_ARQ)
             {
                 printf("Recebi FIM_ARQ\n");
                 // Send OK
@@ -274,7 +275,7 @@ int receiveFile(int socket, struct t_packet *packet)
                 sendPacket(socket, &serverPacket);
                 break;
             }
-            else if(serverPacket.tipo == NACK)
+            else if(clientPacket.tipo == NACK)
             {
                 printf("Recebi NACK\n");
                 // Enviar novamente

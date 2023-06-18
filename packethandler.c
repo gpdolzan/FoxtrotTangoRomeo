@@ -22,7 +22,7 @@ void printPacket(struct t_packet *packet)
     printf("Tamanho: %d\n", packet->tamanho);
     printf("Sequencia: %d\n", packet->sequencia);
     printf("Tipo: %d\n", packet->tipo);
-    printf("Dados: %s\n", packet->dados);
+    //printf("Dados: %s\n", packet->dados);
     printf("Paridade: %d\n", packet->paridade);
 }
 
@@ -233,6 +233,8 @@ int sendFile(int socket, char *filename)
         else if(checkParity(&serverPacket) == 1)
         {
             // Enviar novamente
+            printPacket(&packet);
+            exit(1);
             sendPacket(socket, &packet);
         }
     }
@@ -312,6 +314,8 @@ int receiveFile(int socket, struct t_packet *packet)
         else if(checkParity(&clientPacket) == 1)
         {
             printf("Recebi pacote com erro de paridade\n");
+            printPacket(&clientPacket);
+            exit(1);
             // Enviar novamente
             createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
             sendPacket(socket, &serverPacket);

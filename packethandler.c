@@ -221,7 +221,7 @@ int receiveFile(int socket, struct t_packet *packet)
 
     // Add path and packet->dados to path
     strcpy(path, "received/");
-    strcat(path, packet->dados);
+    strncat(path, packet->dados, packet->tamanho);
 
     // Create file
     FILE *file = fopen(path, "w");

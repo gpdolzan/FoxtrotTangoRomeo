@@ -69,7 +69,6 @@ int readPacket(int socket, struct t_packet *packet, unsigned int timeout)
             read(socket, buffer, sizeof(struct t_packet));
             if(buffer->marcadorInicio == 0x7E)
             {
-                printPacket(buffer);
                 memcpy(packet, buffer, sizeof(struct t_packet));
                 free(buffer);
                 return 0;
@@ -146,17 +145,17 @@ int sendFile(int socket, char *filename)
         int bytesRead = fread(packet.dados, 1, 63, file);
 
         // Print progress of file transfer based on total file size
-        printf("Enviando %ld\n", ftell(file));
+        printf("Enviando %d\n", bytesRead);
 
         // Coloca esse buffer dentro do pacote
         createPacket(&packet, bytesRead, sequence, DATA, packet.dados);
 
         // Aguardar resposta (talvez timeout) (talvez NACK) (talvez OK)
         // Se recebeu NACK algo deu errado com o pacote ao enviar
+        // Enviar pacote com dados do arquivo
+        sendPacket(socket, &packet);
         while(1)
         {
-            // Enviar pacote com dados do arquivo
-            sendPacket(socket, &packet);
             // Aguardar resposta (talvez timeout)
             if (readPacket(socket, &serverPacket, 5) == 1)
             {

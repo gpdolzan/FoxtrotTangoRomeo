@@ -185,7 +185,10 @@ int sendFile(int socket, char *filename)
         }
 
         if(bytesRead < 63)
+        {
+            fclose(file);
             break;
+        }
     }
 
     // Enviar solicitacao de fim de envio de arquivo para servidor
@@ -246,6 +249,9 @@ int receiveFile(int socket, struct t_packet *packet)
         if (readPacket(socket, &clientPacket, 5) == 1)
         {
             printf("Timeout dados do arquivo\n");
+            fclose(file);
+            // delete file
+            remove(path);
             return 1;
         }
         // Recebeu mensagem, verifica OK ou NACK
@@ -273,6 +279,7 @@ int receiveFile(int socket, struct t_packet *packet)
             else if(clientPacket.tipo == FIM_ARQ)
             {
                 printf("Recebi FIM_ARQ\n");
+                fclose(file);
                 // Send OK
                 createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
                 sendPacket(socket, &serverPacket);

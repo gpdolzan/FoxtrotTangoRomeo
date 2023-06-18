@@ -260,30 +260,54 @@ int receiveFile(int socket, struct t_packet *packet)
         {
             if(clientPacket.tipo == DATA)
             {
-                printf("Recebi DATA: %d\n", clientPacket.tamanho);
-                // Create a buffer
-                char *buffer = malloc(clientPacket.tamanho);
-                memcpy(buffer, clientPacket.dados, clientPacket.tamanho);
-                // Write buffer to file
-                fwrite(buffer, 1, clientPacket.tamanho, file);
-                free(buffer);
-
-                // Send OK
-                createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
-                sendPacket(socket, &serverPacket);
-                if(expectedSequence < 63)
-                    expectedSequence++;
+                // Check parity
+                if (checkParity(&clientPacket) == 1)
+                {
+                    printf("Paridade incorreta\n");
+                    // Send NACK
+                    createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
+                    sendPacket(socket, &serverPacket);
+                    continue;
+                }
                 else
-                    expectedSequence = 0;
+                {
+                    printf("Recebi DATA: %d\n", clientPacket.tamanho);
+                    // Create a buffer
+                    char *buffer = malloc(clientPacket.tamanho);
+                    memcpy(buffer, clientPacket.dados, clientPacket.tamanho);
+                    // Write buffer to file
+                    fwrite(buffer, 1, clientPacket.tamanho, file);
+                    free(buffer);
+
+                    // Send OK
+                    createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
+                    sendPacket(socket, &serverPacket);
+                    if(expectedSequence < 63)
+                        expectedSequence++;
+                    else
+                        expectedSequence = 0;
+                }
             }
             else if(clientPacket.tipo == FIM_ARQ)
             {
-                printf("Recebi FIM_ARQ\n");
-                fclose(file);
-                // Send OK
-                createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
-                sendPacket(socket, &serverPacket);
-                break;
+                if (checkParity(&clientPacket) == 1)
+                {
+                    printf("Paridade incorreta\n");
+                    // Send NACK
+                    createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
+                    sendPacket(socket, &serverPacket);
+                    continue;
+                }
+                else
+                {
+                    printf("Recebi FIM_ARQ\n");
+                    fclose(file);
+
+                    // Send OK
+                    createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
+                    sendPacket(socket, &serverPacket);
+                    break;
+                }
             }
             else if(clientPacket.tipo == NACK)
             {

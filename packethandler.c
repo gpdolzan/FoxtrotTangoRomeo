@@ -196,7 +196,7 @@ int sendFile(int socket, char *filename)
                 else if(serverPacket.tipo == NACK)
                 {
                     // Enviar novamente
-                    printPacket(&packet);
+                    printf("paridade: %d\n", packet.paridade);
                     exit(1);
                     sendPacket(socket, &packet);
                 }
@@ -320,13 +320,10 @@ int receiveFile(int socket, struct t_packet *packet)
         }
         else if(checkParity(&clientPacket) == 1)
         {
-            printf("Recebi pacote com erro de paridade\n");
-            printPacket(&clientPacket);
             printf("Paridade recebida: %d\n", clientPacket.paridade);
             // Enviar novamente
             createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
             sendPacket(socket, &serverPacket);
-            exit(1);
         }
     }
     return 0;

@@ -69,6 +69,7 @@ int readPacket(int socket, struct t_packet *packet, unsigned int timeout)
             read(socket, buffer, sizeof(struct t_packet));
             if(buffer->marcadorInicio == 0x7E)
             {
+                printPacket(buffer);
                 memcpy(packet, buffer, sizeof(struct t_packet));
                 free(buffer);
                 return 0;

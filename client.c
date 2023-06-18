@@ -3,7 +3,7 @@
 
 int main(int argc, char const *argv[])
 {
-    int socket = ConexaoRawSocket("lo");
+    int socket = ConexaoRawSocket("enp5s0");
     // get input from user
     char input[63];
     printf("Enter a filename: ");

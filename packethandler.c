@@ -197,7 +197,6 @@ int sendFile(int socket, char *filename)
                 {
                     // Enviar novamente
                     printf("paridade: %d\n", packet.paridade);
-                    exit(1);
                     sendPacket(socket, &packet);
                 }
             }

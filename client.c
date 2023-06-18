@@ -3,7 +3,8 @@
 
 int main(int argc, char const *argv[])
 {
-    int socket = ConexaoRawSocket("enp5s0");
+    //int socket = ConexaoRawSocket("enp5s0");
+    int socket = ConexaoRawSocket("lo");
     // get input from user
     char input[63];
     // Set everything in buffer to 0

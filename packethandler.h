@@ -15,10 +15,12 @@
 
 #define BACK_1_FILE 0 // 0000
 #define BACK_PLUS_1_FILE 1 // 0001
-#define REC_1_ARQ // 0010
-#define REC_GROUP_ARQ// 0011
-#define CD_LOCAL // 0100
-#define VERIFICA_BACK // 0101
+#define REC_1_ARQ 2 // 0010
+#define REC_GROUP_ARQ 3 // 0011
+#define CH_DIR_SERVER 4 // 0100
+#define VERIFICA_BACK 5 // 0101
+#define NOME_ARQ_REC 6 // 0110
+#define MD5 7 // 0111
 #define DATA 8 // 1000
 #define FIM_ARQ 9 // 1001
 #define FIM_GRUPO_ARQ 10 // 1010

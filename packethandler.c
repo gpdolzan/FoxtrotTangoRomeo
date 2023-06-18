@@ -265,7 +265,10 @@ int receiveFile(int socket, struct t_packet *packet)
                 // Send OK
                 createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
                 sendPacket(socket, &serverPacket);
-                expectedSequence++;
+                if(expectedSequence < 63)
+                    expectedSequence++;
+                else
+                    expectedSequence = 0;
             }
             else if(clientPacket.tipo == FIM_ARQ)
             {

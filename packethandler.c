@@ -6,7 +6,12 @@ int createPacket(struct t_packet *packet, unsigned int tamanho, unsigned int seq
     packet->tamanho = tamanho;
     packet->sequencia = sequencia;
     packet->tipo = tipo;
-    memcpy(packet->dados, dados, tamanho);
+    if(dados != NULL)
+        memcpy(packet->dados, dados, tamanho);
+    else
+    {
+        memset(packet->dados, 0, tamanho);
+    }
     packet->paridade = calculateParity(packet);
     return 0;
 }

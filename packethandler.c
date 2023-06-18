@@ -248,6 +248,7 @@ int receiveFile(int socket, struct t_packet *packet)
             return 1;
         }
         // Recebeu mensagem, verifica OK ou NACK
+        printf("%d e %d\n", clientPacket.sequencia, expectedSequence);
         if(clientPacket.sequencia == expectedSequence)
         {
             if(clientPacket.tipo == DATA)
@@ -262,8 +263,8 @@ int receiveFile(int socket, struct t_packet *packet)
 
                 // Send OK
                 createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
-                expectedSequence++;
                 sendPacket(socket, &serverPacket);
+                expectedSequence++;
             }
             else if(serverPacket.tipo == FIM_ARQ)
             {

@@ -22,7 +22,13 @@ void printPacket(struct t_packet *packet)
     printf("Tamanho: %d\n", packet->tamanho);
     printf("Sequencia: %d\n", packet->sequencia);
     printf("Tipo: %d\n", packet->tipo);
-    //printf("Dados: %s\n", packet->dados);
+    // Loop through data printing each byte
+    printf("Dados: ");
+    for (int i = 0; i < packet->tamanho; i++)
+    {
+        printf("%x ", packet->dados[i]);
+    }
+    printf("\n");
     printf("Paridade: %d\n", packet->paridade);
 }
 

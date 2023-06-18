@@ -216,6 +216,9 @@ int receiveFile(int socket, struct t_packet *packet)
     char path[100];
     struct t_packet serverPacket;
 
+    // Everything in path is 0
+    memset(path, 0, sizeof(path));
+
     // Add path and packet->dados to path
     strcpy(path, "received/");
     strcat(path, packet->dados);

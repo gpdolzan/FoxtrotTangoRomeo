@@ -249,9 +249,9 @@ int receiveFile(int socket, struct t_packet *packet)
                 printf("Recebi DATA\n");
                 // Escreve no arquivo
                 fwrite(serverPacket.dados, serverPacket.tamanho, 1, file);
-                expectedSequence++;
                 // Send OK
                 createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
+                expectedSequence++;
                 sendPacket(socket, &serverPacket);
             }
             else if(serverPacket.tipo == FIM_ARQ)

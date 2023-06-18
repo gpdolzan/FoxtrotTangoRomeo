@@ -135,7 +135,10 @@ int sendFile(int socket, char *filename)
         {
             if(serverPacket.tipo == OK)
             {
-                sequence++;
+                if(sequence < 63)
+                    sequence++;
+                else
+                    sequence = 0;
                 break;
             }
             else if(serverPacket.tipo == NACK)
@@ -178,7 +181,10 @@ int sendFile(int socket, char *filename)
             {
                 if(serverPacket.tipo == OK)
                 {
-                    sequence++;
+                    if(sequence < 63)
+                        sequence++;
+                    else
+                        sequence = 0;
                     break;
                 }
                 else if(serverPacket.tipo == NACK)

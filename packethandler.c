@@ -110,7 +110,7 @@ int checkFileExists(char *filename)
 
 int sendFile(int socket, char *filename)
 {
-    FILE *file = fopen(filename, "r");
+    FILE *file = fopen(filename, "rb");
     struct t_packet packet;
     struct t_packet serverPacket;
     int sequence = 0;
@@ -231,7 +231,7 @@ int receiveFile(int socket, struct t_packet *packet)
     strncat(path, packet->dados, packet->tamanho);
 
     // Create file
-    FILE *file = fopen(path, "w");
+    FILE *file = fopen(path, "wb");
 
     // Send OK
     createPacket(&serverPacket, 0, expectedSequence, OK, NULL);

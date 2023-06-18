@@ -267,7 +267,7 @@ int receiveFile(int socket, struct t_packet *packet)
             return 1;
         }
         // Recebeu mensagem, verifica OK ou NACK
-        if(clientPacket.sequencia == expectedSequence && checkParity(&serverPacket) == 0)
+        if(clientPacket.sequencia == expectedSequence && checkParity(&clientPacket) == 0)
         {
             if(clientPacket.tipo == DATA)
             {
@@ -303,7 +303,7 @@ int receiveFile(int socket, struct t_packet *packet)
                 sendPacket(socket, &serverPacket);
             }
         }
-        else if(checkParity(&serverPacket) == 1)
+        else if(checkParity(&clientPacket) == 1)
         {
             printf("Recebi pacote com erro de paridade\n");
             // Enviar novamente

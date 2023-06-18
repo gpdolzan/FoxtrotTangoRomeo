@@ -229,6 +229,7 @@ int receiveFile(int socket, struct t_packet *packet)
     // Loop de recebimento de bytes do arquivo
     printf("Loop de bytes de arquivo\n");
     sendPacket(socket, &serverPacket);
+    expectedSequence++;
     while(1)
     {
         // Aguardar resposta (talvez timeout)

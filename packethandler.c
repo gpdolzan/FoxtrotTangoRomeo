@@ -252,10 +252,11 @@ int receiveFile(int socket, struct t_packet *packet)
         {
             if(clientPacket.tipo == DATA)
             {
-                printf("Recebi DATA: %d -> %s\n", clientPacket.tamanho, serverPacket.dados);
+                printf("Recebi DATA: %d\n", clientPacket.tamanho);
                 // Create a buffer
                 char *buffer = malloc(clientPacket.tamanho);
                 memcpy(buffer, clientPacket.dados, clientPacket.tamanho);
+                printf("Buffer: %s\n", buffer);
                 // Write buffer to file
                 fwrite(buffer, 1, clientPacket.tamanho, file);
                 free(buffer);

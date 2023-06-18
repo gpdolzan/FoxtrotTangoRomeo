@@ -219,6 +219,7 @@ int receiveFile(int socket, struct t_packet *packet)
 {
     int expectedSequence = 0;
     char path[100];
+    struct t_packet clientPacket;
     struct t_packet serverPacket;
 
     // Everything in path is 0
@@ -241,19 +242,19 @@ int receiveFile(int socket, struct t_packet *packet)
     while(1)
     {
         // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &serverPacket, 5) == 1)
+        if (readPacket(socket, &clientPacket, 5) == 1)
         {
             printf("Timeout dados do arquivo\n");
             return 1;
         }
         // Recebeu mensagem, verifica OK ou NACK
-        if(serverPacket.sequencia == expectedSequence)
+        if(clientPacket.sequencia == expectedSequence)
         {
-            if(serverPacket.tipo == DATA)
+            if(clientPacket.tipo == DATA)
             {
-                printf("Recebi DATA: %d -> %s\n", serverPacket.tamanho, serverPacket.dados);
+                printf("Recebi DATA: %d -> %s\n", clientPacket.tamanho, serverPacket.dados);
                 // write to file
-                fwrite(serverPacket.dados, 1, serverPacket.tamanho, file);
+                fwrite(clientPacket.dados, 1, clientPacket.tamanho, file);
                 // Send OK
                 createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
                 expectedSequence++;

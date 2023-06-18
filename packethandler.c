@@ -32,9 +32,12 @@ unsigned int calculateParity(struct t_packet *packet)
     parity ^= packet->tamanho;
     parity ^= packet->sequencia;
     parity ^= packet->tipo;
-    for (int i = 0; i < packet->tamanho; i++)
+    if(packet->tamanho > 0)
     {
-        parity ^= packet->dados[i];
+        for (int i = 0; i < packet->tamanho; i++)
+        {
+            parity ^= packet->dados[i];
+        }
     }
     return parity;
 }
@@ -128,7 +131,7 @@ int sendFile(int socket, char *filename)
             return 1;
         }
         // Recebeu mensagem, verifica OK ou NACK
-        if(serverPacket.sequencia == packet.sequencia)
+        if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
         {
             if(serverPacket.tipo == OK)
             {
@@ -140,6 +143,11 @@ int sendFile(int socket, char *filename)
                 // Enviar novamente
                 sendPacket(socket, &packet);
             }
+        }
+        else if(checkParity(&serverPacket) == 1)
+        {
+            // Enviar novamente
+            sendPacket(socket, &packet);
         }
     }
 
@@ -166,7 +174,7 @@ int sendFile(int socket, char *filename)
                 return 1;
             }
             // Recebeu mensagem, verifica OK ou NACK
-            if(serverPacket.sequencia == packet.sequencia)
+            if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
             {
                 if(serverPacket.tipo == OK)
                 {
@@ -178,6 +186,11 @@ int sendFile(int socket, char *filename)
                     // Enviar novamente
                     sendPacket(socket, &packet);
                 }
+            }
+            else if(checkParity(&serverPacket) == 1)
+            {
+                // Enviar novamente
+                sendPacket(socket, &packet);
             }
         }
 
@@ -198,7 +211,7 @@ int sendFile(int socket, char *filename)
             return 1;
         }
         // Recebeu mensagem, verifica OK ou NACK
-        if(serverPacket.sequencia == packet.sequencia)
+        if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
         {
             if(serverPacket.tipo == OK)
             {
@@ -210,6 +223,11 @@ int sendFile(int socket, char *filename)
                 // Enviar novamente
                 sendPacket(socket, &packet);
             }
+        }
+        else if(checkParity(&serverPacket) == 1)
+        {
+            // Enviar novamente
+            sendPacket(socket, &packet);
         }
     }
     return 0;
@@ -249,7 +267,7 @@ int receiveFile(int socket, struct t_packet *packet)
             return 1;
         }
         // Recebeu mensagem, verifica OK ou NACK
-        if(clientPacket.sequencia == expectedSequence)
+        if(clientPacket.sequencia == expectedSequence && checkParity(&serverPacket) == 0)
         {
             if(clientPacket.tipo == DATA)
             {
@@ -281,8 +299,16 @@ int receiveFile(int socket, struct t_packet *packet)
             {
                 printf("Recebi NACK\n");
                 // Enviar novamente
+                createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
                 sendPacket(socket, &serverPacket);
             }
+        }
+        else if(checkParity(&serverPacket) == 1)
+        {
+            printf("Recebi pacote com erro de paridade\n");
+            // Enviar novamente
+            createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
+            sendPacket(socket, &serverPacket);
         }
     }
     return 0;

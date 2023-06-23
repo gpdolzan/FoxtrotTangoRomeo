@@ -29,6 +29,9 @@
 #define ACK 14 // 1110
 #define NACK 15 // 1111
 
+#define SERVER 0
+#define CLIENT 1
+
 // Packet struct
 struct t_packet
 {
@@ -47,8 +50,8 @@ int checkParity(struct t_packet *packet);
 int sendPacket(int socket, struct t_packet *packet);
 int readPacket(int socket, struct t_packet *packet, unsigned int timeout);
 int checkFileExists(char *filename);
-int sendFile(int socket, char *filename); // PROJECT CRITICAL
-int receiveFile(int socket, struct t_packet *packet); // PROJECT CRITICAL
+int sendFile(int socket, char *filename, int filesize, int type); // PROJECT CRITICAL
+int receiveFile(int socket, char* filename, int filesize, int type); // PROJECT CRITICAL
 
 
 #endif // PACKETHANDLER_H

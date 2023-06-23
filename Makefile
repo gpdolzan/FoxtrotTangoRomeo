@@ -10,7 +10,7 @@ client: client.o $(objs)
 server: server.o $(objs)
 
 # regras de compilação
-client.o: client.c
+client.o: client.c client.h
 	cc -c client.c $(CFLAGS)
 server.o: server.c 
 	cc -c server.c $(CFLAGS)

@@ -26,7 +26,28 @@ int main(int argc, char const *argv[])
                 else
                 {
                     printf("RECEIVING\n");
-                    receiveFile(socket, &packet);
+                    receiveFile(socket, packet.dados, packet.tamanho, SERVER);
+                    printf("I FINISHED\n");
+                }
+            }
+        }
+        else if(packet.tipo == REC_1_ARQ)
+        {
+            if(packet.sequencia == 0) // Inicio de uma sequencia de pacotes
+            {
+                // Check parity
+                if(checkParity(&packet) == 1)
+                {
+                    printf("Erro de paridade\n");
+                    // Send NACK
+                    createPacket(&sPacket, 0, 0, NACK, NULL);
+                    sendPacket(socket, &sPacket);
+                }
+                else
+                {
+                    printf("SENDING\n");
+                    printPacket(&packet);
+                    sendFile(socket, packet.dados, packet.tamanho, SERVER);
                     printf("I FINISHED\n");
                 }
             }

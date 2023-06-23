@@ -117,12 +117,31 @@ int checkFileExists(char *filename)
         return 1;
 }
 
-int sendFile(int socket, char *filename)
+int sendFile(int socket, char *filename, int filesize, int type)
 {
+    if(type == SERVER)
+    {
+        // Take from received file
+        char *path = "received/";
+        char *newFilename = malloc(strlen(path) + filesize + 1);
+        // Using a for loop concatenate the path and filename
+        for (size_t i = 0; i < strlen(path); i++)
+        {
+            newFilename[i] = path[i];
+        }
+        for (size_t i = 0; i < strlen(filename); i++)
+        {
+            newFilename[i + strlen(path)] = filename[i];
+        }
+        newFilename[strlen(path) + filesize] = '\0';
+        filename = newFilename;
+        printf("Filename: %s\n", newFilename);
+    }
     FILE *file = fopen(filename, "rb");
     struct t_packet packet;
     struct t_packet serverPacket;
     int sequence = 0;
+    int tries = 5;
     // Enviar solicitacao de inicio de envio de arquivo para servidor
     // Send BACK_1_FILE
     createPacket(&packet, strlen(filename), sequence, BACK_1_FILE, filename);
@@ -130,7 +149,7 @@ int sendFile(int socket, char *filename)
     {
         sendPacket(socket, &packet);
         // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &serverPacket, 5) == 1)
+        if (readPacket(socket, &serverPacket, 1) == 1)
         {
             printf("Timeout Receber confirmacao de inicio\n");
             fclose(file);
@@ -161,6 +180,8 @@ int sendFile(int socket, char *filename)
     }
 
     printf("Loop de bytes de arquivo\n");
+    // print file path
+    printf("Enviando arquivo: %s\n", filename);
     // Loop de envio de bytes do arquivo
     while(1)
     {
@@ -176,11 +197,21 @@ int sendFile(int socket, char *filename)
         while(1)
         {
             // Aguardar resposta (talvez timeout)
-            if (readPacket(socket, &serverPacket, 5) == 1)
+            if (readPacket(socket, &serverPacket, 1) == 1)
             {
-                printf("Timeout enviar dados do arquivo\n");
-                fclose(file);
-                return 1;
+                if(tries <= 0)
+                {
+                    printf("Timeout enviar dados do arquivo\n");
+                    fclose(file);
+                    return 1;
+                }
+                tries--;
+                sendPacket(socket, &packet);
+                continue;
+            }
+            else
+            {
+                tries = 5;
             }
             // Recebeu mensagem, verifica OK ou NACK
             if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
@@ -218,7 +249,7 @@ int sendFile(int socket, char *filename)
     {
         sendPacket(socket, &packet);
         // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &serverPacket, 5) == 1)
+        if (readPacket(socket, &serverPacket, 1) == 1)
         {
             printf("Timeout receber confirmacao de fim\n");
             fclose(file);
@@ -247,19 +278,28 @@ int sendFile(int socket, char *filename)
     return 0;
 }
 
-int receiveFile(int socket, struct t_packet *packet)
+int receiveFile(int socket, char* filename, int filesize, int type)
 {
     int expectedSequence = 0;
     char path[100];
     struct t_packet clientPacket;
     struct t_packet serverPacket;
+    int tries = 5;
 
     // Everything in path is 0
     memset(path, 0, sizeof(path));
 
     // Add path and packet->dados to path
-    strcpy(path, "received/");
-    strncat(path, packet->dados, packet->tamanho);
+    if(type == SERVER)
+    {
+        strcpy(path, "received/");
+        strncat(path, filename, filesize);
+    }
+    else
+    {
+        strcpy(path, "receivedclient/");
+        strncat(path, filename, filesize);
+    }
 
     // Create file
     FILE *file = fopen(path, "wb");
@@ -274,11 +314,21 @@ int receiveFile(int socket, struct t_packet *packet)
     while(1)
     {
         // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &clientPacket, 5) == 1)
+        if (readPacket(socket, &clientPacket, 1) == 1)
         {
-            printf("Timeout dados do arquivo\n");
-            fclose(file);
-            return 1;
+            if(tries <= 0)
+            {
+                printf("Timeout dados do arquivo\n");
+                fclose(file);
+                return 1;
+            }
+            tries--;
+            sendPacket(socket, &serverPacket);
+            continue;
+        }
+        else
+        {
+            tries = 5;
         }
         // Recebeu mensagem, verifica OK ou NACK
         if(clientPacket.sequencia == expectedSequence && checkParity(&clientPacket) == 0)

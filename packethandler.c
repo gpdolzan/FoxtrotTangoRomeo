@@ -344,15 +344,7 @@ int receiveFile(int socket, char* filename, int filesize)
         {
             tries = 8;
         }
-
-        if(seq != serverPacket.sequencia)
-        {
-            printf("wrong sequence\n");
-            printPacket(&serverPacket);
-            printf("seq: %d\n", seq);
-            exit(1);
-        }
-
+        
         // Verificar se o pacote recebido e o esperado
         if (serverPacket.tipo == DATA && serverPacket.sequencia == seq && checkParity(&serverPacket) == 0)
         {
@@ -394,6 +386,12 @@ int receiveFile(int socket, char* filename, int filesize)
             createPacket(&myPacket, 0, seq, NACK, NULL);
             sendPacket(socket, &myPacket);
             continue;
+        }
+        else if(serverPacket.sequencia < seq)
+        {
+            // Mandar confirmacao
+            createPacket(&myPacket, 0, serverPacket.sequencia, OK, NULL);
+            sendPacket(socket, &myPacket);
         }
     }
     return 0;

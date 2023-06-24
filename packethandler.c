@@ -327,6 +327,7 @@ int receiveFile(int socket, char* filename, int filesize)
 
     // Envia pacote de confirmacao
     createPacket(&myPacket, 0, seq, OK, NULL);
+    sendPacket(socket, &myPacket);
 
     printf("data loop!\n");
     // Loop de recebimento de dados

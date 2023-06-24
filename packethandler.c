@@ -328,51 +328,6 @@ int receiveFile(int socket, char* filename, int filesize)
     // Envia pacote de confirmacao
     createPacket(&myPacket, 0, seq, OK, NULL);
 
-    printf("confirmation loop!\n");
-    // Loop de confirmacao
-    while(1)
-    {
-        sendPacket(socket, &myPacket);
-        // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &serverPacket, 1) == 1)
-        {
-            if(tries <= 0)
-            {
-                printf("Time exceeded, confirmation!\n");
-                return 1;
-            }
-            tries--;
-        }
-        else
-        {
-            tries = 8;
-        }
-
-        // Check parity
-        if(checkParity(&serverPacket) == 1)
-        {
-            // Send packet again
-            continue;
-        }
-        if (serverPacket.tipo == OK && serverPacket.sequencia == seq)
-        {
-            if(seq < 63)
-            {
-                seq++;
-            }
-            else
-            {
-                seq = 0;
-            }
-            break;
-        }
-        else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq)
-        {
-            // Resend packet
-            continue;
-        }
-    }
-
     printf("data loop!\n");
     // Loop de recebimento de dados
     while(1)

@@ -53,7 +53,7 @@ int checkParity(struct t_packet *packet);
 int sendPacket(int socket, struct t_packet *packet);
 int readPacket(int socket, struct t_packet *packet, unsigned int timeout);
 int checkFileExists(char *filename);
-int sendFile(int socket, char *filename, int filesize, int type); // PROJECT CRITICAL
+int sendFile(int socket, char *filename, int filesize); // PROJECT CRITICAL
 int receiveFile(int socket, char* filename, int filesize, int type); // PROJECT CRITICAL
 
 

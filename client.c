@@ -13,7 +13,7 @@ int sendFileWrapper(int socket, char *filename)
         return 1;
     }
 
-    if (sendFile(socket, filename, strlen(filename), CLIENT) == 0)
+    if (sendFile(socket, filename, strlen(filename)) == 0)
     {
         printf("File sent successfully\n");
         return 0;

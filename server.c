@@ -5,7 +5,7 @@ int main(int argc, char const *argv[])
 {
     int socket = ConexaoRawSocket("eno1");
     //int socket = ConexaoRawSocket("lo");
-    struct t_packet packet;
+    struct t_packet myPacket; // Packets I will send
     struct t_packet sPacket;
 
     struct timeval tv;
@@ -16,34 +16,32 @@ int main(int argc, char const *argv[])
 
     while(1)
     {
-        readPacket(socket, &packet, 0);
-        if(packet.tipo == BACK_1_FILE)
+        readPacket(socket, &myPacket, 0);
+        if(myPacket.tipo == BACK_1_FILE)
         {
-            if(packet.sequencia == 0) // Inicio de uma sequencia de pacotes
+            if(myPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
             {
                 // Check parity
-                if(checkParity(&packet) == 1)
+                if(checkParity(&myPacket) == 1)
                 {
-                    printPacket(&packet);
+                    printPacket(&myPacket);
                     exit(1);
-                    printf("Erro de paridade\n");
                     // Send NACK
                     createPacket(&sPacket, 0, 0, NACK, NULL);
                     sendPacket(socket, &sPacket);
                 }
                 else
                 {
-                    printf("caraiba\n");
                     // Create buffer
-                    char *buffer = (char *)malloc(packet.tamanho * sizeof(char));
+                    char *buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
                     // Copy data to buffer using for loop
-                    for(int i = 0; i < packet.tamanho; i++)
+                    for(int i = 0; i < myPacket.tamanho; i++)
                     {
-                        buffer[i] = packet.dados[i];
+                        buffer[i] = myPacket.dados[i];
                     }
         
                     printf("RECEIVING\n");
-                    if(receiveFile(socket, buffer, packet.tamanho, SERVER) == 1)
+                    if(receiveFile(socket, buffer, myPacket.tamanho, SERVER) == 1)
                     {
                         printf("Erro ao receber arquivo\n");
                     }
@@ -55,12 +53,12 @@ int main(int argc, char const *argv[])
                 }
             }
         }
-        else if(packet.tipo == REC_1_ARQ)
+        else if(myPacket.tipo == REC_1_ARQ)
         {
-            if(packet.sequencia == 0) // Inicio de uma sequencia de pacotes
+            if(myPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
             {
                 // Check parity
-                if(checkParity(&packet) == 1)
+                if(checkParity(&myPacket) == 1)
                 {
                     printf("Erro de paridade\n");
                     // Send NACK
@@ -70,15 +68,15 @@ int main(int argc, char const *argv[])
                 else
                 {
                     // Create buffer
-                    char *buffer = (char *)malloc(packet.tamanho * sizeof(char));
+                    char *buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
                     // Copy data to buffer using for loop
-                    for(int i = 0; i < packet.tamanho; i++)
+                    for(int i = 0; i < myPacket.tamanho; i++)
                     {
-                        buffer[i] = packet.dados[i];
+                        buffer[i] = myPacket.dados[i];
                     }
 
                     printf("SENDING\n");
-                    sendFile(socket, buffer, packet.tamanho, SERVER);
+                    sendFile(socket, buffer, myPacket.tamanho);
                     printf("I FINISHED\n");
                     free(buffer);
                 }

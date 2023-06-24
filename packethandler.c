@@ -318,97 +318,83 @@ int sendFile(int socket, char *filename, int filesize)
 
 int receiveFile(int socket, char* filename, int filesize)
 {
-    // Recebeu uma solicitacao de arquivo
-    int seq = 0;
-    struct t_packet myPacket; // Packets I will send
-    struct t_packet serverPacket; // Packets I will receive
+    int expectedSequence = 0;
+    struct t_packet clientPacket;
+    struct t_packet serverPacket;
     int tries = 8;
-    // Cria um arquivo com o nome recebido
+
+    // Create file
     FILE *file = fopen(filename, "wb");
-    if(file == NULL)
-    {
-        printf("Erro ao criar arquivo\n");
-        // SHOULD SEND ERROR MESSAGE
-        return 1;
-    }
 
-    // Envia pacote de confirmacao
-    createPacket(&myPacket, 0, seq, OK, NULL);
-    sendPacket(socket, &myPacket);
-    if(seq < 63)
-        seq++;
-    else
-        seq = 0;
+    // Send OK
+    createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
 
-    printf("data loop!\n");
-    // Loop de recebimento de dados
+    // Loop de recebimento de bytes do arquivo
+    printf("Loop de bytes de arquivo\n");
+    sendPacket(socket, &serverPacket);
+    expectedSequence++;
     while(1)
     {
-        // Aguardar pacote
-        if (readPacket(socket, &serverPacket, 1) == 1)
+        // Aguardar resposta (talvez timeout)
+        if (readPacket(socket, &clientPacket, 1) == 1)
         {
             if(tries <= 0)
             {
-                printf("Time exceeded, receive data!\n");
+                printf("Timeout dados do arquivo\n");
+                fclose(file);
                 return 1;
             }
             tries--;
-            createPacket(&myPacket, 0, seq, NACK, NULL);
-            // Enviar pacote de confirmacao
-            sendPacket(socket, &myPacket);
+            sendPacket(socket, &serverPacket);
+            continue;
         }
         else
         {
-            tries = 8;
+            tries = 5;
         }
+        // Recebeu mensagem, verifica OK ou NACK
+        if(clientPacket.sequencia == expectedSequence && checkParity(&clientPacket) == 0)
+        {
+            if(clientPacket.tipo == DATA)
+            {
+                // Create a buffer
+                char *buffer = malloc(clientPacket.tamanho);
+                memcpy(buffer, clientPacket.dados, clientPacket.tamanho);
+                // Write buffer to file
+                fwrite(buffer, 1, clientPacket.tamanho, file);
+                free(buffer);
 
-        // Check parity
-        if(checkParity(&serverPacket) == 1)
-        {
-            // Send packet again
-            continue;
-        }
-        // Verificar se o pacote recebido e o esperado
-        if (serverPacket.tipo == DATA && serverPacket.sequencia == seq)
-        {
-            // Colocar dados em um buffer
-            char *buffer = malloc(serverPacket.tamanho * sizeof(char));
-            // For loop
-            for(int i = 0; i < serverPacket.tamanho; i++)
-            {
-                buffer[i] = serverPacket.dados[i];
+                // Send OK
+                createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
+                sendPacket(socket, &serverPacket);
+                if(expectedSequence < 63)
+                    expectedSequence++;
+                else
+                    expectedSequence = 0;
             }
-            // Escrever dados no arquivo
-            fwrite(buffer, 1, serverPacket.tamanho, file);
-            free(buffer);
-            // Criar pacote de confirmacao
-            createPacket(&myPacket, 0, seq, OK, NULL);
-            // Enviar pacote de confirmacao
-            sendPacket(socket, &myPacket);
-            // Atualizar sequencia
-            if(seq < 63)
+            else if(clientPacket.tipo == FIM_ARQ)
             {
-                seq++;
+                printf("Recebi FIM_ARQ\n");
+                fclose(file);
+                // Send OK
+                createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
+                sendPacket(socket, &serverPacket);
+                break;
             }
-            else
+            else if(clientPacket.tipo == NACK)
             {
-                seq = 0;
+                printf("Recebi NACK\n");
+                // Enviar novamente
+                createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
+                sendPacket(socket, &serverPacket);
             }
         }
-        else if (serverPacket.tipo == FIM_ARQ && serverPacket.sequencia == seq)
+        else if(checkParity(&clientPacket) == 1)
         {
-            // Fecha arquivo
-            fclose(file);
-            // Mandar confirmacao
-            createPacket(&myPacket, 0, seq, OK, NULL);
-            sendPacket(socket, &myPacket);
-            break;
-        }
-        else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq)
-        {
-            createPacket(&myPacket, 0, seq, NACK, NULL);
-            sendPacket(socket, &myPacket);
-            continue;
+            printf("Paridade recebida: %d\n", clientPacket.paridade);
+            // Enviar novamente
+            createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
+            sendPacket(socket, &serverPacket);
         }
     }
     return 0;

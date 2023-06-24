@@ -19,11 +19,10 @@ int main(int argc, char const *argv[])
 
     // Set server directory as /received
     
-    if(chdir("serverdir") != 0)
-    {
-        mkdir("serverdir", 0777);
-        chdir("serverdir");
-    }
+    const char *dirname = "serverdir";
+    mode_t target_mode = 0777;
+    if (mkdir(dirname, 0) == 0)
+        chmod(dirname, target_mode);
 
     printf("[SERVER-CLI] Servidor Funcionando!\n");
     getcwd(sdirectory, sizeof(sdirectory));

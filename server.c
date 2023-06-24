@@ -73,6 +73,40 @@ int main(int argc, char const *argv[])
                 }
             }
         }
+        else if(myPacket.tipo == BACK_PLUS_1_FILE)
+        {
+            int nFiles = myPacket.sequencia;
+            // Send OK
+            createPacket(&sPacket, 0, 0, OK, NULL);
+            sendPacket(socket, &sPacket);
+            for(int i = 0; i < nFiles; i++)
+            {
+                // Create buffer
+                char *buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
+                // Copy data to buffer using for loop
+                for(int i = 0; i < myPacket.tamanho; i++)
+                {
+                    buffer[i] = myPacket.dados[i];
+                }
+                // Create a temporary buffer that concatenates server directory and file name
+                char *tempBuffer = (char *)malloc((strlen(buffer) + (strlen(sdirectory) + 1) * sizeof(char)));
+                strcpy(tempBuffer, sdirectory);
+                strcat(tempBuffer, "/");
+                strcat(tempBuffer, buffer);
+        
+                printf("Saving file %s on directory %s\n", buffer, sdirectory);
+                printf("Final directory: %s\n", tempBuffer);
+                if(receiveFile(socket, tempBuffer, strlen(tempBuffer)) == 1)
+                {
+                    printf("Erro ao receber arquivo\n");
+                }
+                else
+                {
+                    printf("Arquivo recebido com sucesso\n");
+                }
+                free(buffer);
+            }
+        }
         else if(myPacket.tipo == REC_1_ARQ)
         {
             if(myPacket.sequencia == 0) // Inicio de uma sequencia de pacotes

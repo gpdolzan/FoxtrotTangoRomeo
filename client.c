@@ -175,6 +175,29 @@ int clientCommands(int socket, char **args, int wordCount)
     {
         if(wordCount == 2)
         {
+            // Check if string has a * in it
+            if(strchr(args[1], '*') != NULL)
+            {
+                // Use glob to get all files
+                glob_t globbuf;
+                glob(args[1], 0, NULL, &globbuf);
+                // Using an integer count how many files were found
+                int count = globbuf.gl_pathc;
+                printf("[CLIENT-CLI] Sending %d files\n", count);
+                for(int i = 0; i < count; i++)
+                {
+                    // Send each file
+                    if(sendFileWrapper(socket, globbuf.gl_pathv[i]) == 0)
+                    {
+                        printf("[CLIENT-CLI] Arquivo %s enviado com sucesso!\n", globbuf.gl_pathv[i]);
+                    }
+                    else
+                    {
+                        printf("[CLIENT-CLI] Erro ao enviar arquivo %s\n", globbuf.gl_pathv[i]);
+                    }
+                }
+            }
+            else
             if(sendFileWrapper(socket, args[1]) == 0)
             {
                 printf("[CLIENT-CLI] Arquivo enviado com sucesso!\n");

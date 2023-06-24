@@ -314,6 +314,7 @@ int receiveFile(int socket, char* filename, int filesize)
             {
                 printf("Timeout dados do arquivo\n");
                 fclose(file);
+                remove(filename);
                 return 1;
             }
             tries--;

@@ -187,13 +187,14 @@ int clientCommands(int socket, char **args, int wordCount)
                 for(int i = 0; i < count; i++)
                 {
                     // Send each file
-                    // Check if glob is file or directory
-                    if(globbuf.gl_pathv[i][strlen(globbuf.gl_pathv[i]) - 1] == '/')
+                    // Using C function to test if string is a directory
+                    DIR* directory = opendir(globbuf.gl_pathv[i]);
+                    if(directory != NULL)
                     {
-                        printf("[CLIENT-CLI] %s is a directory, skipping\n", globbuf.gl_pathv[i]);
+                        closedir(directory);
                         continue;
                     }
-                    
+
                     if(sendFileWrapper(socket, globbuf.gl_pathv[i]) == 0)
                     {
                         printf("[CLIENT-CLI] Arquivo %s enviado com sucesso!\n", globbuf.gl_pathv[i]);

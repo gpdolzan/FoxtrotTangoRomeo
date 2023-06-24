@@ -182,6 +182,13 @@ int sendFile(int socket, char *filename, int filesize)
         {
             tries = 8;
         }
+
+        if(seq != serverPacket.sequencia)
+        {
+            printf("wrong sequence\n");
+            printPacket(&serverPacket);
+            exit(1);
+        }
         
         // Check parity
         if(checkParity(&serverPacket) == 1)
@@ -230,7 +237,6 @@ int sendFile(int socket, char *filename, int filesize)
                     printf("Time exceeded, file data!\n");
                     return 1;
                 }
-                sendPacket(socket, &myPacket);
                 tries--;
             }
             else
@@ -318,88 +324,97 @@ int sendFile(int socket, char *filename, int filesize)
 
 int receiveFile(int socket, char* filename, int filesize)
 {
-    int expectedSequence = 0;
-    struct t_packet clientPacket;
-    struct t_packet serverPacket;
+    // Recebeu uma solicitacao de arquivo
+    int seq = 0;
+    struct t_packet myPacket; // Packets I will send
+    struct t_packet serverPacket; // Packets I will receive
     int tries = 8;
-
-    // Create file
+    // Cria um arquivo com o nome recebido
     FILE *file = fopen(filename, "wb");
+    if(file == NULL)
+    {
+        printf("Erro ao criar arquivo\n");
+        // SHOULD SEND ERROR MESSAGE
+        return 1;
+    }
 
-    // Send OK
-    createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
+    // Envia pacote de confirmacao
+    createPacket(&myPacket, 0, seq, OK, NULL);
+    sendPacket(socket, &myPacket);
+    if(seq < 63)
+        seq++;
+    else
+        seq = 0;
 
-    // Loop de recebimento de bytes do arquivo
-    printf("Loop de bytes de arquivo\n");
-    sendPacket(socket, &serverPacket);
+    printf("data loop!\n");
+    // Loop de recebimento de dados
     while(1)
     {
-        // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &clientPacket, 1) == 1)
+        // Aguardar pacote
+        if (readPacket(socket, &serverPacket, 1) == 1)
         {
-            printPacket(&clientPacket);
-            printf("expected seq: %d\n", expectedSequence);
             if(tries <= 0)
             {
-                printf("Timeout dados do arquivo\n");
-                fclose(file);
+                printf("Time exceeded, receive data!\n");
                 return 1;
             }
             tries--;
-            sendPacket(socket, &serverPacket);
-            continue;
+            createPacket(&myPacket, 0, seq, NACK, NULL);
+            // Enviar pacote de confirmacao
+            sendPacket(socket, &myPacket);
         }
         else
         {
-            tries = 5;
+            tries = 8;
         }
-        // Recebeu mensagem, verifica OK ou NACK
-        if(clientPacket.sequencia == expectedSequence && checkParity(&clientPacket) == 0)
-        {
-            if(clientPacket.tipo == DATA)
-            {
-                // Create a buffer
-                char *buffer = malloc(clientPacket.tamanho);
-                // Do a for loop to copy the data
-                for(int i = 0; i < clientPacket.tamanho; i++)
-                {
-                    buffer[i] = clientPacket.dados[i];
-                }
-                // Write buffer to file
-                fwrite(buffer, 1, clientPacket.tamanho, file);
-                free(buffer);
 
-                // Send OK
-                createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
-                sendPacket(socket, &serverPacket);
-                if(expectedSequence < 63)
-                    expectedSequence++;
-                else
-                    expectedSequence = 0;
-            }
-            else if(clientPacket.tipo == FIM_ARQ)
+        // Check parity
+        if(checkParity(&serverPacket) == 1)
+        {
+            // Send packet again
+            continue;
+        }
+        // Verificar se o pacote recebido e o esperado
+        if (serverPacket.tipo == DATA && serverPacket.sequencia == seq)
+        {
+            // Colocar dados em um buffer
+            char *buffer = malloc(serverPacket.tamanho * sizeof(char));
+            // For loop
+            for(int i = 0; i < serverPacket.tamanho; i++)
             {
-                printf("Recebi FIM_ARQ\n");
-                fclose(file);
-                // Send OK
-                createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
-                sendPacket(socket, &serverPacket);
-                break;
+                buffer[i] = serverPacket.dados[i];
             }
-            else if(clientPacket.tipo == NACK)
+            // Escrever dados no arquivo
+            fwrite(buffer, 1, serverPacket.tamanho, file);
+            free(buffer);
+            // Criar pacote de confirmacao
+            createPacket(&myPacket, 0, seq, OK, NULL);
+            // Enviar pacote de confirmacao
+            sendPacket(socket, &myPacket);
+            // Atualizar sequencia
+            if(seq < 63)
             {
-                printf("Recebi NACK\n");
-                // Enviar novamente
-                createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
-                sendPacket(socket, &serverPacket);
+                seq++;
+            }
+            else
+            {
+                seq = 0;
             }
         }
-        else if(checkParity(&clientPacket) == 1)
+        else if (serverPacket.tipo == FIM_ARQ && serverPacket.sequencia == seq)
         {
-            printf("Paridade recebida: %d\n", clientPacket.paridade);
-            // Enviar novamente
-            createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
-            sendPacket(socket, &serverPacket);
+            // Fecha arquivo
+            fclose(file);
+            // Mandar confirmacao
+            createPacket(&myPacket, 0, seq, OK, NULL);
+            sendPacket(socket, &myPacket);
+            break;
+        }
+        else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq)
+        {
+            createPacket(&myPacket, 0, seq, NACK, NULL);
+            sendPacket(socket, &myPacket);
+            continue;
         }
     }
     return 0;

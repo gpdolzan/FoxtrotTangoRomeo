@@ -1,5 +1,6 @@
 #include "rawsocket.h"
 #include "packethandler.h"
+#include "md5.h"
 
 // Global variables
 char sdirectory[1024]; // Server directory

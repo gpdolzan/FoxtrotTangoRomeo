@@ -1,6 +1,7 @@
 #include "rawsocket.h"
 #include "packethandler.h"
 #include "client.h"
+#include "md5.h"
 
 #define BUFFER_SIZE 1024
 
@@ -249,7 +250,7 @@ int clientCommands(int socket, char **args, int wordCount)
             printf("[CLIENT-CLI] voce precisa especificar o algum diretorio\n");
         }
     }
-    else if (strcmp(args[0], "scd") == 0)
+    else if (strcmp(args[0], "sdir") == 0)
     {
 
     }
@@ -264,7 +265,62 @@ int clientCommands(int socket, char **args, int wordCount)
     }
     else if (strcmp(args[0], "md5") == 0)
     {
-        
+        if(wordCount < 2)
+        {
+            printf("[CLIENT-CLI] voce precisa especificar o algum arquivo\n");
+        }
+        else
+        {
+            // Create file with args[1] name
+            FILE *file = fopen(args[1], "r");
+            if(file == NULL)
+            {
+                printf("[CLIENT-CLI] Arquivo local %s nao encontrado\n", args[1]);
+            }
+            else
+            {
+                // Create a uint8_t array with 16 bytes
+                uint8_t *hash = malloc(16);
+                // Using md5file function to get md5 hash
+                md5File(file, hash);
+                printf("[CLIENT-CLI] Hash md5 do arquivo LOCAL %s: ", args[1]);
+                // For loop to print hash
+                for(int i = 0; i < 16; i++)
+                {
+                    printf("%02x", hash[i]);
+                }
+                printf("\n");
+                free(hash);
+
+                // Create packet VERIFICA_BACK
+                struct t_packet packet;
+                createPacket(&packet, strlen(args[1]), 0, VERIFICA_BACK, args[1]);
+                // Send packet
+                sendPacket(socket, &packet);
+
+                // Receive packet
+                readPacket(socket, &packet, 1);
+                // Check if packet is a MD5
+                if(packet.tipo == MD5)
+                {
+                    printf("[CLIENT-CLI] Hash md5 do arquivo REMOTO %s: ", args[1]);
+                    // Create buffer to store hash
+                    uint8_t *hash = malloc(16);
+                    // Copy hash from packet to buffer
+                    memcpy(hash, packet.dados, 16);
+                    // For loop to print hash
+                    for(int i = 0; i < 16; i++)
+                    {
+                        printf("%02x", hash[i]);
+                    }
+                    printf("\n");
+                }
+                else
+                {
+                    printf("[CLIENT-CLI] Erro ao receber hash md5 do arquivo REMOTO %s\n", args[1]);
+                }
+            }
+        }
     }
     else if (strcmp(args[0], "help") == 0)
     {
@@ -273,7 +329,7 @@ int clientCommands(int socket, char **args, int wordCount)
         printf("[CLIENT-CLI]\tsend <file or files> - enviar arquivos para o servidor\n");
         printf("[CLIENT-CLI]\tget <file or files> - baixar arquivos do servidor\n");
         printf("[CLIENT-CLI]\tcd <directory> - mudar diretorio local\n");
-        printf("[CLIENT-CLI]\tscd <directory> - mudar diretorio no servidor\n");
+        printf("[CLIENT-CLI]\tsdir <directory> - mudar diretorio no servidor\n");
         printf("[CLIENT-CLI]\tls - listar diretorio corrente\n");
         printf("[CLIENT-CLI]\tcls ou clear - limpar tela\n");
     }

@@ -306,8 +306,11 @@ int clientCommands(int socket, char **args, int wordCount)
                     printf("[CLIENT-CLI] Hash md5 do arquivo REMOTO %s: ", args[1]);
                     // Create buffer to store hash
                     uint8_t *hash = malloc(16);
-                    // Copy hash from packet to buffer
-                    memcpy(hash, packet.dados, 16);
+                    // For loop
+                    for(int i = 0; i < 16; i++)
+                    {
+                        hash[i] = packet.dados[i];
+                    }
                     // For loop to print hash
                     for(int i = 0; i < 16; i++)
                     {

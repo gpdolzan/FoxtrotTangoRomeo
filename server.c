@@ -78,7 +78,6 @@ int main(int argc, char const *argv[])
                     }
 
                     printf("SENDING\n");
-                    printPacket(&packet);
                     sendFile(socket, buffer, packet.tamanho, SERVER);
                     printf("I FINISHED\n");
                     free(buffer);

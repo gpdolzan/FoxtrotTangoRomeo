@@ -174,6 +174,8 @@ int sendFile(int socket, char *filename, int filesize, int type)
     createPacket(&packet, strlen(filename), sequence, BACK_1_FILE, filename);
     while(1)
     {
+        if(type == SERVER)
+            break;
         sendPacket(socket, &packet);
         // Aguardar resposta (talvez timeout)
         if (readPacket(socket, &serverPacket, 1) == 1)

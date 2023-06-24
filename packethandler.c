@@ -182,13 +182,6 @@ int sendFile(int socket, char *filename, int filesize)
         {
             tries = 8;
         }
-
-        if(seq != serverPacket.sequencia)
-        {
-            printf("wrong sequence\n");
-            printPacket(&serverPacket);
-            exit(1);
-        }
         
         // Check parity
         if(checkParity(&serverPacket) == 1)
@@ -333,7 +326,7 @@ int sendFile(int socket, char *filename, int filesize)
 int receiveFile(int socket, char* filename, int filesize)
 {
     // Recebeu uma solicitacao de arquivo
-    int seq = 0;
+    int seq = 1;
     struct t_packet myPacket; // Packets I will send
     struct t_packet serverPacket; // Packets I will receive
     int tries = 8;

@@ -201,7 +201,7 @@ int sendFile(int socket, char *filename, int filesize)
         }
         else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq)
         {
-            // Send packet again
+            printf("reenviando pacote!\n");
             continue;
         }
     }
@@ -352,6 +352,9 @@ int receiveFile(int socket, char* filename, int filesize)
                 return 1;
             }
             tries--;
+            createPacket(&myPacket, 0, seq, NACK, NULL);
+            // Enviar pacote de confirmacao
+            sendPacket(socket, &myPacket);
         }
         else
         {

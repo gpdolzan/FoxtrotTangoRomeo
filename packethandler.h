@@ -11,6 +11,8 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #define MAX_PACKET_SIZE 63
 

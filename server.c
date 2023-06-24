@@ -18,13 +18,16 @@ int main(int argc, char const *argv[])
     setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof tv);
 
     // Set server directory as /received
-    if(chdir("received") == 1)
+    
+    if(chdir("server") != 0)
     {
-        printf("[SERVER-CLI] Erro ao mudar padrao do servidor\n");
-        exit(1);
+        mkdir("server", 0777);
+        chdir("server");
     }
 
     printf("[SERVER-CLI] Servidor Funcionando!\n");
+    getcwd(sdirectory, sizeof(sdirectory));
+    printf("[SERVER-CLI] Diretorio do servidor: %s\n", sdirectory);
     while(1)
     {
         readPacket(socket, &myPacket, 0);
@@ -52,10 +55,13 @@ int main(int argc, char const *argv[])
                     }
                     // Create a temporary buffer that concatenates server directory and file name
                     char *tempBuffer = (char *)malloc((strlen(buffer) + (strlen(sdirectory) + 1) * sizeof(char)));
-                    
+                    strcpy(tempBuffer, sdirectory);
+                    strcat(tempBuffer, "/");
+                    strcat(tempBuffer, buffer);
         
-                    printf("RECEIVING\n");
-                    if(receiveFile(socket, buffer, myPacket.tamanho) == 1)
+                    printf("Saving file %s on directory %s\n", buffer, sdirectory);
+                    printf("Final directory: %s\n", tempBuffer);
+                    if(receiveFile(socket, tempBuffer, strlen(tempBuffer)) == 1)
                     {
                         printf("Erro ao receber arquivo\n");
                     }
@@ -88,9 +94,14 @@ int main(int argc, char const *argv[])
                     {
                         buffer[i] = myPacket.dados[i];
                     }
+                    // Create a temporary buffer that concatenates server directory and file name
+                    char *tempBuffer = (char *)malloc((strlen(buffer) + (strlen(sdirectory) + 1) * sizeof(char)));
+                    strcpy(tempBuffer, sdirectory);
+                    strcat(tempBuffer, "/");
+                    strcat(tempBuffer, buffer);
 
                     printf("SENDING\n");
-                    sendFile(socket, buffer, myPacket.tamanho);
+                    sendFile(socket, tempBuffer, strlen(tempBuffer));
                     printf("I FINISHED\n");
                     free(buffer);
                 }

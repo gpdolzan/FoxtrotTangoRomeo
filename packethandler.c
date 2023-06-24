@@ -359,7 +359,11 @@ int receiveFile(int socket, char* filename, int filesize)
             {
                 // Create a buffer
                 char *buffer = malloc(clientPacket.tamanho);
-                memcpy(buffer, clientPacket.dados, clientPacket.tamanho);
+                // Do a for loop to copy the data
+                for(int i = 0; i < clientPacket.tamanho; i++)
+                {
+                    buffer[i] = clientPacket.dados[i];
+                }
                 // Write buffer to file
                 fwrite(buffer, 1, clientPacket.tamanho, file);
                 free(buffer);

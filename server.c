@@ -1,10 +1,13 @@
 #include "rawsocket.h"
 #include "packethandler.h"
 
+// Global variables
+char sdirectory[1024]; // Server directory
+
 int main(int argc, char const *argv[])
 {
-    int socket = ConexaoRawSocket("eno1");
-    //int socket = ConexaoRawSocket("lo");
+    //int socket = ConexaoRawSocket("eno1");
+    int socket = ConexaoRawSocket("lo");
     struct t_packet myPacket; // Packets I will send
     struct t_packet sPacket;
 
@@ -14,6 +17,14 @@ int main(int argc, char const *argv[])
     setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
     setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof tv);
 
+    // Set server directory as /received
+    if(chdir("received") == 1)
+    {
+        printf("[SERVER-CLI] Erro ao mudar padrao do servidor\n");
+        exit(1);
+    }
+
+    printf("[SERVER-CLI] Servidor Funcionando!\n");
     while(1)
     {
         readPacket(socket, &myPacket, 0);
@@ -39,9 +50,12 @@ int main(int argc, char const *argv[])
                     {
                         buffer[i] = myPacket.dados[i];
                     }
+                    // Create a temporary buffer that concatenates server directory and file name
+                    char *tempBuffer = (char *)malloc((strlen(buffer) + (strlen(sdirectory) + 1) * sizeof(char)));
+                    
         
                     printf("RECEIVING\n");
-                    if(receiveFile(socket, buffer, myPacket.tamanho, SERVER) == 1)
+                    if(receiveFile(socket, buffer, myPacket.tamanho) == 1)
                     {
                         printf("Erro ao receber arquivo\n");
                     }

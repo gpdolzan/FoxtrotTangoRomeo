@@ -9,10 +9,11 @@ int sendFileWrapper(int socket, char *filename)
     // Check if file exists
     if(checkFileExists(filename) == 1)
     {
-        printf("File does not exist\n");
+        printf("[CLIENT-CLI] Arquivo %s nao existe\n", filename);
         return 1;
     }
 
+    printf("[CLIENT-CLI] Enviando arquivo %s!\n", filename);
     if (sendFile(socket, filename, strlen(filename)) == 0)
     {
         printf("File sent successfully\n");
@@ -50,7 +51,7 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
         tries = 8;
     }
 
-    if (receiveFile(socket, filename, filesize, CLIENT) == 0)
+    if (receiveFile(socket, filename, filesize) == 0)
     {
         printf("File received successfully\n");
         return 0;
@@ -61,19 +62,6 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
         return 1;
     }
 }
-
-/*int main(int argc, char const *argv[])
-{
-    //int socket = ConexaoRawSocket("enp5s0");
-    int socket = ConexaoRawSocket("lo");
-    // get input from user
-    char input[31];
-    // Set everything in buffer to 0
-    memset(input, 0, sizeof(input));
-    printf("Enter a filename: ");
-    scanf("%31s", input);
-    
-}*/
 
 // Get wordcount from buffer
 int getWordCount(char *buffer)
@@ -172,7 +160,10 @@ int clientCommands(int socket, char **args, int wordCount)
 {
     if(strcmp(args[0], "exit") == 0)
     {
-        printf("[CLIENT-CLI] See ya!\n");
+        // Get username from computer
+        char username[32];
+        getlogin_r(username, 32);
+        printf("[CLIENT-CLI] Ate a proxima %s!\n", username);
         // Free args
         for(int i = 0; i < wordCount; i++)
         {
@@ -187,11 +178,7 @@ int clientCommands(int socket, char **args, int wordCount)
         {
             if(sendFileWrapper(socket, args[1]) == 0)
             {
-                printf("[CLIENT-CLI] File sent successfully\n");
-            }
-            else
-            {
-                printf("[CLIENT-CLI] Error sending file\n");
+                printf("[CLIENT-CLI] Arquivo enviado com sucesso!\n");
             }
         }
     }
@@ -221,10 +208,6 @@ int clientCommands(int socket, char **args, int wordCount)
             if(chdir(args[1]) == 0)
             {
                 printf("[CLIENT-CLI] Diretorio modificado com sucesso\n");
-                // Mostrar diretorio atual
-                char cwd[1024];
-                getcwd(cwd, sizeof(cwd));
-                printf("[CLIENT-CLI] Diretorio Atual: %s\n", cwd);
             }
             else
             {
@@ -233,9 +216,7 @@ int clientCommands(int socket, char **args, int wordCount)
         }
         else if(wordCount < 2)
         {
-            char cwd[1024];
-            getcwd(cwd, sizeof(cwd));
-            printf("[CLIENT-CLI] Diretorio Atual: %s\n", cwd);
+            printf("[CLIENT-CLI] voce precisa especificar o algum diretorio\n");
         }
     }
     else if (strcmp(args[0], "scd") == 0)
@@ -251,16 +232,20 @@ int clientCommands(int socket, char **args, int wordCount)
     {
         clear();
     }
+    else if (strcmp(args[0], "md5") == 0)
+    {
+        
+    }
     else if (strcmp(args[0], "help") == 0)
     {
         printf("[CLIENT-CLI] Comandos:\n");
-        printf("\texit - sair do programa\n");
-        printf("\tsend <file or files> - enviar arquivos para o servidor\n");
-        printf("\tget <file or files> - baixar arquivos do servidor\n");
-        printf("\tcd <directory> - mudar diretorio local\n");
-        printf("\tscd <directory> - mudar diretorio no servidor\n");
-        printf("\tls - listar diretorio corrente\n");
-        printf("\tcls ou clear - limpar tela\n");
+        printf("[CLIENT-CLI]\texit - sair do programa\n");
+        printf("[CLIENT-CLI]\tsend <file or files> - enviar arquivos para o servidor\n");
+        printf("[CLIENT-CLI]\tget <file or files> - baixar arquivos do servidor\n");
+        printf("[CLIENT-CLI]\tcd <directory> - mudar diretorio local\n");
+        printf("[CLIENT-CLI]\tscd <directory> - mudar diretorio no servidor\n");
+        printf("[CLIENT-CLI]\tls - listar diretorio corrente\n");
+        printf("[CLIENT-CLI]\tcls ou clear - limpar tela\n");
     }
     else
     {
@@ -270,8 +255,8 @@ int clientCommands(int socket, char **args, int wordCount)
 
 int main(int argc, char const *argv[])
 {
-    int socket = ConexaoRawSocket("enp5s0");
-    //int socket = ConexaoRawSocket("lo");
+    //int socket = ConexaoRawSocket("enp5s0");
+    int socket = ConexaoRawSocket("lo");
     int wordCount;
     char buffer[1024];
     char **args;
@@ -287,26 +272,16 @@ int main(int argc, char const *argv[])
     clear();
     while(1)
     {
-        printf("[CLIENT-CLI] > ");
+        // Get path
+        char cwd[1024];
+        getcwd(cwd, sizeof(cwd));
+        printf("[%s] > ", cwd);
         // Clean buffer
         memset(buffer, 0, sizeof(buffer));
         // fgets buffer
         fgets(buffer, BUFFER_SIZE, stdin);
         // Remove newline from buffer
         buffer[strcspn(buffer, "\n")] = 0;
-
-        // Check for CTRL+D
-        if(feof(stdin))
-        {
-            printf("\n[CLIENT-CLI] See ya!\n");
-            // Free args using wordCount
-            for(int i = 0; i < wordCount; i++)
-            {
-                free(args[i]);
-            }
-            free(args);
-            exit(0);
-        }
 
         // Get word count
         wordCount = getWordCount(buffer);

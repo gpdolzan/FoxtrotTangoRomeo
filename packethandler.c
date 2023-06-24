@@ -244,6 +244,13 @@ int sendFile(int socket, char *filename, int filesize)
                 tries = 8;
             }
 
+            if(seq != serverPacket.sequencia)
+            {
+                printf("wrong sequence\n");
+                printPacket(&serverPacket);
+                exit(1);
+            }
+
             // Check parity
             if(checkParity(&serverPacket) == 1)
             {   
@@ -366,6 +373,13 @@ int receiveFile(int socket, char* filename, int filesize)
         else
         {
             tries = 8;
+        }
+
+        if(seq != serverPacket.sequencia)
+        {
+            printf("wrong sequence\n");
+            printPacket(&serverPacket);
+            exit(1);
         }
 
         // Check parity

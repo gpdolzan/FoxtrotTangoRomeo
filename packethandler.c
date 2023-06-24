@@ -193,10 +193,6 @@ int sendFile(int socket, char *filename, int filesize)
         }
         if (serverPacket.tipo == OK && serverPacket.sequencia == seq)
         {
-            if(seq < 63)
-                seq++;
-            else
-                seq = 0;
             break;
         }
         else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq)
@@ -326,7 +322,7 @@ int sendFile(int socket, char *filename, int filesize)
 int receiveFile(int socket, char* filename, int filesize)
 {
     // Recebeu uma solicitacao de arquivo
-    int seq = 1;
+    int seq = 0;
     struct t_packet myPacket; // Packets I will send
     struct t_packet serverPacket; // Packets I will receive
     int tries = 8;
@@ -342,10 +338,6 @@ int receiveFile(int socket, char* filename, int filesize)
     // Envia pacote de confirmacao
     createPacket(&myPacket, 0, seq, OK, NULL);
     sendPacket(socket, &myPacket);
-    if(seq < 63)
-        seq++;
-    else
-        seq = 0;
 
     printf("data loop!\n");
     // Loop de recebimento de dados

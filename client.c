@@ -43,7 +43,7 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
         {
             if(serverPacket.tipo == BACK_1_FILE)
             {
-                printf("RECEBI BACK_1_FILE!\n");
+                print("RECEBI BACK_1_FILE!\n");
                 break;
             }
         }

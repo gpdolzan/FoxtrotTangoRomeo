@@ -393,62 +393,11 @@ int receiveFile(int socket, char* filename, int filesize)
         }
         else if (serverPacket.tipo == FIM_ARQ && serverPacket.sequencia == seq)
         {
-            if(seq < 63)
-            {
-                seq++;
-            }
-            else
-            {
-                seq = 0;
-            }
-            break;
-        }
-        else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq)
-        {
-            // Resend packet
-            continue;
-        }
-    }
-
-    printf("final confirmation loop!\n");
-    // Loop de envio de confirmacao de fim
-    while(1)
-    {
-        // Criar pacote de confirmacao
-        createPacket(&myPacket, 0, seq, OK, NULL);
-        // Enviar pacote de confirmacao
-        sendPacket(socket, &myPacket);
-        // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &serverPacket, 1) == 1)
-        {
-            if(tries <= 0)
-            {
-                printf("Time exceeded, final confirmation!\n");
-                return 1;
-            }
-            tries--;
-        }
-        else
-        {
-            tries = 8;
-        }
-
-        // Check parity
-        if(checkParity(&serverPacket) == 1)
-        {
-            // Send packet again
-            continue;
-        }
-        if (serverPacket.tipo == OK && serverPacket.sequencia == seq)
-        {
-            if(seq < 63)
-            {
-                seq++;
-            }
-            else
-            {
-                seq = 0;
-            }
+            // Fecha arquivo
+            fclose(file);
+            // Mandar confirmacao
+            createPacket(&myPacket, 0, seq, OK, NULL);
+            sendPacket(socket, &myPacket);
             break;
         }
         else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq)

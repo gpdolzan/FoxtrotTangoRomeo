@@ -232,23 +232,8 @@ int sendFile(int socket, char *filename, int filesize)
             {
                 tries = 8;
             }
-
-            if(seq != serverPacket.sequencia)
-            {
-                printf("wrong sequence\n");
-                printPacket(&serverPacket);
-                printf("seq: %d\n", seq);
-                exit(1);
-            }
-
-            // Check parity
-            if(checkParity(&serverPacket) == 1)
-            {   
-                // Send packet again
-                continue;
-            }
             
-            if (serverPacket.tipo == OK && serverPacket.sequencia == seq)
+            if (serverPacket.tipo == OK && serverPacket.sequencia == seq && checkParity(&serverPacket) == 0)
             {
                 if(seq < 63)
                     seq++;
@@ -257,9 +242,8 @@ int sendFile(int socket, char *filename, int filesize)
                 free(buffer);
                 break;
             }
-            else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq)
+            else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq && checkParity(&serverPacket) == 0)
             {
-                // Send packet again
                 continue;
             }
         }
@@ -369,14 +353,8 @@ int receiveFile(int socket, char* filename, int filesize)
             exit(1);
         }
 
-        // Check parity
-        if(checkParity(&serverPacket) == 1)
-        {
-            // Send packet again
-            continue;
-        }
         // Verificar se o pacote recebido e o esperado
-        if (serverPacket.tipo == DATA && serverPacket.sequencia == seq)
+        if (serverPacket.tipo == DATA && serverPacket.sequencia == seq && checkParity(&serverPacket) == 0)
         {
             // Colocar dados em um buffer
             char *buffer = malloc(serverPacket.tamanho * sizeof(char));
@@ -402,7 +380,7 @@ int receiveFile(int socket, char* filename, int filesize)
                 seq = 0;
             }
         }
-        else if (serverPacket.tipo == FIM_ARQ && serverPacket.sequencia == seq)
+        else if (serverPacket.tipo == FIM_ARQ && serverPacket.sequencia == seq && checkParity(&serverPacket) == 0)
         {
             // Fecha arquivo
             fclose(file);
@@ -411,7 +389,7 @@ int receiveFile(int socket, char* filename, int filesize)
             sendPacket(socket, &myPacket);
             break;
         }
-        else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq)
+        else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq && checkParity(&serverPacket) == 0)
         {
             createPacket(&myPacket, 0, seq, NACK, NULL);
             sendPacket(socket, &myPacket);

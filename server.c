@@ -21,11 +21,14 @@ int main(int argc, char const *argv[])
     
     const char *dirname = "serverdir";
     mode_t target_mode = 0777;
-    if (mkdir(dirname, 0) == 0)
+    if(chdir(dirname) == -1)
     {
-        chmod(dirname, target_mode);
-        // Change to dirname
-        chdir(dirname);
+        if (mkdir(dirname, 0) == 0)
+        {
+            chmod(dirname, target_mode);
+            // Change to dirname
+            chdir(dirname);
+        }
     }
 
     printf("[SERVER-CLI] Servidor Funcionando!\n");

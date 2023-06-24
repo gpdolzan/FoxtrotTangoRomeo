@@ -168,7 +168,6 @@ int sendFile(int socket, char *filename, int filesize, int type)
     struct t_packet serverPacket;
     int sequence = 0;
     int tries = 8;
-    int recebi = 0;
     // Enviar solicitacao de inicio de envio de arquivo para servidor
     // Send BACK_1_FILE
     createPacket(&packet, strlen(filename), sequence, BACK_1_FILE, filename);
@@ -177,6 +176,7 @@ int sendFile(int socket, char *filename, int filesize, int type)
         // if type is SERVER skip this while
         if(type == CLIENT)
         {
+            printf("I am client!\n");
             // Enviar solicitacao de inicio de envio de arquivo para servidor
             // Send BACK_1_FILE
             createPacket(&packet, strlen(filename), sequence, BACK_1_FILE, filename);
@@ -193,7 +193,6 @@ int sendFile(int socket, char *filename, int filesize, int type)
             {
                 if(serverPacket.tipo == OK)
                 {
-                    recebi = 1;
                     if(sequence < 63)
                         sequence++;
                     else

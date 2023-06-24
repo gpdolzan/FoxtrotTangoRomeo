@@ -3,8 +3,8 @@
 
 int main(int argc, char const *argv[])
 {
-    //int socket = ConexaoRawSocket("eno1");
-    int socket = ConexaoRawSocket("lo");
+    int socket = ConexaoRawSocket("eno1");
+    //int socket = ConexaoRawSocket("lo");
     struct t_packet packet;
     struct t_packet sPacket;
 

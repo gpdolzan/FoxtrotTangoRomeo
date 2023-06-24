@@ -35,43 +35,22 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
 
     createPacket(&packet, strlen(filename), 0, REC_1_ARQ, filename);
     sendPacket(socket, &packet);
-    // Aguardar resposta (talvez timeout)
-    if (readPacket(socket, &serverPacket, 1) == 1)
-    {
-        if(tries <= 0)
-        {
-            printf("Timeout received file -> client-side\n");
-            return 1;
-        }
-        printf("timeout\n");
-        tries--;
-    }
-    else
-    {
-        tries = 8;
-    }
 
     // Check parity
     if(checkParity(&serverPacket) == 1)
     {
         return 1;
     }
+
+    if (receiveFile(socket, filename, filesize) == 0)
+    {
+        printf("File received successfully\n");
+        return 0;
+    }
     else
     {
-        if(serverPacket.tipo == OK && serverPacket.sequencia == 0)
-        {
-            printf("File found on server\n");
-            if (receiveFile(socket, filename, filesize) == 0)
-            {
-                printf("File received successfully\n");
-                return 0;
-            }
-            else
-            {
-                printf("Error receiving file\n");
-                return 1;
-            }
-        }
+        printf("Error receiving file\n");
+        return 1;
     }
 }
 

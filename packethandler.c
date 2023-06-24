@@ -248,6 +248,7 @@ int sendFile(int socket, char *filename, int filesize)
             {
                 printf("wrong sequence\n");
                 printPacket(&serverPacket);
+                printf("seq: %d\n", seq);
                 exit(1);
             }
 
@@ -379,6 +380,7 @@ int receiveFile(int socket, char* filename, int filesize)
         {
             printf("wrong sequence\n");
             printPacket(&serverPacket);
+            printf("seq: %d\n", seq);
             exit(1);
         }
 

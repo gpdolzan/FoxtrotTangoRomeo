@@ -402,7 +402,8 @@ int receiveFile(int socket, char* filename, int filesize)
         }
         else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq)
         {
-            // Resend packet
+            createPacket(&myPacket, 0, seq, NACK, NULL);
+            sendPacket(socket, &myPacket);
             continue;
         }
     }

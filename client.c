@@ -36,10 +36,17 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
     createPacket(&packet, strlen(filename), 0, REC_1_ARQ, filename);
     sendPacket(socket, &packet);
 
-    // Check parity
-    if(checkParity(&serverPacket) == 1)
+    // Listen to BACK_1_FILE
+    while(tries > 0)
     {
-        return 1;
+        if(readPacket(socket, &serverPacket, 1) == 0)
+        {
+            if(serverPacket.tipo == BACK_1_FILE)
+            {
+                break;
+            }
+        }
+        tries--;
     }
 
     if (receiveFile(socket, filename, filesize) == 0)

@@ -19,10 +19,10 @@ int main(int argc, char const *argv[])
 
     // Set server directory as /received
     
-    if(chdir("server") != 0)
+    if(chdir("serverdir") != 0)
     {
-        mkdir("server", 0777);
-        chdir("server");
+        mkdir("serverdir", 0777);
+        chdir("serverdir");
     }
 
     printf("[SERVER-CLI] Servidor Funcionando!\n");

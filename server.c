@@ -18,6 +18,8 @@ int main(int argc, char const *argv[])
                 // Check parity
                 if(checkParity(&packet) == 1)
                 {
+                    printPacket(&packet);
+                    exit(1);
                     printf("Erro de paridade\n");
                     // Send NACK
                     createPacket(&sPacket, 0, 0, NACK, NULL);
@@ -25,8 +27,18 @@ int main(int argc, char const *argv[])
                 }
                 else
                 {
+                    printf("caraiba\n");
+                    // Create buffer
+                    char *buffer = (char *)malloc(packet.tamanho * sizeof(char));
+                    // Copy data to buffer using for loop
+                    for(int i = 0; i < packet.tamanho; i++)
+                    {
+                        buffer[i] = packet.dados[i];
+                    }
+        
                     printf("RECEIVING\n");
-                    receiveFile(socket, packet.dados, packet.tamanho, SERVER);
+                    receiveFile(socket, buffer, packet.tamanho, SERVER);
+                    free(buffer);
                     printf("I FINISHED\n");
                 }
             }
@@ -45,10 +57,19 @@ int main(int argc, char const *argv[])
                 }
                 else
                 {
+                    // Create buffer
+                    char *buffer = (char *)malloc(packet.tamanho * sizeof(char));
+                    // Copy data to buffer using for loop
+                    for(int i = 0; i < packet.tamanho; i++)
+                    {
+                        buffer[i] = packet.dados[i];
+                    }
+
                     printf("SENDING\n");
                     printPacket(&packet);
-                    sendFile(socket, packet.dados, packet.tamanho, SERVER);
+                    sendFile(socket, buffer, packet.tamanho, SERVER);
                     printf("I FINISHED\n");
+                    free(buffer);
                 }
             }
         }

@@ -7,12 +7,36 @@ int createPacket(struct t_packet *packet, unsigned int tamanho, unsigned int seq
     packet->sequencia = sequencia;
     packet->tipo = tipo;
     if(dados != NULL)
-        memcpy(packet->dados, dados, tamanho);
-    else
     {
-        memset(packet->dados, 0, tamanho);
+        for(unsigned int i = 0; i < tamanho; i++)
+        {
+            packet->dados[i] = dados[i];
+        }
     }
     packet->paridade = calculateParity(packet);
+    maskPacket(packet);
+    return 0;
+}
+
+// Mask packet data
+int maskPacket(struct t_packet *packet)
+{
+    for(int i = 0; i < packet->tamanho; i++)
+    {
+        if(packet->dados[i] == 0x0081 ||packet->dados[i] == 0x0088)
+            packet->dados[i] += 0xFF00;
+    }
+    return 0;
+}
+
+// Unmask packet data
+int unmaskPacket(struct t_packet *packet)
+{
+    for(int i = 0; i < packet->tamanho; i++)
+    {
+        if(packet->dados[i] == 0xFF81 ||packet->dados[i] == 0xFF88)
+            packet->dados[i] -= 0xFF00;
+    }
     return 0;
 }
 
@@ -62,7 +86,7 @@ int sendPacket(int socket, struct t_packet *packet)
 {
     int bytesSent = 0;
     bytesSent = write(socket, packet, sizeof(struct t_packet));
-    if(bytesSent == 67)
+    if(bytesSent == 130)
         return 0;
     else
         return 1;
@@ -84,6 +108,7 @@ int readPacket(int socket, struct t_packet *packet, unsigned int timeout)
             if(buffer->marcadorInicio == 0x7E)
             {
                 memcpy(packet, buffer, sizeof(struct t_packet));
+                unmaskPacket(packet);
                 free(buffer);
                 return 0;
             }
@@ -99,6 +124,7 @@ int readPacket(int socket, struct t_packet *packet, unsigned int timeout)
         if(buffer->marcadorInicio == 0x7E)
         {
             memcpy(packet, buffer, sizeof(struct t_packet));
+            unmaskPacket(packet);
             free(buffer);
             return 0;
         }
@@ -185,10 +211,13 @@ int sendFile(int socket, char *filename, int filesize, int type)
     // Loop de envio de bytes do arquivo
     while(1)
     {
-        int bytesRead = fread(packet.dados, 1, 63, file);
+        // Create buffer to place data
+        char *buffer = malloc(63);
+        int bytesRead = fread(buffer, 1, 63, file);
 
         // Coloca esse buffer dentro do pacote
-        createPacket(&packet, bytesRead, sequence, DATA, packet.dados);
+        createPacket(&packet, bytesRead, sequence, DATA, buffer);
+        free(buffer);
 
         // Aguardar resposta (talvez timeout) (talvez NACK) (talvez OK)
         // Se recebeu NACK algo deu errado com o pacote ao enviar
@@ -331,13 +360,18 @@ int receiveFile(int socket, char* filename, int filesize, int type)
             tries = 5;
         }
         // Recebeu mensagem, verifica OK ou NACK
+        unmaskPacket(&clientPacket);
         if(clientPacket.sequencia == expectedSequence && checkParity(&clientPacket) == 0)
         {
             if(clientPacket.tipo == DATA)
             {
                 // Create a buffer
                 char *buffer = malloc(clientPacket.tamanho);
-                memcpy(buffer, clientPacket.dados, clientPacket.tamanho);
+                // Pass to buffer using for loop
+                for(int i = 0; i < clientPacket.tamanho; i++)
+                {
+                    buffer[i] = clientPacket.dados[i];
+                }
                 // Write buffer to file
                 fwrite(buffer, 1, clientPacket.tamanho, file);
                 free(buffer);

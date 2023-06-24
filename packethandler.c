@@ -218,7 +218,6 @@ int sendFile(int socket, char *filename, int filesize, int type)
     }
 
     printf("Loop de bytes de arquivo\n");
-    // print file path
     printf("Enviando arquivo: %s\n", filename);
     // Loop de envio de bytes do arquivo
     while(1)
@@ -345,13 +344,16 @@ int receiveFile(int socket, char* filename, int filesize, int type)
     // Create file
     FILE *file = fopen(path, "wb");
 
-    // Send OK
-    createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
+    if(type == SERVER)
+    {
+        // Send OK
+        createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
 
-    // Loop de recebimento de bytes do arquivo
-    printf("Loop de bytes de arquivo\n");
-    sendPacket(socket, &serverPacket);
-    expectedSequence++;
+        // Loop de recebimento de bytes do arquivo
+        printf("Loop de bytes de arquivo\n");
+        sendPacket(socket, &serverPacket);
+        expectedSequence++;
+    }
     while(1)
     {
         // Aguardar resposta (talvez timeout)
@@ -366,7 +368,6 @@ int receiveFile(int socket, char* filename, int filesize, int type)
             }
             tries--;
             sendPacket(socket, &serverPacket);
-            continue;
         }
         else
         {

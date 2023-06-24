@@ -242,9 +242,12 @@ int sendFile(int socket, char *filename, int filesize)
                 free(buffer);
                 break;
             }
-            else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq && checkParity(&serverPacket) == 0)
+            else if (serverPacket.tipo == NACK && checkParity(&serverPacket) == 0)
             {
-                continue;
+                if(seq < serverPacket.sequencia)
+                    break;
+                else
+                    continue;
             }
         }
 
@@ -294,7 +297,7 @@ int sendFile(int socket, char *filename, int filesize)
                 seq = 0;
             break;
         }
-        else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq)
+        else if (serverPacket.tipo == NACK)
         {
             // Send packet again
             continue;
@@ -345,8 +348,16 @@ int receiveFile(int socket, char* filename, int filesize)
             tries = 8;
         }
 
+        // if sequence is desynced, send NACK
+        if(serverPacket.sequencia != seq)
+        {
+            createPacket(&myPacket, 0, seq, NACK, NULL);
+            // Enviar pacote de confirmacao
+            sendPacket(socket, &myPacket);
+            continue;
+        }
         // Verificar se o pacote recebido e o esperado
-        if (serverPacket.tipo == DATA && serverPacket.sequencia == seq && checkParity(&serverPacket) == 0)
+        else if (serverPacket.tipo == DATA && serverPacket.sequencia == seq && checkParity(&serverPacket) == 0)
         {
             // Colocar dados em um buffer
             char *buffer = malloc(serverPacket.tamanho * sizeof(char));
@@ -386,12 +397,6 @@ int receiveFile(int socket, char* filename, int filesize)
             createPacket(&myPacket, 0, seq, NACK, NULL);
             sendPacket(socket, &myPacket);
             continue;
-        }
-        else if(serverPacket.sequencia != seq)
-        {
-            // Mandar confirmacao
-            createPacket(&myPacket, 0, serverPacket.sequencia, OK, NULL);
-            sendPacket(socket, &myPacket);
         }
     }
     return 0;

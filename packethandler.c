@@ -230,6 +230,7 @@ int sendFile(int socket, char *filename, int filesize)
                     printf("Time exceeded, file data!\n");
                     return 1;
                 }
+                sendPacket(socket, &myPacket);
                 tries--;
             }
             else

@@ -30,7 +30,7 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
     // Create packet to ask for file
     struct t_packet packet;
     struct t_packet serverPacket;
-    int tries = 3;
+    int tries = 8;
     int recebi = 0;
 
     createPacket(&packet, strlen(filename), 0, REC_1_ARQ, filename);
@@ -49,7 +49,7 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
     else
     {
         recebi = 1;
-        tries = 3;
+        tries = 8;
     }
 
     if(recebi == 0)

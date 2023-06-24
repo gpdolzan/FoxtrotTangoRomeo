@@ -43,9 +43,15 @@ int main(int argc, char const *argv[])
                     }
         
                     printf("RECEIVING\n");
-                    receiveFile(socket, buffer, packet.tamanho, SERVER);
+                    if(receiveFile(socket, buffer, packet.tamanho, SERVER) == 1)
+                    {
+                        printf("Erro ao receber arquivo\n");
+                    }
+                    else
+                    {
+                        printf("Arquivo recebido com sucesso\n");
+                    }
                     free(buffer);
-                    printf("I FINISHED\n");
                 }
             }
         }

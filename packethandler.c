@@ -167,7 +167,7 @@ int sendFile(int socket, char *filename, int filesize, int type)
     struct t_packet packet;
     struct t_packet serverPacket;
     int sequence = 0;
-    int tries = 3;
+    int tries = 8;
     int recebi = 0;
     // Enviar solicitacao de inicio de envio de arquivo para servidor
     // Send BACK_1_FILE
@@ -248,7 +248,7 @@ int sendFile(int socket, char *filename, int filesize, int type)
             }
             else
             {
-                tries = 3;
+                tries = 8;
             }
             // Recebeu mensagem, verifica OK ou NACK
             if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
@@ -321,7 +321,7 @@ int receiveFile(int socket, char* filename, int filesize, int type)
     char path[100];
     struct t_packet clientPacket;
     struct t_packet serverPacket;
-    int tries = 3;
+    int tries = 8;
 
     // Everything in path is 0
     memset(path, 0, sizeof(path));
@@ -357,6 +357,7 @@ int receiveFile(int socket, char* filename, int filesize, int type)
             {
                 printf("Timeout dados do arquivo\n");
                 fclose(file);
+                remove(path);
                 return 1;
             }
             tries--;
@@ -365,7 +366,7 @@ int receiveFile(int socket, char* filename, int filesize, int type)
         }
         else
         {
-            tries = 3;
+            tries = 8;
         }
         // Recebeu mensagem, verifica OK ou NACK
         if(clientPacket.sequencia == expectedSequence && checkParity(&clientPacket) == 0)

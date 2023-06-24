@@ -244,6 +244,7 @@ int sendFile(int socket, char *filename, int filesize)
             }
             else if (serverPacket.tipo == NACK && checkParity(&serverPacket) == 0)
             {
+                printf("aqui!\n");
                 if(seq < serverPacket.sequencia)
                     break;
                 else
@@ -354,6 +355,7 @@ int receiveFile(int socket, char* filename, int filesize)
             createPacket(&myPacket, 0, seq, NACK, NULL);
             // Enviar pacote de confirmacao
             sendPacket(socket, &myPacket);
+            printf("aqui!\n");
             continue;
         }
         // Verificar se o pacote recebido e o esperado

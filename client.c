@@ -51,15 +51,27 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
         tries = 8;
     }
 
-    if (receiveFile(socket, filename, filesize) == 0)
+    // Check parity
+    if(checkParity(&serverPacket) == 1)
     {
-        printf("File received successfully\n");
-        return 0;
+        return 1;
     }
     else
     {
-        printf("Error receiving file\n");
-        return 1;
+        if(serverPacket.tipo == OK && serverPacket.sequencia == 0)
+        {
+            printf("File found on server\n");
+            if (receiveFile(socket, filename, filesize) == 0)
+            {
+                printf("File received successfully\n");
+                return 0;
+            }
+            else
+            {
+                printf("Error receiving file\n");
+                return 1;
+            }
+        }
     }
 }
 

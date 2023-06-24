@@ -100,9 +100,9 @@ int main(int argc, char const *argv[])
                     strcat(tempBuffer, "/");
                     strcat(tempBuffer, buffer);
 
-                    printf("SENDING\n");
+                    printf("[SERVER-CLI] Sending file from %s\n", tempBuffer);
                     sendFile(socket, tempBuffer, strlen(tempBuffer));
-                    printf("I FINISHED\n");
+                    printf("[SERVER-CLI] I Finished sending file!\n");
                     free(buffer);
                 }
             }

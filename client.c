@@ -270,8 +270,8 @@ int clientCommands(int socket, char **args, int wordCount)
 
 int main(int argc, char const *argv[])
 {
-    //int socket = ConexaoRawSocket("enp5s0");
-    int socket = ConexaoRawSocket("lo");
+    int socket = ConexaoRawSocket("enp5s0");
+    //int socket = ConexaoRawSocket("lo");
     int wordCount;
     char buffer[1024];
     char **args;

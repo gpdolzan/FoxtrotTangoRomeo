@@ -360,7 +360,6 @@ int receiveFile(int socket, char* filename, int filesize, int type)
             tries = 5;
         }
         // Recebeu mensagem, verifica OK ou NACK
-        unmaskPacket(&clientPacket);
         if(clientPacket.sequencia == expectedSequence && checkParity(&clientPacket) == 0)
         {
             if(clientPacket.tipo == DATA)

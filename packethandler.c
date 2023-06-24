@@ -167,7 +167,8 @@ int sendFile(int socket, char *filename, int filesize, int type)
     struct t_packet packet;
     struct t_packet serverPacket;
     int sequence = 0;
-    int tries = 5;
+    int tries = 3;
+    int recebi = 0;
     // Enviar solicitacao de inicio de envio de arquivo para servidor
     // Send BACK_1_FILE
     createPacket(&packet, strlen(filename), sequence, BACK_1_FILE, filename);
@@ -186,6 +187,7 @@ int sendFile(int socket, char *filename, int filesize, int type)
         {
             if(serverPacket.tipo == OK)
             {
+                recebi = 1;
                 if(sequence < 63)
                     sequence++;
                 else
@@ -203,6 +205,12 @@ int sendFile(int socket, char *filename, int filesize, int type)
             // Enviar novamente
             sendPacket(socket, &packet);
         }
+    }
+
+    if(recebi == 0)
+    {
+        printf("Nao recebeu confirmacao de inicio\n");
+        return 1;
     }
 
     printf("Loop de bytes de arquivo\n");
@@ -240,7 +248,7 @@ int sendFile(int socket, char *filename, int filesize, int type)
             }
             else
             {
-                tries = 5;
+                tries = 3;
             }
             // Recebeu mensagem, verifica OK ou NACK
             if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
@@ -313,7 +321,7 @@ int receiveFile(int socket, char* filename, int filesize, int type)
     char path[100];
     struct t_packet clientPacket;
     struct t_packet serverPacket;
-    int tries = 5;
+    int tries = 3;
 
     // Everything in path is 0
     memset(path, 0, sizeof(path));
@@ -357,7 +365,7 @@ int receiveFile(int socket, char* filename, int filesize, int type)
         }
         else
         {
-            tries = 5;
+            tries = 3;
         }
         // Recebeu mensagem, verifica OK ou NACK
         if(clientPacket.sequencia == expectedSequence && checkParity(&clientPacket) == 0)

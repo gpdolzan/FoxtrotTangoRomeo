@@ -8,6 +8,12 @@ int main(int argc, char const *argv[])
     struct t_packet packet;
     struct t_packet sPacket;
 
+    struct timeval tv;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+    setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof tv);
+
     while(1)
     {
         readPacket(socket, &packet, 0);

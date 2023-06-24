@@ -30,10 +30,10 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
     // Create packet to ask for file
     struct t_packet packet;
     struct t_packet serverPacket;
-    int tries = 5;
+    int tries = 3;
+    int recebi = 0;
 
     createPacket(&packet, strlen(filename), 0, REC_1_ARQ, filename);
-    printPacket(&packet);
     sendPacket(socket, &packet);
     // Aguardar resposta (talvez timeout)
     if (readPacket(socket, &serverPacket, 1) == 1)
@@ -43,11 +43,19 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
             printf("Timeout received file -> client-side\n");
             return 1;
         }
+        printf("timeout\n");
         tries--;
     }
     else
     {
-        tries = 5;
+        recebi = 1;
+        tries = 3;
+    }
+
+    if(recebi == 0)
+    {
+        printf("Time exceeded!\n");
+        return 1;
     }
 
     if (receiveFile(socket, filename, filesize, CLIENT) == 0)
@@ -276,6 +284,12 @@ int main(int argc, char const *argv[])
     char buffer[1024];
     char **args;
     printf("\x1B[0m");
+
+    struct timeval tv;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+    setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof tv);
 
     // Clear screen
     clear();

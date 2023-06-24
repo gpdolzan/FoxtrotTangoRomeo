@@ -6,8 +6,8 @@ char sdirectory[1024]; // Server directory
 
 int main(int argc, char const *argv[])
 {
-    //int socket = ConexaoRawSocket("eno1");
-    int socket = ConexaoRawSocket("lo");
+    int socket = ConexaoRawSocket("eno1");
+    //int socket = ConexaoRawSocket("lo");
     struct t_packet myPacket; // Packets I will send
     struct t_packet sPacket;
 

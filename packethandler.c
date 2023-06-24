@@ -236,6 +236,13 @@ int sendFile(int socket, char *filename, int filesize)
             {
                 tries = 8;
             }
+
+            // Check parity
+            if(checkParity(&serverPacket) == 1)
+            {   
+                // Send packet again
+                continue;
+            }
             
             if (serverPacket.tipo == OK && serverPacket.sequencia == seq)
             {
@@ -248,7 +255,6 @@ int sendFile(int socket, char *filename, int filesize)
             }
             else if (serverPacket.tipo == NACK && serverPacket.sequencia == seq)
             {
-                printPacket(&myPacket);
                 // Send packet again
                 continue;
             }
@@ -328,6 +334,10 @@ int receiveFile(int socket, char* filename, int filesize)
     // Envia pacote de confirmacao
     createPacket(&myPacket, 0, seq, OK, NULL);
     sendPacket(socket, &myPacket);
+    if(seq < 63)
+        seq++;
+    else
+        seq = 0;
 
     printf("data loop!\n");
     // Loop de recebimento de dados

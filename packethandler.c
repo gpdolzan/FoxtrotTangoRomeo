@@ -174,45 +174,48 @@ int sendFile(int socket, char *filename, int filesize, int type)
     createPacket(&packet, strlen(filename), sequence, BACK_1_FILE, filename);
     while(1)
     {
-        if(type == SERVER)
-            break;
-        sendPacket(socket, &packet);
-        // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &serverPacket, 1) == 1)
+        // if type is SERVER skip this while
+        if(type == CLIENT)
         {
-            printf("Timeout Receber confirmacao de inicio\n");
-            fclose(file);
-            return 1;
-        }
-        // Recebeu mensagem, verifica OK ou NACK
-        if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
-        {
-            if(serverPacket.tipo == OK)
+            // Enviar solicitacao de inicio de envio de arquivo para servidor
+            // Send BACK_1_FILE
+            createPacket(&packet, strlen(filename), sequence, BACK_1_FILE, filename);
+            sendPacket(socket, &packet);
+            // Aguardar resposta (talvez timeout)
+            if (readPacket(socket, &serverPacket, 1) == 1)
             {
-                recebi = 1;
-                if(sequence < 63)
-                    sequence++;
-                else
-                    sequence = 0;
-                break;
+                printf("Timeout Receber confirmacao de inicio\n");
+                fclose(file);
+                return 1;
             }
-            else if(serverPacket.tipo == NACK)
+            // Recebeu mensagem, verifica OK ou NACK
+            if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
+            {
+                if(serverPacket.tipo == OK)
+                {
+                    recebi = 1;
+                    if(sequence < 63)
+                        sequence++;
+                    else
+                        sequence = 0;
+                    break;
+                }
+                else if(serverPacket.tipo == NACK)
+                {
+                    // Enviar novamente
+                    sendPacket(socket, &packet);
+                }
+            }
+            else if(checkParity(&serverPacket) == 1)
             {
                 // Enviar novamente
                 sendPacket(socket, &packet);
             }
         }
-        else if(checkParity(&serverPacket) == 1)
+        else
         {
-            // Enviar novamente
-            sendPacket(socket, &packet);
+            break;
         }
-    }
-
-    if(recebi == 0)
-    {
-        printf("Nao recebeu confirmacao de inicio\n");
-        return 1;
     }
 
     printf("Loop de bytes de arquivo\n");

@@ -344,7 +344,7 @@ int receiveFile(int socket, char* filename, int filesize)
         {
             tries = 8;
         }
-        
+
         // Verificar se o pacote recebido e o esperado
         if (serverPacket.tipo == DATA && serverPacket.sequencia == seq && checkParity(&serverPacket) == 0)
         {
@@ -387,7 +387,7 @@ int receiveFile(int socket, char* filename, int filesize)
             sendPacket(socket, &myPacket);
             continue;
         }
-        else if(serverPacket.sequencia < seq)
+        else if(serverPacket.sequencia != seq)
         {
             // Mandar confirmacao
             createPacket(&myPacket, 0, serverPacket.sequencia, OK, NULL);

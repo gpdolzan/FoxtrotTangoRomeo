@@ -338,6 +338,8 @@ int receiveFile(int socket, char* filename, int filesize)
         // Aguardar resposta (talvez timeout)
         if (readPacket(socket, &clientPacket, 1) == 1)
         {
+            printPacket(&clientPacket);
+            printf("expected seq: %d\n", expectedSequence);
             if(tries <= 0)
             {
                 printf("Timeout dados do arquivo\n");

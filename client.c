@@ -291,36 +291,50 @@ int clientCommands(int socket, char **args, int wordCount)
                 }
                 printf("\n");
                 free(hash);
+            }
 
-                // Create packet VERIFICA_BACK
-                struct t_packet packet;
-                createPacket(&packet, strlen(args[1]), 0, VERIFICA_BACK, args[1]);
-                // Send packet
-                sendPacket(socket, &packet);
+            // Create packet VERIFICA_BACK
+            struct t_packet packet;
+            createPacket(&packet, strlen(args[1]), 0, VERIFICA_BACK, args[1]);
+            // Send packet
+            sendPacket(socket, &packet);
 
-                // Receive packet
-                readPacket(socket, &packet, 1);
-                // Check if packet is a MD5
-                if(packet.tipo == MD5)
+            // Receive packet
+            readPacket(socket, &packet, 1);
+            // Check if packet is a MD5
+            if(packet.tipo == MD5)
+            {
+                printf("[CLIENT-CLI] Hash md5 do arquivo REMOTO %s: ", args[1]);
+                // Create buffer to store hash
+                uint8_t *hash = malloc(16);
+                // For loop
+                for(int i = 0; i < 16; i++)
                 {
-                    printf("[CLIENT-CLI] Hash md5 do arquivo REMOTO %s: ", args[1]);
-                    // Create buffer to store hash
-                    uint8_t *hash = malloc(16);
-                    // For loop
-                    for(int i = 0; i < 16; i++)
-                    {
-                        hash[i] = packet.dados[i];
-                    }
-                    // For loop to print hash
-                    for(int i = 0; i < 16; i++)
-                    {
-                        printf("%02x", hash[i]);
-                    }
-                    printf("\n");
+                    hash[i] = packet.dados[i];
                 }
-                else
+                // For loop to print hash
+                for(int i = 0; i < 16; i++)
                 {
-                    printf("[CLIENT-CLI] Erro ao receber hash md5 do arquivo REMOTO %s\n", args[1]);
+                        printf("%02x", hash[i]);
+                }
+                printf("\n");
+            }
+            else if(packet.tipo == ERRO)
+            {
+                // Check if data inside packet says "ai"
+                // Create buffer to data
+                char *data = malloc(packet.tamanho + 1);
+                // For loop to copy data
+                for(int i = 0; i < packet.tamanho; i++)
+                {
+                    data[i] = packet.dados[i];
+                }
+                // Add null terminator
+                data[packet.tamanho] = '\0';
+                // Check if data is "ai"
+                if(strcmp(data, "ai") == 0)
+                {
+                    printf("[CLIENT-CLI] Arquivo %s nao encontrado no servidor\n", args[1]);
                 }
             }
         }

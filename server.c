@@ -208,15 +208,23 @@ int main(int argc, char const *argv[])
                     }
                     else
                     {
-                        // Now concatenate the current directory with the new directory
-                        strcat(sdirectory, "/");
-                        strcat(sdirectory, buffer);
+                        // Get current directory
+                        getcwd(sdirectory, sizeof(sdirectory));
                         printf("Diretorio atual: %s\n", sdirectory);
                         // Send OK
                         createPacket(&sPacket, 0, 0, OK, NULL);
                         sendPacket(socket, &sPacket);
                     }
                 }
+            }
+            else
+            {
+                // Get current directory
+                getcwd(sdirectory, sizeof(sdirectory));
+                printf("Diretorio atual: %s\n", sdirectory);
+                // Send OK
+                createPacket(&sPacket, 0, 0, OK, NULL);
+                sendPacket(socket, &sPacket);
             }
         }
     }

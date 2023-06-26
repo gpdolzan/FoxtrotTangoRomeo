@@ -279,16 +279,32 @@ int main(int argc, char const *argv[])
             strcpy(tempBuffer, sdirectory);
             strcat(tempBuffer, "/");
             strcat(tempBuffer, buffer);
-            // Calculate hash
-            char *hash = (uint8_t *)malloc(16);
-            md5File(tempBuffer, hash);
-            // print using loop
-            for(int i = 0; i < 16; i++)
-            {
-                printf("%x", hash[i]);
-            }
-            printf("\n");
 
+            // Open file
+            FILE *fp = fopen(tempBuffer, "r");
+            if(fp == NULL)
+            {
+                printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
+                // Send NACK
+                /*createPacket(&sPacket, strlen(buffer), 0, ERRO, buffer);
+                sendPacket(socket, &sPacket);*/
+            }
+            else
+            {
+                // Calculate hash
+                char *hash = (uint8_t *)malloc(16);
+                md5File(fp, hash);
+                fclose(fp);
+                // print using loop
+                for(int i = 0; i < 16; i++)
+                {
+                    printf("%x", hash[i]);
+                }
+                printf("\n");
+                // Send hash
+                createPacket(&sPacket, 16, 0, VERIFICA_BACK, hash);
+                sendPacket(socket, &sPacket);
+            }
         }
         else if(myPacket.tipo == CH_DIR_SERVER)
         {

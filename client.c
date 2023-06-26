@@ -324,15 +324,18 @@ int clientCommands(int socket, char **args, int wordCount)
                                 if(receiveFile(socket, args[1], strlen(args[1])) == 1)
                                 {
                                     printf("[%s] > Erro ao receber arquivo %s\n", cdirectory, args[1]);
+                                    break;
                                 }
                                 else
                                 {
                                     printf("[%s] > Arquivo %s recebido com sucesso\n", cdirectory, args[1]);
+                                    break;
                                 }
                             }
                             else if(packet.tipo == ERRO)
                             {
                                 printf("[CLIENT-CLI] > Arquivo %s nao se encontra no diretorio REMOTO\n", args[1]);
+                                break;
                             }
                         }
                     }

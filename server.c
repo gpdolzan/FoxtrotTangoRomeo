@@ -241,6 +241,13 @@ int main(int argc, char const *argv[])
             }
             buffer[myPacket.tamanho] = '\0';
 
+            // Concatenate sdirectory and buffer
+            char *tempBuffer = (char *)malloc((strlen(sdirectory) + strlen(buffer) + 1) * sizeof(char));
+            strcpy(tempBuffer, sdirectory);
+            strcat(tempBuffer, buffer);
+
+            printf("[TEMP BUFFER] %s\n", tempBuffer);
+
             // print which file we are checking
             printf("[%s] > Verificando arquivo %s\n", sdirectory, buffer);
 

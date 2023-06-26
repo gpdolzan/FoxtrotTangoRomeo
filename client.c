@@ -431,29 +431,23 @@ int clientCommands(int socket, char **args, int wordCount)
                     printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
                     break;
                 }
-                if(readPacket(socket, &packet, 5) == 0)
+                if(readPacket(socket, &packet, 1) == 0)
                 {
                     // Check parity
                     if(checkParity(&packet) == 0)
                     {
                         // Check if packet is OK
-                        if(packet.tipo == MD5)
+                        if(packet.tipo == OK)
                         {
-                            // Create a uint8_t array with 16 bytes
-                            uint8_t *hash = malloc(16);
-                            // Use for loop to copy hash from packet.data to hash
-                            for(int i = 0; i < 16; i++)
+                            // Get string from packet
+                            char *string = malloc(packet.tamanho + 1);
+                            // FOR LOOP
+                            for(int i = 0; i < packet.tamanho; i++)
                             {
-                                hash[i] = packet.dados[i];
+                                string[i] = packet.dados[i];
                             }
-                            printf("[CLIENT-CLI] Hash md5 do arquivo REMOTO %s: ", args[1]);
-                            // For loop to print hash
-                            for(int i = 0; i < 16; i++)
-                            {
-                                printf("%02x", hash[i]);
-                            }
-                            printf("\n");
-                            break;
+                            string[packet.tamanho] = '\0';
+                            printf("[CLIENT-CLI] > Hash md5 do arquivo REMOTO %s: %s\n", args[1], string);
                         }
                         else if(packet.tipo == ERRO)
                         {

@@ -268,10 +268,8 @@ int main(int argc, char const *argv[])
                     sprintf(&hashString[i * 2], "%02x", hash[i]);
                 }
                 hashString[32] = '\0';
-
-                printf("HASH STRING: %s\n", hashString);
                 
-                createPacket(&packet_md5, 16, 0, MD5, hash);
+                createPacket(&packet_md5, strlen(hashString), 0, OK, hashString);
                 sendPacket(socket, &packet_md5);
 
                 free(hash);

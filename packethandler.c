@@ -214,9 +214,6 @@ int sendFile(int socket, char *filename, int filesize)
                     return 1;
                 }
                 tries--;
-                sendPacket(socket, &packet);
-                printf("reenviando pacote de sequencia %d\n", packet.sequencia);
-                continue;
             }
             else
             {
@@ -348,7 +345,7 @@ int receiveFile(int socket, char* filename, int filesize)
                     expectedSequence = 0;
                 printf("nova sequencia: %d\n", expectedSequence);
             }
-            else if(clientPacket.tipo == DATA && expectedSequence != clientPacket.sequencia)
+            else if(clientPacket.tipo == DATA && expectedSequence > clientPacket.sequencia)
             {
                 // Send NACK
                 printf("Recebi sequencia %d, esperava %d\n", clientPacket.sequencia, expectedSequence);

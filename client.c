@@ -281,6 +281,7 @@ int clientCommands(int socket, char **args, int wordCount)
     }
     else if (strcmp(args[0], "get") == 0)
     {
+        //TODO
         struct t_packet packet; // I will send
         struct t_packet sPacket; // I will receive
         int tries = 8;
@@ -332,10 +333,47 @@ int clientCommands(int socket, char **args, int wordCount)
     }
     else if (strcmp(args[0], "sdir") == 0)
     {
+        int tries = 8;
         if(wordCount >= 2)
         {
             printf("[CLIENT-CLI] Enviando pedido para servidor mudar diretorio para: %s\n", args[1]);
-            // AQUI VAI IMPLEMENTACAO
+            // Create packet
+            struct t_packet packet;
+            createPacket(&packet, strlen(args[1]), 0, CH_DIR_SERVER, args[1]);
+            sendPacket(socket, &packet);
+
+            // Wait for OK
+            while(1)
+            {
+                if(tries <= 0)
+                {
+                    printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
+                    break;
+                }
+                sendPacket(socket, &packet);
+                if(readPacket(socket, &packet, 1) == 0)
+                {
+                    // Check parity
+                    if(checkParity(&packet) == 0)
+                    {
+                        // Check if packet is OK
+                        if(packet.tipo == OK)
+                        {
+                            printf("[CLIENT-CLI] OK received\n");
+                            break;
+                        }
+                        else
+                        {
+                            printf("[CLIENT-CLI] > Server could not change to %s\n", args[1]);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    tries--;
+                }
+            }
         }
         else if(wordCount < 2)
         {

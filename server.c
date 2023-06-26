@@ -250,21 +250,21 @@ int main(int argc, char const *argv[])
             printf("[TEMP BUFFER] %s\n", tempBuffer);
 
             // Try open file
-            FILE *fp = fopen(tempBuffer, "rb");
+            FILE *fp = fopen(buffer, "rb");
             if(fp != NULL)
             {
+                fclose(fp);
                 printf("aqui\n");
                 // Create a uint8_t array with 16 bytes
-                //uint8_t *hash = malloc(16);
+                uint8_t *hash = malloc(16);
                 // Using md5file function to get md5 hash
-                //md5File(fp, hash);
-                //printf("[CLIENT-CLI] Hash md5 do arquivo SERVER %s: ", buffer);
+                md5File(fp, hash);
+                printf("[CLIENT-CLI] Hash md5 do arquivo SERVER %s: ", buffer);
                 
                 //createPacket(&packet_md5, 16, 0, MD5, hash);
                 //sendPacket(socket, &packet_md5);
 
-                //free(hash);
-                fclose(fp);
+                free(hash);
             }
             else
             {

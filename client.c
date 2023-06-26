@@ -321,16 +321,12 @@ int clientCommands(int socket, char **args, int wordCount)
                             // Check if packet is OK
                             if(packet.tipo == BACK_1_FILE)
                             {
-                                if(receiveFile(socket, args[1], strlen(args[1])) == 1)
-                                {
-                                    printf("[%s] > Erro ao receber arquivo %s\n", cdirectory, args[1]);
-                                    break;
-                                }
-                                else
-                                {
-                                    printf("[%s] > Arquivo %s recebido com sucesso\n", cdirectory, args[1]);
-                                    break;
-                                }
+                                // Send OK
+                                createPacket(&sPacket, 0, 0, OK, NULL);
+                                sendPacket(socket, &sPacket);
+
+                                // Receive file
+                                recFile(socket, args[1], strlen(args[1]));
                             }
                             else if(packet.tipo == ERRO)
                             {

@@ -269,7 +269,7 @@ int main(int argc, char const *argv[])
                 }
                 hashString[32] = '\0';
                 
-                createPacket(&packet_md5, strlen(hashString), 0, OK, hashString);
+                createPacket(&packet_md5, strlen(hashString), 0, MD5, hashString);
                 sendPacket(socket, &packet_md5);
 
                 free(hash);

@@ -437,7 +437,7 @@ int clientCommands(int socket, char **args, int wordCount)
                     if(checkParity(&packet) == 0)
                     {
                         // Check if packet is OK
-                        if(packet.tipo == OK)
+                        if(packet.tipo == MD5)
                         {
                             // Get string from packet
                             char *string = malloc(packet.tamanho + 1);

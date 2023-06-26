@@ -294,15 +294,16 @@ int receiveFile(int socket, char* filename, int filesize)
     struct t_packet clientPacket;
     struct t_packet serverPacket;
     int tries = 5;
+
     // Create file
     FILE *file = fopen(filename, "wb");
 
     // Send OK
     createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
+    sendPacket(socket, &serverPacket);
 
     // Loop de recebimento de bytes do arquivo
     printf("Loop de bytes de arquivo\n");
-    sendPacket(socket, &serverPacket);
     expectedSequence++;
     while(1)
     {
@@ -311,9 +312,8 @@ int receiveFile(int socket, char* filename, int filesize)
         {
             if(tries <= 0)
             {
-                printf("Timeout dados do arquivo\n");
+                printf("Time exceeded\n");
                 fclose(file);
-                remove(filename);
                 return 1;
             }
             tries--;

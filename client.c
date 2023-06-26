@@ -407,12 +407,14 @@ int clientCommands(int socket, char **args, int wordCount)
             }
             else
             {
-                // Create REC_1_FILE
-                createPacket(&packet, strlen(args[1]), 0, REC_1_ARQ, args[1]);
-                sendPacket(socket, &packet);
-        
-                // RECUPERA ARQUIVO
-                rec_arquivo(socket, args[1], strlen(args[1]));
+                if(receiveFileWrapper(socket, args[1], strlen(args[1])) == 0)
+                {
+                    printf("[CLIENT-CLI] File received successfully\n");
+                }
+                else
+                {
+                    printf("[CLIENT-CLI] Error receiving file\n");
+                }
             }
         }
     }

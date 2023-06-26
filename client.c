@@ -276,7 +276,7 @@ int clientCommands(int socket, char **args, int wordCount)
                 // Check if packet is a MD5
                 if(packet.tipo == OK)
                 {
-                    printf("[CLIENT-CLI] Diretorio REMOTO modificado com para %s\n", args[1]);
+                    printf("[CLIENT-CLI] Diretorio REMOTO modificado para %s\n", args[1]);
                     break;
                 }
                 else if(packet.tipo == ERRO)

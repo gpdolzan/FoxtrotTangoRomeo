@@ -237,6 +237,8 @@ int main(int argc, char const *argv[])
                     createPacket(&sPacket, 0, 0, OK, NULL);
                     sendPacket(socket, &sPacket);
                 }
+                // Free
+                free(buffer);
             }
         }
     }

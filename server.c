@@ -269,7 +269,42 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == CH_DIR_SERVER)
         {
-            
+            // Create buffer and use for loop to copy from packet dados
+            char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
+            for(int i = 0; i < myPacket.tamanho; i++)
+            {
+                buffer[i] = myPacket.dados[i];
+            }
+            buffer[myPacket.tamanho] = '\0';
+
+            mode_t target_mode = 0777;
+            if(chdir(buffer) == -1)
+            {
+                if (mkdir(buffer, 0) == 0)
+                {
+                    chmod(buffer, target_mode);
+                    // Change to dirname
+                    if(chdir(buffer) == 0)
+                    {
+                        // Send OK
+                        createPacket(&sPacket, 0, 0, OK, NULL);
+                        sendPacket(socket, &sPacket);
+                    }
+                    else
+                    {
+                        // Send ERRO
+                        createPacket(&sPacket, 0, 0, ERRO, NULL);
+                        sendPacket(socket, &sPacket);
+                    }
+                }
+                else
+                {
+                    // Send ERRO
+                    createPacket(&sPacket, 0, 0, ERRO, NULL);
+                    sendPacket(socket, &sPacket);
+                }
+            }
+
         }
     }
 }

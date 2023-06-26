@@ -179,6 +179,14 @@ int main(int argc, char const *argv[])
             else
             {
                 md5File(fp, hash);
+
+                // For loop printing hash
+                printf("Hash: ");
+                for(int i = 0; i < 16; i++)
+                {
+                    printf("%02x", hash[i]);
+                }
+
                 // Send MD5
                 createPacket(&sPacket, 16, 0, MD5, hash);
                 sendPacket(socket, &sPacket);

@@ -457,7 +457,7 @@ int clientCommands(int socket, char **args, int wordCount)
                         }
                         else if(packet.tipo == ERRO)
                         {
-                            printf("[CLIENT-CLI] > Server could find %s to do MD5\n", args[1]);
+                            printf("[CLIENT-CLI] > Server could find %s\n", args[1]);
                             break;
                         }
                     }

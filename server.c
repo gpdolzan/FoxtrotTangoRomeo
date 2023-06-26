@@ -233,6 +233,8 @@ int main(int argc, char const *argv[])
         {
             // Create packet
             struct t_packet packet_md5;
+            // Create packet
+            struct t_packet packet_sendrealmd5;
             // Create buffer
             char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
             for(int i = 0; i < myPacket.tamanho; i++)
@@ -265,6 +267,12 @@ int main(int argc, char const *argv[])
                     printf("%02x", hash[i]);
                 }
                 printf("\n");
+                
+                createPacket(&packet_sendrealmd5, 16, 0, MD5, hash);
+                sendPacket(socket, &packet_sendrealmd5);
+
+                free(hash);
+                fclose(fp);
             }
             else
             {

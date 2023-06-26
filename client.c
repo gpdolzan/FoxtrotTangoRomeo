@@ -220,6 +220,7 @@ int clientCommands(int socket, char **args, int wordCount)
                     if(tries <= 0)
                     {
                         printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
+                        break;
                     }
                     sendPacket(socket, &packet);
                     if(readPacket(socket, &packet, 1) == 0)
@@ -295,60 +296,14 @@ int clientCommands(int socket, char **args, int wordCount)
                 // Create REC_1_FILE
                 createPacket(&packet, strlen(args[1]), 0, REC_1_ARQ, args[1]);
                 sendPacket(socket, &packet);
-
-                // wait for back_1_file
-                while(1)
+        
+                if(receiveFile(socket, args[1], strlen(args[1])) == 1)
                 {
-                    if(tries <= 0)
-                    {
-                        printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
-                    }
-                    sendPacket(socket, &packet);
-                    if(readPacket(socket, &sPacket, 1) == 0)
-                    {
-                        // Check parity
-                        if(checkParity(&sPacket) == 0)
-                        {
-                            // Check if packet is OK
-                            if(sPacket.tipo == BACK_1_FILE)
-                            {
-                                printf("[CLIENT-CLI] BACK_1_FILE received\n");
-                                if(receiveFile(socket, args[1], strlen(args[1])) == 0)
-                                {
-                                    printf("[CLIENT-CLI] File received successfully\n");
-                                }
-                                else
-                                {
-                                    printf("[CLIENT-CLI] Error receiving file\n");
-                                }
-                            }
-                            else if(sPacket.tipo == ERRO)
-                            {
-                                // Copy to buffer sPacket.dados
-                                char *buffer = malloc(sPacket.tamanho + 1);
-                                // For loop
-                                for(int i = 0; i < sPacket.tamanho; i++)
-                                {
-                                    buffer[i] = sPacket.dados[i];
-                                }
-                                buffer[sPacket.tamanho] = '\0';
-                                // Verifica se ARG[1] == buffer
-                                if(strcmp(args[1], buffer) == 0)
-                                {
-                                    printf("Arquivo nao existe!\n");
-                                    break;
-                                }
-                                else
-                                {
-                                    tries--;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        tries--;
-                    }
+                    printf("[CLIENT-CLI] > Erro ao receber arquivo %s\n", args[1]);
+                }
+                else
+                {
+                    printf("[CLIENT-CLI] > Arquivo %s recebido com sucesso\n", args[1]);
                 }
             }
         }

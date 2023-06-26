@@ -208,7 +208,7 @@ int clientCommands(int socket, char **args, int wordCount)
                 while(1)
                 {
                     sendPacket(socket, &packet);
-                    if(readPacket(socket, &packet) == 0)
+                    if(readPacket(socket, &packet, 1) == 0)
                     {
                         // Check parity
                         if(checkParity(&packet) == 0)
@@ -250,9 +250,11 @@ int clientCommands(int socket, char **args, int wordCount)
                 }
             }
             else
-            if(sendFileWrapper(socket, args[1]) == 0)
             {
-                printf("[CLIENT-CLI] Arquivo enviado com sucesso!\n");
+                if(sendFileWrapper(socket, args[1]) == 0)
+                    printf("[CLIENT-CLI] Arquivo enviado com sucesso!\n");
+                else
+                    printf("[CLIENT-CLI] Falha ao enviar arquivo\n");
             }
         }
     }

@@ -49,6 +49,7 @@ int main(int argc, char const *argv[])
 
         if(myPacket.tipo == BACK_1_FILE)
         {
+            printf("[%s] > Receber um arquivo\n", sdirectory);
             if(myPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
             {
                 // Check parity
@@ -71,11 +72,12 @@ int main(int argc, char const *argv[])
         
                     if(receiveFile(socket, buffer, strlen(buffer)) == 1)
                     {
-                        printf("[%s] > Erro ao receber arquivo\n", sdirectory);
+                        printf("[%s] > Erro ao receber arquivo %s\n", sdirectory, buffer);
+                        remove(buffer);
                     }
                     else
                     {
-                        printf("[%s] > Arquivo recebido com sucesso\n", sdirectory);
+                        printf("[%s] > Arquivo %s recebido com sucesso\n", sdirectory, buffer);
                     }
                     free(buffer);
                 }
@@ -83,7 +85,7 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == BACK_PLUS_1_FILE)
         {
-            printf("[%s] > Receber varios arquivos\n", sdirectory);
+            printf("[%s] > Receber %d arquivos\n", sdirectory, myPacket.sequencia);
             int nFiles = myPacket.sequencia;
             // Send OK
             createPacket(&sPacket, 0, 0, OK, NULL);
@@ -104,11 +106,12 @@ int main(int argc, char const *argv[])
                 // Using sdirectory to save file
                 if(receiveFile(socket, buffer, strlen(buffer)) == 1)
                 {
-                    printf("Erro ao receber arquivo\n");
+                    printf("[%s] > Erro ao receber arquivo %s\n", sdirectory, buffer);
+                    remove(buffer);
                 }
                 else
                 {
-                    printf("Arquivo recebido com sucesso\n");
+                    printf("[%s] > Arquivo %s recebido com sucesso\n", sdirectory, buffer);
                 }
                 free(buffer);
             }

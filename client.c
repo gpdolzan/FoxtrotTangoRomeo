@@ -299,17 +299,47 @@ int clientCommands(int socket, char **args, int wordCount)
             }
             else
             {
-                // Create REC_1_FILE
+                // Crete packet REC_1_ARQ
                 createPacket(&packet, strlen(args[1]), 0, REC_1_ARQ, args[1]);
                 sendPacket(socket, &packet);
-        
-                if(receiveFile(socket, args[1], strlen(args[1])) == 1)
+
+                // Wait for OK
+                while(1)
                 {
-                    printf("[CLIENT-CLI] > Erro ao receber arquivo %s\n", args[1]);
-                }
-                else
-                {
-                    printf("[CLIENT-CLI] > Arquivo %s recebido com sucesso\n", args[1]);
+                    if(tries <= 0)
+                    {
+                        printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
+                        break;
+                    }
+                    if(readPacket(socket, &packet, 1) == 0)
+                    {
+                        // Check parity
+                        if(checkParity(&packet) == 0)
+                        {
+                            // GETCWD cdirectory
+                            getcwd(cdirectory, sizeof(cdirectory));
+                            // Check if packet is OK
+                            if(packet.tipo == BACK_1_FILE)
+                            {
+                                if(receiveFile(socket, args[1], strlen(args[1])) == 1)
+                                {
+                                    printf("[%s] > Erro ao receber arquivo %s\n", cdirectory, args[1]);
+                                }
+                                else
+                                {
+                                    printf("[%s] > Arquivo %s recebido com sucesso\n", cdirectory, args[1]);
+                                }
+                            }
+                            else if(packet.tipo == ERRO)
+                            {
+                                printf("[CLIENT-CLI] > Arquivo %s nao se encontra no diretorio REMOTO\n", args[1]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        tries--;
+                    }
                 }
             }
         }

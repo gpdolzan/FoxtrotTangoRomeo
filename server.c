@@ -197,6 +197,7 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == REC_1_ARQ)
         {
+            int skip = 0;
             // Get file name from packet dados
             char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
             for(int i = 0; i < myPacket.tamanho; i++)
@@ -205,29 +206,30 @@ int main(int argc, char const *argv[])
             }
             buffer[myPacket.tamanho] = '\0';
 
-            // Try open file
-            FILE *fp = fopen(buffer, "r");
-            if(fp == NULL)
+            // Check if file exists
+            if(checkFileExists(buffer) == 1)
             {
-                printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
-                // Send NACK
-                createPacket(&sPacket, strlen(buffer), 0, ERRO, buffer);
+                printf("[SERVER-CLI] Arquivo %s nao existe\n", buffer);
+                // SEND ERRO
+                createPacket(&sPacket, 0, 0, ERRO, NULL);
                 sendPacket(socket, &sPacket);
+                skip = 1;
             }
-            else
+
+            if(skip == 0)
             {
-                fclose(fp);
-                // Send file
-                if(sendFile(socket, buffer, strlen(buffer)) == 1)
+                printf("[SERVER-CLI] Enviando arquivo %s!\n", buffer);
+                if (sendFile(socket, buffer, strlen(buffer)) == 0)
                 {
-                    printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, buffer);
+                    printf("File sent successfully\n");
+                    return 0;
                 }
                 else
                 {
-                    printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, buffer);
+                    printf("Error sending file\n");
+                    return 1;
                 }
             }
-            free(buffer);
         }
         else if(myPacket.tipo == VERIFICA_BACK)
         {

@@ -203,6 +203,7 @@ int clientCommands(int socket, char **args, int wordCount)
 
                 // Create BACK_PLUS_1_FILE packet
                 createPacket(&packet, digits, 0, BACK_PLUS_1_FILE, countString);
+                sendPacket(socket, &packet);
 
                 // Wait for OK
                 while(1)
@@ -218,11 +219,6 @@ int clientCommands(int socket, char **args, int wordCount)
                             {
                                 printf("[CLIENT-CLI] OK received\n");
                                 break;
-                            }
-                            else
-                            {
-                                printf("[CLIENT-CLI] Error receiving OK\n");
-                                return 1;
                             }
                         }
                     }

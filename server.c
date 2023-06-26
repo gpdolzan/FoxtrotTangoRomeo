@@ -96,7 +96,6 @@ int main(int argc, char const *argv[])
             free(buffer);
 
             printf("[%s] > Receber %d arquivos\n", sdirectory, myPacket.sequencia);
-            int nFiles = myPacket.sequencia;
             // Send OK
             createPacket(&sPacket, 0, 0, OK, NULL);
             sendPacket(socket, &sPacket);

@@ -32,6 +32,7 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
     // Create packet to ask for file
     struct t_packet packet;
     struct t_packet serverPacket;
+    char *buffer;
     int tries = 8;
 
     createPacket(&packet, strlen(filename), 0, REC_1_ARQ, filename);
@@ -46,6 +47,22 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
             {
                 printf("RECEBI BACK_1_FILE!\n");
                 break;
+            }
+            else if(serverPacket.tipo == ERRO)
+            {
+                // Get buffer from packet
+                buffer = malloc(sizeof(char) * (serverPacket.tamanho + 1));
+                // For loop
+                for(int i = 0; i < serverPacket.tamanho; i++)
+                {
+                    buffer[i] = serverPacket.dados[i];
+                }
+                // Check if says ne
+                if(strcmp(buffer, "ne") == 0)
+                {
+                    printf("Arquivo nao existe!\n");
+                    return 1;
+                }
             }
         }
         tries--;
@@ -265,14 +282,21 @@ int clientCommands(int socket, char **args, int wordCount)
     {
         if(wordCount == 2)
         {
-            int count = strlen(args[1]) + 1;
-            if(receiveFileWrapper(socket, args[1], count) == 0)
+            // Check if string has a * in it
+            if(strchr(args[1], '*') != NULL)
             {
-                printf("[CLIENT-CLI] File received successfully\n");
+
             }
             else
             {
-                printf("[CLIENT-CLI] Error receiving file\n");
+                if(receiveFileWrapper(socket, args[1], strlen(args[1])) == 0)
+                {
+                    printf("[CLIENT-CLI] File received successfully\n");
+                }
+                else
+                {
+                    printf("[CLIENT-CLI] Error receiving file\n");
+                }
             }
         }
     }

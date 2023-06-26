@@ -265,43 +265,7 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == VERIFICA_BACK)
         {
-            // Calculate hash of file
-            buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
-            // Copy data to buffer using for loop
-            for(int i = 0; i < myPacket.tamanho; i++)
-            {
-                buffer[i] = myPacket.dados[i];
-            }
-            // print buffer
-            printf("[%s] > Calculando hash do arquivo %s\n", sdirectory, buffer);
-            // Create a temporary buffer that concatenates server directory and file name
-            char *tempBuffer = (char *)malloc((strlen(buffer) + (strlen(sdirectory) + 1) * sizeof(char)));
-            strcpy(tempBuffer, sdirectory);
-            strcat(tempBuffer, "/");
-            strcat(tempBuffer, buffer);
-
-            // Open file
-            FILE *fp = fopen(tempBuffer, "rb");
-            if(fp == NULL)
-            {
-                printf("Erro ao abrir arquivo\n");
-                // Send ERRO
-                char *msg = "ai"; // arquivo inexistente
-                createPacket(&sPacket, strlen(msg), 0, ERRO, msg);
-                sendPacket(socket, &sPacket);
-            }
-            else
-            {
-                char *hash = (uint8_t *)malloc(16 * sizeof(uint8_t));
-                md5File(fp, hash);
-                // Send MD5
-                createPacket(&sPacket, 16, 0, MD5, hash);
-                sendPacket(socket, &sPacket);
-                free(hash);
-            }
-            fclose(fp);
-            free(buffer);
-            free(tempBuffer);
+            //SERVERDISE
         }
         else if(myPacket.tipo == CH_DIR_SERVER)
         {

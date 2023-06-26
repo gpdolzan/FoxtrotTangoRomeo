@@ -197,11 +197,8 @@ int clientCommands(int socket, char **args, int wordCount)
                     digits++;
                 }
 
-                // Generate string with with count
-                char countString[digits + 1];
-
                 // Create BACK_PLUS_1_FILE packet
-                createPacket(&packet, digits, 0, BACK_PLUS_1_FILE, countString);
+                createPacket(&packet, 1, 0, BACK_PLUS_1_FILE, count);
                 sendPacket(socket, &packet);
 
                 // Wait for OK

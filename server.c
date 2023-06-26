@@ -211,13 +211,8 @@ int main(int argc, char const *argv[])
             {
                 printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
                 // Send NACK
-                char *buffer2 = (char *)malloc((3) * sizeof(char));
-                buffer2[0] = 'n';
-                buffer2[1] = 'e';
-                buffer2[2] = '\0';
-                createPacket(&sPacket, strlen(buffer2), 0, ERRO, buffer2);
+                createPacket(&sPacket, strlen(buffer), 0, ERRO, buffer);
                 sendPacket(socket, &sPacket);
-                free(buffer2);
             }
             else
             {
@@ -231,8 +226,8 @@ int main(int argc, char const *argv[])
                     printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, buffer);
                 }
             }
-            fclose(fp);
             free(buffer);
+            fclose(fp);
 
             /*if(myPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
             {

@@ -313,7 +313,35 @@ int clientCommands(int socket, char **args, int wordCount)
                             if(sPacket.tipo == BACK_1_FILE)
                             {
                                 printf("[CLIENT-CLI] BACK_1_FILE received\n");
-                                break;
+                                if(receiveFile(socket, args[1], strlen(args[1])) == 0)
+                                {
+                                    printf("[CLIENT-CLI] File received successfully\n");
+                                }
+                                else
+                                {
+                                    printf("[CLIENT-CLI] Error receiving file\n");
+                                }
+                            }
+                            else if(sPacket.tipo == ERRO)
+                            {
+                                // Copy to buffer sPacket.dados
+                                char *buffer = malloc(sPacket.tamanho + 1);
+                                // For loop
+                                for(int i = 0; i < sPacket.tamanho; i++)
+                                {
+                                    buffer[i] = sPacket.dados[i];
+                                }
+                                buffer[sPacket.tamanho] = '\0';
+                                // Verifica se ARG[1] == buffer
+                                if(strcmp(args[1], buffer) == 0)
+                                {
+                                    printf("Arquivo nao existe!\n");
+                                    break;
+                                }
+                                else
+                                {
+                                    tries--;
+                                }
                             }
                         }
                     }
@@ -321,15 +349,6 @@ int clientCommands(int socket, char **args, int wordCount)
                     {
                         tries--;
                     }
-                }
-
-                if(receiveFile(socket, args[1], strlen(args[1])) == 0)
-                {
-                    printf("[CLIENT-CLI] File received successfully\n");
-                }
-                else
-                {
-                    printf("[CLIENT-CLI] Error receiving file\n");
                 }
             }
         }

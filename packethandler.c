@@ -232,10 +232,9 @@ int sendFile(int socket, char *filename, int filesize)
                     printf("sequencia nova: %d\n", sequence);
                     break;
                 }
-                else if(serverPacket.tipo == NACK)
+                else if(serverPacket.tipo == NACK && serverPacket.sequencia == sequence)
                 {
                     // Enviar novamente
-                    printf("paridade: %d\n", packet.paridade);
                     sendPacket(socket, &packet);
                 }
             }
@@ -323,9 +322,9 @@ int receiveFile(int socket, char* filename, int filesize)
             tries = 5;
         }
         // Recebeu mensagem, verifica OK ou NACK
-        if(clientPacket.sequencia == expectedSequence && checkParity(&clientPacket) == 0)
+        if(checkParity(&clientPacket) == 0)
         {
-            if(clientPacket.tipo == DATA)
+            if(clientPacket.tipo == DATA && expectedSequence == clientPacket.sequencia)
             {
                 // Create a buffer
                 char *buffer = malloc(clientPacket.tamanho);
@@ -346,6 +345,12 @@ int receiveFile(int socket, char* filename, int filesize)
                     expectedSequence++;
                 else
                     expectedSequence = 0;
+            }
+            else if(clientPacket.tipo == DATA && expectedSequence < clientPacket.sequencia)
+            {
+                // Send NACK
+                createPacket(&serverPacket, 0, (expectedSequence + 1), NACK, NULL); // Pedido para receber proximo DATA
+                sendPacket(socket, &serverPacket);
             }
             else if(clientPacket.tipo == FIM_ARQ)
             {

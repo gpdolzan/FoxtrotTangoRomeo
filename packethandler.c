@@ -157,7 +157,7 @@ int sendFile(int socket, char *filename, int filesize)
     {
         sendPacket(socket, &packet);
         // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &serverPacket, 1) == 1)
+        if (readPacket(socket, &serverPacket, 2) == 1)
         {
             printf("Timeout Receber confirmacao de inicio\n");
             fclose(file);
@@ -174,7 +174,7 @@ int sendFile(int socket, char *filename, int filesize)
             {
                 // Enviar novamente
                 printf("RECEBI NACK\n");
-                sendPacket(socket, &packet);
+                continue;
             }
         }
         else if(checkParity(&serverPacket) == 1)
@@ -215,7 +215,6 @@ int sendFile(int socket, char *filename, int filesize)
                     return 1;
                 }
                 tries--;
-                printf("Ouvindo!\n");
                 continue;
             }
             else
@@ -226,8 +225,7 @@ int sendFile(int socket, char *filename, int filesize)
             if(serverPacket.tipo == NACK && serverPacket.sequencia == sequence)
             {
                 // Enviar novamente
-                printf("RECEBI NACK, ENVIANDO DADOS DE NOVO!\n");
-                printPacket(&packet);
+                printf("NACK\n");
                 sendPacket(socket, &packet);
             }
             else if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
@@ -307,29 +305,24 @@ int receiveFile(int socket, char* filename, int filesize)
     sendPacket(socket, &serverPacket);
     while(1)
     {
-        if(skip == 0)
+        // Aguardar resposta (talvez timeout)
+        if (readPacket(socket, &clientPacket, 2) == 1)
         {
-            // Aguardar resposta (talvez timeout)
-            if (readPacket(socket, &clientPacket, 2) == 1)
+            if(tries <= 0)
             {
-                if(tries <= 0)
-                {
-                    printPacket(&clientPacket);
-                    printf("Timeout dados do arquivo\n");
-                    fclose(file);
-                    remove(filename);
-                    return 1;
-                }
-                tries--;
-                sendPacket(socket, &serverPacket);
+                printPacket(&clientPacket);
+                printf("Timeout dados do arquivo\n");
+                fclose(file);
+                remove(filename);
+                return 1;
             }
-            else
-            {
-                tries = 5;
-            }
+            tries--;
+            sendPacket(socket, &serverPacket);
         }
         else
-            skip = 0;
+        {
+            tries = 5;
+        }
 
         // Recebeu mensagem, verifica OK ou NACK
         if(checkParity(&clientPacket) == 0)

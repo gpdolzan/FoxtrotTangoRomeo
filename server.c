@@ -291,6 +291,9 @@ int main(int argc, char const *argv[])
                         // Send OK
                         createPacket(&sPacket, 0, 0, OK, NULL);
                         sendPacket(socket, &sPacket);
+                        // Print cwd
+                        getcwd(sdirectory, sizeof(sdirectory));
+                        printf("[%s] > Diretorio atual: %s\n", sdirectory, sdirectory);
                     }
                     else
                     {
@@ -304,9 +307,12 @@ int main(int argc, char const *argv[])
                     // Send OK
                     createPacket(&sPacket, 0, 0, OK, NULL);
                     sendPacket(socket, &sPacket);
+                    // Print cwd
+                    getcwd(sdirectory, sizeof(sdirectory));
+                    printf("[%s] > Diretorio atual: %s\n", sdirectory, sdirectory);
                 }
             }
-
+            free(buffer);
         }
     }
 }

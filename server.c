@@ -302,7 +302,7 @@ int main(int argc, char const *argv[])
                 }
                 printf("\n");
                 // Send hash
-                createPacket(&sPacket, 16, 0, VERIFICA_BACK, hash);
+                createPacket(&sPacket, 16, 0, MD5, hash);
                 sendPacket(socket, &sPacket);
             }
         }

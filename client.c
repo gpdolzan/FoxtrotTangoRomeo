@@ -397,8 +397,14 @@ int clientCommands(int socket, char **args, int wordCount)
                     printf("[CLIENT-CLI] Servidor nao respondeu\n");
                     break;
                 }
+                
                 // Try to read packet
                 if(readPacket(socket, &packet, 1) != 0)
+                {
+                    tries--;
+                    continue;
+                }
+                else if(checkParity(&packet) != 0)
                 {
                     tries--;
                     continue;
@@ -514,3 +520,4 @@ int main(int argc, char const *argv[])
     }
     return 0;
 }
+

@@ -255,9 +255,15 @@ int clientCommands(int socket, char **args, int wordCount)
         if(wordCount >= 2)
         {
             printf("[CLIENT-CLI] Enviando pedido para servidor mudar diretorio para: %s\n", args[1]);
-
+            // Tries
+            int tries = 5;
             while (1)
             {
+                if(tries <= 0)
+                {
+                    printf("[CLIENT-CLI] Servidor nao respondeu\n");
+                    break;
+                }
                 // Create packet VERIFICA_BACK
                 struct t_packet packet;
                 printf("%ld: %s\n", strlen(args[1]), args[1]);
@@ -293,6 +299,11 @@ int clientCommands(int socket, char **args, int wordCount)
                 else if(packet.tipo == NACK)
                 {
                     printf("[CLIENT-CLI] Servidor nao respondeu, tentando novamente\n");
+                    continue;
+                }
+                else
+                {
+                    tries--;
                     continue;
                 }
             }

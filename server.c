@@ -96,45 +96,49 @@ int main(int argc, char const *argv[])
             free(buffer);
 
             printf("[%s] > Receber %d arquivos\n", sdirectory, myPacket.sequencia);
-            // Send OK
-            createPacket(&sPacket, 0, 0, OK, NULL);
-            sendPacket(socket, &sPacket);
-            for(int i = 0; i < nFiles; i++)
+
+            if(nFiles > 0)
             {
-                // Using sdirectory to save file
-                if(receiveFile(socket, buffer, strlen(buffer)) == 1)
+                // Send OK
+                createPacket(&sPacket, 0, 0, OK, NULL);
+                sendPacket(socket, &sPacket);
+                for(int i = 0; i < nFiles; i++)
                 {
-                    printf("[%s] > Erro ao receber arquivo %s\n", sdirectory, buffer);
-                    remove(buffer);
-                }
-                else
-                {
-                    printf("[%s] > Arquivo %s recebido com sucesso\n", sdirectory, buffer);
-                }
-                free(buffer);
-            }
-            // Wait for FIM_GRUPO_ARQ
-            while(1)
-            {
-                if(readPacket(socket, &myPacket, 1) == 0)
-                {
-                    if(checkParity(&myPacket) == 1)
+                    // Using sdirectory to save file
+                    if(receiveFile(socket, buffer, strlen(buffer)) == 1)
                     {
-                        printf("[%s] > Erro de paridade\n", sdirectory);
-                        // Send NACK
-                        createPacket(&sPacket, 0, 0, NACK, NULL);
-                        sendPacket(socket, &sPacket);
+                        printf("[%s] > Erro ao receber arquivo %s\n", sdirectory, buffer);
+                        remove(buffer);
                     }
                     else
                     {
-                        if(myPacket.tipo == FIM_GRUPO_ARQ)
+                        printf("[%s] > Arquivo %s recebido com sucesso\n", sdirectory, buffer);
+                    }
+                    free(buffer);
+                }
+                // Wait for FIM_GRUPO_ARQ
+                while(1)
+                {
+                    if(readPacket(socket, &myPacket, 1) == 0)
+                    {
+                        if(checkParity(&myPacket) == 1)
                         {
-                            printf("[%s] > FIM_GRUPO_ARQ recebido\n", sdirectory);
-                            break;
+                            printf("[%s] > Erro de paridade\n", sdirectory);
+                            // Send NACK
+                            createPacket(&sPacket, 0, 0, NACK, NULL);
+                            sendPacket(socket, &sPacket);
                         }
                         else
                         {
-                            continue;
+                            if(myPacket.tipo == FIM_GRUPO_ARQ)
+                            {
+                                printf("[%s] > FIM_GRUPO_ARQ recebido\n", sdirectory);
+                                break;
+                            }
+                            else
+                            {
+                                continue;
+                            }
                         }
                     }
                 }

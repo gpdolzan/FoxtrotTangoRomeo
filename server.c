@@ -159,11 +159,11 @@ int main(int argc, char const *argv[])
             {
                 buffer[i] = myPacket.dados[i];
             }
-            // Using current directory and file name, create a temporary buffer
             char *tempBuffer = (char *)malloc((strlen(buffer) + (strlen(sdirectory) + 1) * sizeof(char)));
             strcpy(tempBuffer, sdirectory);
             strcat(tempBuffer, "/");
             strcat(tempBuffer, buffer);
+            char *hash = (uint8_t *)malloc(16 * sizeof(uint8_t));
             // Try to open file
             FILE *fp = fopen(tempBuffer, "rb");
             if(fp == NULL)

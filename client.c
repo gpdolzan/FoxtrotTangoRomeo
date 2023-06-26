@@ -355,6 +355,7 @@ int clientCommands(int socket, char **args, int wordCount)
             // Create packet VERIFICA_BACK
             struct t_packet packet;
             createPacket(&packet, strlen(args[1]), 0, VERIFICA_BACK, args[1]);
+
             // Send packet
             sendPacket(socket, &packet);
 
@@ -367,8 +368,13 @@ int clientCommands(int socket, char **args, int wordCount)
                     printf("[CLIENT-CLI] Servidor nao respondeu\n");
                     break;
                 }
-                // Receive packet
-                readPacket(socket, &packet, 1);
+                // Try to read packet
+                if(readPacket(socket, &packet, 1) != 0)
+                {
+                    tries--;
+                    continue;
+                }
+                
                 // Check if packet is a MD5
                 if(packet.tipo == MD5)
                 {

@@ -397,7 +397,7 @@ int clientCommands(int socket, char **args, int wordCount)
         else
         {
             // Create file with args[1] name
-            FILE *file = fopen(args[1], "r");
+            FILE *file = fopen(args[1], "rb");
             if(file == NULL)
             {
                 printf("[CLIENT-CLI] Arquivo local %s nao encontrado\n", args[1]);

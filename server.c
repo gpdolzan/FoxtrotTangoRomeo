@@ -250,7 +250,7 @@ int main(int argc, char const *argv[])
             printf("[TEMP BUFFER] %s\n", tempBuffer);
 
             // Try open file
-            FILE *fp = fopen(tempBuffer, "r");
+            FILE *fp = fopen(buffer, "rb");
             if(fp == NULL)
             {
                 printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
@@ -271,7 +271,6 @@ int main(int argc, char const *argv[])
                 free(hash);
                 fclose(fp);
             }
-
             free(buffer);
             free(tempBuffer);
         }

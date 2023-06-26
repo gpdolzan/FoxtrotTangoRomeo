@@ -96,7 +96,7 @@ int main(int argc, char const *argv[])
             int nFiles = atoi(buffer);
             free(buffer);
 
-            printf("[%s] > Receber %d arquivos\n", sdirectory, myPacket.sequencia);
+            printf("[%s] > Receber %d arquivos\n", sdirectory, nFiles);
 
             if(nFiles > 0)
             {

@@ -5,6 +5,8 @@
 
 #define BUFFER_SIZE 1024
 
+char cdirectory[1024]; // Client directory
+
 int sendFileWrapper(int socket, char *filename)
 {
     // Check if file exists
@@ -483,6 +485,18 @@ int clientCommands(int socket, char **args, int wordCount)
 
 int main(int argc, char const *argv[])
 {
+    const char *dirname = "clientdir";
+    mode_t target_mode = 0777;
+    if(chdir(dirname) == -1)
+    {
+        if (mkdir(dirname, 0) == 0)
+        {
+            chmod(dirname, target_mode);
+            // Change to dirname
+            chdir(dirname);
+        }
+    }
+
     int socket = ConexaoRawSocket("enp5s0");
     //int socket = ConexaoRawSocket("lo");
     int wordCount;

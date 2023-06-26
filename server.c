@@ -63,13 +63,12 @@ int main(int argc, char const *argv[])
                 else
                 {
                     // Create buffer
-                    buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
+                    buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
                     // Copy data to buffer using for loop
                     for(int i = 0; i < myPacket.tamanho; i++)
                     {
                         buffer[i] = myPacket.dados[i];
                     }
-                    buffer[myPacket.tamanho] = '\0';
         
                     if(receiveFile(socket, buffer, strlen(buffer)) == 1)
                     {

@@ -291,7 +291,6 @@ int sendFile(int socket, char *filename, int filesize)
 int receiveFile(int socket, char* filename, int filesize)
 {
     int expectedSequence = 0;
-    char path[100];
     struct t_packet clientPacket;
     struct t_packet serverPacket;
     int tries = 5;

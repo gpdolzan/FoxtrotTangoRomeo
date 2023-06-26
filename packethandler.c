@@ -207,6 +207,7 @@ int sendFile(int socket, char *filename, int filesize)
             {
                 if(tries <= 0)
                 {
+                    printPacket(&packet);
                     printf("Timeout enviar dados do arquivo\n");
                     fclose(file);
                     return 1;
@@ -306,6 +307,7 @@ int receiveFile(int socket, char* filename, int filesize)
         {
             if(tries <= 0)
             {
+                printPacket(&clientPacket);
                 printf("Timeout dados do arquivo\n");
                 fclose(file);
                 remove(filename);

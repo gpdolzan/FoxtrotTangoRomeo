@@ -184,47 +184,59 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == CH_DIR_SERVER)
         {
-            // Create buffer
-            char *buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
-            // Copy data to buffer using for loop
-            for(int i = 0; i < myPacket.tamanho; i++)
+            // CHeck parity
+            if(checkParity(&myPacket) == 1)
             {
-                buffer[i] = myPacket.dados[i];
-            }
-            mode_t target_mode = 0777;
-            if(chdir(buffer) == -1)
-            {
-                if (mkdir(buffer, 0) == 0)
-                {
-                    chmod(buffer, target_mode);
-                    // Change to buffer and check if it worked
-                    if(chdir(buffer) == -1)
-                    {
-                        printf("Erro ao mudar de diretorio\n");
-                        // Send ERRO
-                        char *msg = "fmd"; // falha mudanca de diretorio
-                        createPacket(&sPacket, strlen(msg), 0, ERRO, msg);
-                        sendPacket(socket, &sPacket);
-                    }
-                    else
-                    {
-                        // Get current directory
-                        getcwd(sdirectory, sizeof(sdirectory));
-                        printf("Diretorio atual: %s\n", sdirectory);
-                        // Send OK
-                        createPacket(&sPacket, 0, 0, OK, NULL);
-                        sendPacket(socket, &sPacket);
-                    }
-                }
+                printf("Erro de paridade\n");
+                // Send NACK
+                createPacket(&sPacket, 0, 0, NACK, NULL);
+                sendPacket(socket, &sPacket);
             }
             else
             {
-                // Get current directory
-                getcwd(sdirectory, sizeof(sdirectory));
-                printf("Diretorio atual: %s\n", sdirectory);
-                // Send OK
-                createPacket(&sPacket, 0, 0, OK, NULL);
-                sendPacket(socket, &sPacket);
+                // Create buffer
+                char *buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
+                // Copy data to buffer using for loop
+                for(int i = 0; i < myPacket.tamanho; i++)
+                {
+                    buffer[i] = myPacket.dados[i];
+                }
+                mode_t target_mode = 0777;
+                if(chdir(buffer) == -1)
+                {
+                    if (mkdir(buffer, 0) == 0)
+                    {
+                        chmod(buffer, target_mode);
+                        // Change to buffer and check if it worked
+                        if(chdir(buffer) == -1)
+                        {
+                            printf("Erro ao mudar de diretorio\n");
+                            // Send ERRO
+                            char *msg = "fmd"; // falha mudanca de diretorio
+                            createPacket(&sPacket, strlen(msg), 0, ERRO, msg);
+                            sendPacket(socket, &sPacket);
+                        }
+                        else
+                        {
+                            // Get current directory
+                            getcwd(sdirectory, sizeof(sdirectory));
+                            printf("Diretorio atual: %s\n", sdirectory);
+                            // Send OK
+                            createPacket(&sPacket, 0, 0, OK, NULL);
+                            sendPacket(socket, &sPacket);
+                        }
+                    }
+                }
+                else
+                {
+                    printf("aqui\n");
+                    // Get current directory
+                    getcwd(sdirectory, sizeof(sdirectory));
+                    printf("Diretorio atual: %s\n", sdirectory);
+                    // Send OK
+                    createPacket(&sPacket, 0, 0, OK, NULL);
+                    sendPacket(socket, &sPacket);
+                }
             }
         }
     }

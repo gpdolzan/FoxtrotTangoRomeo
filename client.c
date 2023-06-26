@@ -260,6 +260,7 @@ int clientCommands(int socket, char **args, int wordCount)
             {
                 // Create packet VERIFICA_BACK
                 struct t_packet packet;
+                printf("%ld: %s\n", strlen(args[1]), args[1]);
                 createPacket(&packet, strlen(args[1]), 0, CH_DIR_SERVER, args[1]);
                 // Send packet
                 sendPacket(socket, &packet);

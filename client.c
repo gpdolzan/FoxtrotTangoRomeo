@@ -386,19 +386,41 @@ int clientCommands(int socket, char **args, int wordCount)
             createPacket(&packet, strlen(args[1]), 0, VERIFICA_BACK, args[1]);
             sendPacket(socket, &packet);
 
-            // Receive MD5
-            struct t_packet sPacket;
-            if(readPacket(socket, &sPacket, 5) == 0)
+            if(packet.tipo == MD5)
             {
-                if(sPacket.tipo == MD5)
+                printf("[CLIENT-CLI] Hash md5 do arquivo REMOTO %s: ", args[1]);
+                // Create buffer to store hash
+                uint8_t *hash = malloc(16);
+                // For loop
+                for(int i = 0; i < 16; i++)
                 {
-                    printf("md5\n");
+                    hash[i] = packet.dados[i];
                 }
-                else
+                // For loop to print hash
+                for(int i = 0; i < 16; i++)
                 {
-                    printf("arq nao existe no servidor\n");
+                        printf("%02x", hash[i]);
                 }
-            }   
+                printf("\n");
+            }
+            else if(packet.tipo == ERRO)
+            {
+                // Check if data inside packet says "ai"
+                // Create buffer to data
+                char *data = malloc(packet.tamanho + 1);
+                // For loop to copy data
+                for(int i = 0; i < packet.tamanho; i++)
+                {
+                    data[i] = packet.dados[i];
+                }
+                // Add null terminator
+                data[packet.tamanho] = '\0';
+                // Check if data is "ai"
+                if(strcmp(data, "ai") == 0)
+                {
+                    printf("[CLIENT-CLI] Arquivo %s nao encontrado no servidor\n", args[1]);
+                }
+            }  
         }
     }
     else if (strcmp(args[0], "help") == 0)

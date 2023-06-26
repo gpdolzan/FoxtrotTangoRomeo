@@ -281,26 +281,25 @@ int main(int argc, char const *argv[])
             strcat(tempBuffer, buffer);
 
             // Open file
-            FILE *fp = fopen(tempBuffer, "r");
+            FILE *fp = fopen(tempBuffer, "rb");
             if(fp == NULL)
             {
-                printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
-                // Send NACK
-                createPacket(&sPacket, 0, 0, ERRO, NULL);
+                printf("Erro ao abrir arquivo\n");
+                // Send ERRO
+                char *msg = "ai"; // arquivo inexistente
+                createPacket(&sPacket, strlen(msg), 0, ERRO, msg);
                 sendPacket(socket, &sPacket);
             }
             else
             {
-                // Calculate hash
-                char *hash = (uint8_t *)malloc(16);
+                char *hash = (uint8_t *)malloc(16 * sizeof(uint8_t));
                 md5File(fp, hash);
-                fclose(fp);
-                // Send hash
+                // Send MD5
                 createPacket(&sPacket, 16, 0, MD5, hash);
-                printPacket(&sPacket);
                 sendPacket(socket, &sPacket);
-                printf("[%s] > Hash do arquivo %s enviado\n", sdirectory, buffer);
+                free(hash);
             }
+            fclose(fp);
             free(buffer);
             free(tempBuffer);
         }

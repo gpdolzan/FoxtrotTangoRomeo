@@ -216,6 +216,7 @@ int main(int argc, char const *argv[])
             }
             else
             {
+                fclose(fp);
                 // Send file
                 if(sendFile(socket, buffer, strlen(buffer)) == 1)
                 {
@@ -227,7 +228,6 @@ int main(int argc, char const *argv[])
                 }
             }
             free(buffer);
-            fclose(fp);
 
             /*if(myPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
             {

@@ -85,6 +85,7 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == BACK_PLUS_1_FILE)
         {
+            printPacket(&myPacket);
             buffer = (char *)malloc((myPacket.tamanho + 1)* sizeof(char));
             // Copy data to buffer using for loop
             for(int i = 0; i < myPacket.tamanho; i++)

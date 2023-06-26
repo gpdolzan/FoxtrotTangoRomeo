@@ -85,9 +85,30 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == BACK_PLUS_1_FILE)
         {
-            int nFiles = myPacket.sequencia;
+            // Data has a special format #[number]#
+            // Get number
+            int nFiles = 0;
+            char *buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
+            for(int i = 0; i < myPacket.tamanho; i++)
+            {
+                buffer[i] = myPacket.dados[i];
+            }
+            // Now ignore the # and get the number
+            char *tempBuffer = (char *)malloc((strlen(buffer) + 1) * sizeof(char));
+            int j = 0;
+            for(int i = 1; i < strlen(buffer) - 1; i++)
+            {
+                tempBuffer[j] = buffer[i];
+                j++;
+            }
+            tempBuffer[j] = '\0';
+            nFiles = atoi(tempBuffer);
+            free(tempBuffer);
+            free(buffer);
 
-            if(nFiles > 0)
+            printf("[%s] > Receber %d arquivos\n", sdirectory, nFiles);
+
+            /*if(nFiles > 0)
             {
                 // Send OK
                 createPacket(&sPacket, 0, 0, OK, NULL);
@@ -132,7 +153,7 @@ int main(int argc, char const *argv[])
                         }
                     }
                 }
-            }
+            }*/
         }
         else if(myPacket.tipo == REC_1_ARQ)
         {

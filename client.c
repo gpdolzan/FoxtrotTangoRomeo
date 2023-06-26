@@ -188,10 +188,14 @@ int clientCommands(int socket, char **args, int wordCount)
                 int count = globbuf.gl_pathc;
                 printf("[CLIENT-CLI] Sending %d files\n", count);
 
-                // Create BACK_PLUS_1_FILE packet
-                createPacket(&packet, 0, count, BACK_PLUS_1_FILE, NULL);
-                sendPacket(socket, &packet);
+                // Monta string #[valor]arq
+                char countString[10];
+                sprintf(countString, "#%d#", count);
 
+                // Create BACK_PLUS_1_FILE packet
+                createPacket(&packet, strlen(countString), 0, BACK_PLUS_1_FILE, countString);
+                sendPacket(socket, &packet);
+                /*
                 // Wait for OK
                 while(1)
                 {
@@ -230,7 +234,7 @@ int clientCommands(int socket, char **args, int wordCount)
                     {
                         printf("[CLIENT-CLI] Erro ao enviar arquivo %s\n", globbuf.gl_pathv[i]);
                     }
-                }
+                }*/
             }
             else
             {

@@ -182,6 +182,8 @@ int main(int argc, char const *argv[])
                 createPacket(&sPacket, 16, 0, MD5, hash);
                 sendPacket(socket, &sPacket);
             }
+            free(buffer);
+            free(tempBuffer);
         }
         else if(myPacket.tipo == CH_DIR_SERVER)
         {

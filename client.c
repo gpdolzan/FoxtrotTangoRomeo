@@ -54,6 +54,9 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
             if(serverPacket.tipo == BACK_1_FILE)
             {
                 printf("RECEBI BACK_1_FILE!\n");
+                // Senf OK
+                createPacket(&packet, 0, 0, OK, NULL);
+                sendPacket(socket, &packet);
                 break;
             }
             else if(serverPacket.tipo == ERRO)
@@ -583,8 +586,8 @@ int clientCommands(int socket, char **args, int wordCount)
 
 int main(int argc, char const *argv[])
 {
-    int socket = ConexaoRawSocket("enp5s0");
-    //int socket = ConexaoRawSocket("lo");
+    //int socket = ConexaoRawSocket("enp5s0");
+    int socket = ConexaoRawSocket("lo");
     int wordCount;
     char buffer[1024];
     char **args;

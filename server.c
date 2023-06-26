@@ -208,6 +208,8 @@ int main(int argc, char const *argv[])
                     }
                     else
                     {
+                        // Do chdir to server directory
+                        chdir(sdirectory);
                         printf("Diretorio mudado com sucesso\n");
                         // Send OK
                         createPacket(&sPacket, 0, 0, OK, NULL);

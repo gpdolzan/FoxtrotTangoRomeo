@@ -208,7 +208,7 @@ int clientCommands(int socket, char **args, int wordCount)
                 while(1)
                 {
                     sendPacket(socket, &packet);
-                    if(receivePacket(socket, &packet) == 0)
+                    if(readPacket(socket, &packet) == 0)
                     {
                         // Check parity
                         if(checkParity(&packet) == 0)

@@ -222,12 +222,10 @@ int main(int argc, char const *argv[])
                 if (sendFile(socket, buffer, strlen(buffer)) == 0)
                 {
                     printf("File sent successfully\n");
-                    return 0;
                 }
                 else
                 {
                     printf("Error sending file\n");
-                    return 1;
                 }
             }
         }

@@ -168,10 +168,6 @@ int sendFile(int socket, char *filename, int filesize)
         {
             if(serverPacket.tipo == OK)
             {
-                if(sequence < 63)
-                    sequence++;
-                else
-                    sequence = 0;
                 break;
             }
             else if(serverPacket.tipo == NACK)
@@ -303,7 +299,6 @@ int receiveFile(int socket, char* filename, int filesize)
     // Loop de recebimento de bytes do arquivo
     printf("Loop de bytes de arquivo\n");
     sendPacket(socket, &serverPacket);
-    expectedSequence++;
     while(1)
     {
         // Aguardar resposta (talvez timeout)

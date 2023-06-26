@@ -214,6 +214,7 @@ int sendFile(int socket, char *filename, int filesize)
                 }
                 tries--;
                 sendPacket(socket, &packet);
+                printf("reenviando pacote de sequencia %d\n", packet.sequencia);
                 continue;
             }
             else

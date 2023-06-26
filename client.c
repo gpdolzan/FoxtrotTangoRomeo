@@ -312,7 +312,7 @@ int clientCommands(int socket, char **args, int wordCount)
                             // Check if packet is OK
                             if(sPacket.tipo == BACK_1_FILE)
                             {
-                                printf("[CLIENT-CLI] BACK_1_ARQ received\n");
+                                printf("[CLIENT-CLI] BACK_1_FILE received\n");
                                 break;
                             }
                         }
@@ -323,7 +323,7 @@ int clientCommands(int socket, char **args, int wordCount)
                     }
                 }
 
-                if(receiveFileWrapper(socket, args[1], strlen(args[1])) == 0)
+                if(receiveFile(socket, args[1], strlen(args[1])) == 0)
                 {
                     printf("[CLIENT-CLI] File received successfully\n");
                 }

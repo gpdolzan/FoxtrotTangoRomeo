@@ -85,6 +85,16 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == BACK_PLUS_1_FILE)
         {
+            buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
+            // Copy data to buffer using for loop
+            for(int i = 0; i < myPacket.tamanho; i++)
+            {
+                buffer[i] = myPacket.dados[i];
+            }
+            // String to int
+            int nFiles = atoi(buffer);
+            free(buffer);
+
             printf("[%s] > Receber %d arquivos\n", sdirectory, myPacket.sequencia);
             int nFiles = myPacket.sequencia;
             // Send OK
@@ -92,17 +102,6 @@ int main(int argc, char const *argv[])
             sendPacket(socket, &sPacket);
             for(int i = 0; i < nFiles; i++)
             {
-                // Create buffer
-                buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
-                // Copy data to buffer using for loop
-                for(int i = 0; i < myPacket.tamanho; i++)
-                {
-                    buffer[i] = myPacket.dados[i];
-                }
-                buffer[myPacket.tamanho] = '\0';
-        
-                printf("[%s] > Saving file %s\n", sdirectory, buffer);
-
                 // Using sdirectory to save file
                 if(receiveFile(socket, buffer, strlen(buffer)) == 1)
                 {
@@ -114,6 +113,32 @@ int main(int argc, char const *argv[])
                     printf("[%s] > Arquivo %s recebido com sucesso\n", sdirectory, buffer);
                 }
                 free(buffer);
+            }
+            // Wait for FIM_GRUPO_ARQ
+            while(1)
+            {
+                if(readPacket(socket, &myPacket, 1) == 0)
+                {
+                    if(checkParity(&myPacket) == 1)
+                    {
+                        printf("[%s] > Erro de paridade\n", sdirectory);
+                        // Send NACK
+                        createPacket(&sPacket, 0, 0, NACK, NULL);
+                        sendPacket(socket, &sPacket);
+                    }
+                    else
+                    {
+                        if(myPacket.tipo == FIM_GRUPO_ARQ)
+                        {
+                            printf("[%s] > FIM_GRUPO_ARQ recebido\n", sdirectory);
+                            break;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                }
             }
         }
         else if(myPacket.tipo == REC_1_ARQ)

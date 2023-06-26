@@ -260,13 +260,16 @@ int main(int argc, char const *argv[])
                 uint8_t *hash = malloc(16);
                 // Using md5file function to get md5 hash
                 md5File(fp, hash);
-                
-                // For loop to print hash
+
+                // Make hash a string
+                char *hashString = (char *)malloc(33 * sizeof(char));
                 for(int i = 0; i < 16; i++)
                 {
-                    printf("%02x", hash[i]);
+                    sprintf(&hashString[i * 2], "%02x", hash[i]);
                 }
-                printf("\n");
+                hashString[32] = '\0';
+
+                printf("HASH STRING: %s\n", hashString);
                 
                 createPacket(&packet_md5, 16, 0, MD5, hash);
                 sendPacket(socket, &packet_md5);

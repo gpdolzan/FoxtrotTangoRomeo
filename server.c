@@ -59,15 +59,8 @@ int main(int argc, char const *argv[])
                     {
                         buffer_bk1_file[i] = myPacket.dados[i];
                     }
-                    // Create a temporary buffer that concatenates server directory and file name
-                    char *tempBuffer_bk1_file = (char *)malloc((strlen(buffer_bk1_file) + (strlen(sdirectory) + 1) * sizeof(char)));
-                    strcpy(tempBuffer_bk1_file, sdirectory);
-                    strcat(tempBuffer_bk1_file, "/");
-                    strcat(tempBuffer_bk1_file, buffer_bk1_file);
         
-                    printf("Saving file %s on directory %s\n", buffer_bk1_file, sdirectory);
-                    printf("Final directory: %s\n", tempBuffer_bk1_file);
-                    if(receiveFile(socket, tempBuffer_bk1_file, strlen(tempBuffer_bk1_file)) == 1)
+                    if(receiveFile(socket, buffer_bk1_file, strlen(buffer_bk1_file)) == 1)
                     {
                         printf("Erro ao receber arquivo\n");
                     }
@@ -76,7 +69,6 @@ int main(int argc, char const *argv[])
                         printf("Arquivo recebido com sucesso\n");
                     }
                     free(buffer_bk1_file);
-                    free(tempBuffer_bk1_file);
                 }
             }
         }

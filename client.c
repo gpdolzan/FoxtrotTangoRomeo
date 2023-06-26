@@ -43,6 +43,14 @@ int receiveFileWrapper(int socket, char *filename, int filesize)
     {
         if(readPacket(socket, &serverPacket, 1) == 0)
         {
+            if(checkParity(&serverPacket) == 1)
+            {
+                printf("Pacote corrompido!\n");
+                createPacket(&packet, strlen(filename), 0, REC_1_ARQ, filename);
+                sendPacket(socket, &packet);
+                continue;
+            }
+
             if(serverPacket.tipo == BACK_1_FILE)
             {
                 printf("RECEBI BACK_1_FILE!\n");
@@ -172,6 +180,112 @@ void listFiles()
     }
 }
 
+int rec_arquivo(int socket, char *filename, int filesize)
+{
+    // Create packet to ask for file
+    struct t_packet packet;
+    struct t_packet serverPacket;
+    char *buffer;
+    int tries = 8;
+    // FILE POINTER
+    FILE *fp;
+
+    // read packet
+    while(tries > 0)
+    {
+        if(readPacket(socket, &serverPacket, 1) == 0)
+        {
+            if(checkParity(&serverPacket) == 0)
+            {
+                // Check if BACK_1_ARQ
+                if(serverPacket.tipo == BACK_1_FILE)
+                {
+                    printf("Beginning to receive\n");
+                    // Open file
+                    // Send OK
+                    createPacket(&packet, 0, 0, OK, NULL);
+                    sendPacket(socket, &packet);
+                    fp = fopen(filename, "wb");
+                    break;
+                }
+                else if(serverPacket.tipo == ERRO)
+                {
+                    // Get buffer from packet
+                    buffer = malloc(sizeof(char) * (serverPacket.tamanho + 1));
+                    // For loop
+                    for(int i = 0; i < serverPacket.tamanho; i++)
+                    {
+                        buffer[i] = serverPacket.dados[i];
+                    }
+                    // Check if says ne
+                    if(strcmp(buffer, "ne") == 0)
+                    {
+                        printf("[CLIENT-CLI] > Arquivo nao existe!\n");
+                        return 1;
+                    }
+                }
+            }
+            tries--;
+        }
+    }
+
+    // DATA LOOP
+    printf("Data looping\n");
+    int seq = 0;
+    tries = 8;
+    while(1)
+    {
+        if(tries <= 0)
+        {
+            return 1;
+        }
+        if(readPacket(socket, &serverPacket, 1) == 0)
+        {
+            if(checkParity(&serverPacket) == 0)
+            {
+                // Check if BACK_1_ARQ
+                if(serverPacket.tipo == DATA)
+                {
+                    tries = 8;
+                    // Write to file
+                    buffer = malloc(sizeof(char) * (serverPacket.tamanho + 1));
+                    // For loop
+                    for(int i = 0; i < serverPacket.tamanho; i++)
+                    {
+                        buffer[i] = serverPacket.dados[i];
+                    }
+                    // Write to file
+                    fwrite(buffer, sizeof(char), serverPacket.tamanho, fp);
+                    // Free buffer
+                    free(buffer);
+
+                    // Send OK
+                    createPacket(&packet, 0, serverPacket.sequencia, OK, NULL);
+                    sendPacket(socket, &packet);
+                    seq++;
+                }
+                else if(serverPacket.tipo == FIM_ARQ)
+                {
+                    // Send OK
+                    createPacket(&packet, 0, serverPacket.sequencia, OK, NULL);
+                    sendPacket(socket, &packet);
+                    break;
+                }
+            }
+            else
+            {
+                // Send NACK
+                createPacket(&packet, 0, seq, NACK, NULL);
+                sendPacket(socket, &packet);
+            }
+            tries--;
+        }
+    }
+    // Close file
+    fclose(fp);
+    return 0;
+}
+
 // Client commands function
 int clientCommands(int socket, char **args, int wordCount)
 {
@@ -297,14 +411,8 @@ int clientCommands(int socket, char **args, int wordCount)
                 createPacket(&packet, strlen(args[1]), 0, REC_1_ARQ, args[1]);
                 sendPacket(socket, &packet);
         
-                if(receiveFile(socket, args[1], strlen(args[1])) == 1)
-                {
-                    printf("[CLIENT-CLI] > Erro ao receber arquivo %s\n", args[1]);
-                }
-                else
-                {
-                    printf("[CLIENT-CLI] > Arquivo %s recebido com sucesso\n", args[1]);
-                }
+                // RECUPERA ARQUIVO
+                rec_arquivo(socket, args[1], strlen(args[1]));
             }
         }
     }

@@ -5,6 +5,46 @@
 // Global variables
 char sdirectory[1024]; // Server directory
 
+int manda_arquivo(int socket, char *filename, int filesize)
+{
+    struct t_packet rPacket; // Packets I will receive
+    struct t_packet sPacket; // Packets I will send
+
+    // Try open file
+    FILE *fp = fopen(filename, "r");
+    if(fp == NULL)
+    {
+        printf("[%s] > Arquivo %s, nao existe\n", sdirectory, filename);
+        // Send "ne"
+        createPacket(&sPacket, strlen("ne"), 0, ERRO, "ne");
+        sendPacket(socket, &sPacket);
+    }
+    else
+    {
+        createPacket(&sPacket, filesize, 0, BACK_1_FILE, filename);
+        sendPacket(socket, &sPacket);
+    }
+
+    // READ OK
+    if(readPacket(socket, &rPacket, 0) == 0)
+    {
+        if(checkParity(&rPacket) == 0)
+        {
+            if(rPacket.tipo == OK)
+            {
+                printf("[%s] > Recebendo arquivo %s\n", sdirectory, filename);
+                // Send file
+                sendFile(socket, filename, filesize);
+            }
+            else
+            {
+                printf("[%s] > Erro ao receber arquivo %s\n", sdirectory, filename);
+            }
+        }
+    }
+
+}
+
 int main(int argc, char const *argv[])
 {
     int socket = ConexaoRawSocket("eno1");
@@ -205,63 +245,7 @@ int main(int argc, char const *argv[])
             }
             buffer[myPacket.tamanho] = '\0';
 
-            // Try open file
-            FILE *fp = fopen(buffer, "r");
-            if(fp == NULL)
-            {
-                printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
-                // Send NACK
-                createPacket(&sPacket, strlen(buffer), 0, ERRO, buffer);
-                sendPacket(socket, &sPacket);
-            }
-            else
-            {
-                fclose(fp);
-                // Send file
-                if(sendFile(socket, buffer, strlen(buffer)) == 1)
-                {
-                    printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, buffer);
-                }
-                else
-                {
-                    printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, buffer);
-                }
-            }
-            free(buffer);
-
-            /*if(myPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
-            {
-                // Check parity
-                if(checkParity(&myPacket) == 1)
-                {
-                    printf("Erro de paridade\n");
-                    // Send NACK
-                    createPacket(&sPacket, 0, 0, NACK, NULL);
-                    sendPacket(socket, &sPacket);
-                }
-                else
-                {
-                    // Create buffer
-                    char *buffer_rec1 = (char *)malloc(myPacket.tamanho * sizeof(char));
-                    // Copy data to buffer using for loop
-                    for(int i = 0; i < myPacket.tamanho; i++)
-                    {
-                        buffer_rec1[i] = myPacket.dados[i];
-                    }
-                    // Create a temporary buffer that concatenates server directory and file name
-                    char *tempBuffer_rec1 = (char *)malloc((strlen(buffer_rec1) + (strlen(sdirectory) + 1) * sizeof(char)));
-                    strcpy(tempBuffer_rec1, sdirectory);
-                    strcat(tempBuffer_rec1, "/");
-                    strcat(tempBuffer_rec1, buffer_rec1);
-
-                    sendPacket(socket, &myPacket);
-                    printf("[SERVER-CLI] Sending file from %s\n", tempBuffer_rec1);
-                    sendFile(socket, tempBuffer_rec1, strlen(tempBuffer_rec1));
-                    printf("[SERVER-CLI] I Finished sending file!\n");
-                    free(buffer_rec1);
-                    free(tempBuffer_rec1);
-                }
-            }*/
+            manda_arquivo(socket, buffer, strlen(buffer));
         }
         else if(myPacket.tipo == VERIFICA_BACK)
         {

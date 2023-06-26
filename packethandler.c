@@ -200,11 +200,12 @@ int sendFile(int socket, char *filename, int filesize)
         // Aguardar resposta (talvez timeout) (talvez NACK) (talvez OK)
         // Se recebeu NACK algo deu errado com o pacote ao enviar
         // Enviar pacote com dados do arquivo
+        int time_listening = 1;
         sendPacket(socket, &packet);
         while(1)
         {
             // Aguardar resposta (talvez timeout)
-            if (readPacket(socket, &serverPacket, 1) == 1)
+            if (readPacket(socket, &serverPacket, time_listening) == 1)
             {
                 if(tries <= 0)
                 {
@@ -215,10 +216,12 @@ int sendFile(int socket, char *filename, int filesize)
                 }
                 tries--;
                 printf("Ouvindo!\n");
+                time_listening += 1;
                 continue;
             }
             else
             {
+                printf("OUVI\n");
                 tries = 5;
             }
             // Recebeu mensagem, verifica OK ou NACK

@@ -76,6 +76,7 @@ int main(int argc, char const *argv[])
                         printf("Arquivo recebido com sucesso\n");
                     }
                     free(buffer);
+                    free(tempBuffer);
                 }
             }
         }

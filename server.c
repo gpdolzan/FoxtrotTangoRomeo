@@ -87,6 +87,7 @@ int main(int argc, char const *argv[])
         {
             // Data has a special format #[number]#
             // Get number
+            int tries = 8;
             int nFiles = 0;
             char *buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
             for(int i = 0; i < myPacket.tamanho; i++)
@@ -118,6 +119,11 @@ int main(int argc, char const *argv[])
                     {
                         if(checkParity(&myPacket) == 0)
                         {
+                            if(tries <= 0)
+                            {
+                                printf("[%s] > Time exceeded BACK_1_ARQ\n", sdirectory);
+                                break;
+                            }
                             if(myPacket.tipo == BACK_1_FILE)
                             {
                                 // Create buffer
@@ -147,14 +153,22 @@ int main(int argc, char const *argv[])
                             }
                             else
                             {
+                                tries--;
                                 continue;
                             }
                         }
                     }
                 }
                 // Wait for FIM_GRUPO_ARQ
+                tries = 8;
                 while(1)
                 {
+                    if (tries <= 0)
+                    {
+                        printf("[%s] > Time exceeded GROUP_FIM_ARQ\n", sdirectory);
+                        break;
+                    }
+
                     if(readPacket(socket, &myPacket, 1) == 0)
                     {
                         if(checkParity(&myPacket) == 1)
@@ -173,6 +187,7 @@ int main(int argc, char const *argv[])
                             }
                             else
                             {
+                                tries--;
                                 continue;
                             }
                         }

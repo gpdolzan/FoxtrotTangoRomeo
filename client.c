@@ -174,6 +174,7 @@ int clientCommands(int socket, char **args, int wordCount)
     }
     else if (strcmp(args[0], "send") == 0)
     {
+        int tries = 8;
         // Create packet
         struct t_packet packet;
         if(wordCount == 2)
@@ -199,6 +200,10 @@ int clientCommands(int socket, char **args, int wordCount)
                 // Wait for OK
                 while(1)
                 {
+                    if(tries <= 0)
+                    {
+                        printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
+                    }
                     sendPacket(socket, &packet);
                     if(readPacket(socket, &packet, 1) == 0)
                     {
@@ -212,6 +217,10 @@ int clientCommands(int socket, char **args, int wordCount)
                                 break;
                             }
                         }
+                    }
+                    else
+                    {
+                        tries--;
                     }
                 }
 
@@ -235,6 +244,13 @@ int clientCommands(int socket, char **args, int wordCount)
                         printf("[CLIENT-CLI] Erro ao enviar arquivo %s\n", globbuf.gl_pathv[i]);
                     }
                 }
+
+                // Send FIM_GRUPO_ARQ
+                createPacket(&packet, 0, 0, FIM_GRUPO_ARQ, NULL);
+                sendPacket(socket, &packet);
+
+                // Free globbuf
+                globfree(&globbuf);
             }
             else
             {

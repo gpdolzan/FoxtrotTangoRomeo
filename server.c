@@ -259,7 +259,12 @@ int main(int argc, char const *argv[])
                 // Using md5file function to get md5 hash
                 md5File(fp, hash);
                 
-                printf("depois\n");
+                // For loop to print hash
+                for(int i = 0; i < 16; i++)
+                {
+                    printf("%02x", hash[i]);
+                }
+                printf("\n");
                 
                 //createPacket(&packet_md5, 16, 0, MD5, hash);
                 //sendPacket(socket, &packet_md5);
@@ -270,9 +275,8 @@ int main(int argc, char const *argv[])
             else
             {
                 printf("aqui nao\n");
-                //printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
-                //createPacket(&packet_md5, 0, 0, ERRO, NULL);
-                //sendPacket(socket, &packet_md5);
+                createPacket(&packet_md5, 0, 0, ERRO, NULL);
+                sendPacket(socket, &packet_md5);
             }
             free(buffer);
             free(tempBuffer);

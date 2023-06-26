@@ -416,8 +416,44 @@ int clientCommands(int socket, char **args, int wordCount)
                 }
                 printf("\n");
                 free(hash);
+                fclose(file);
             }
-            //SERVERSIDE 
+            // Send VERIFICA_BACK
+            struct t_packet packet;
+            createPacket(&packet, strlen(args[1]), 0, VERIFICA_BACK, args[1]);
+            sendPacket(socket, &packet);
+            // Wait for OK
+            int tries = 8;
+            while(1)
+            {
+                if(tries <= 0)
+                {
+                    printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
+                    break;
+                }
+                if(readPacket(socket, &packet, 1) == 0)
+                {
+                    // Check parity
+                    if(checkParity(&packet) == 0)
+                    {
+                        // Check if packet is OK
+                        if(packet.tipo == MD5)
+                        {
+                            printf("[CLIENT-CLI] OK received MD5\n");
+                            break;
+                        }
+                        else if(packet.tipo == ERRO)
+                        {
+                            printf("[CLIENT-CLI] > Server could find %s to do MD5\n", args[1]);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    tries--;
+                }
+            }
         }
     }
     else if (strcmp(args[0], "help") == 0)

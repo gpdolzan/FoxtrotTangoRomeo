@@ -228,44 +228,41 @@ int main(int argc, char const *argv[])
                 }
             }
             free(buffer);
-
-            /*if(myPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
-            {
-                // Check parity
-                if(checkParity(&myPacket) == 1)
-                {
-                    printf("Erro de paridade\n");
-                    // Send NACK
-                    createPacket(&sPacket, 0, 0, NACK, NULL);
-                    sendPacket(socket, &sPacket);
-                }
-                else
-                {
-                    // Create buffer
-                    char *buffer_rec1 = (char *)malloc(myPacket.tamanho * sizeof(char));
-                    // Copy data to buffer using for loop
-                    for(int i = 0; i < myPacket.tamanho; i++)
-                    {
-                        buffer_rec1[i] = myPacket.dados[i];
-                    }
-                    // Create a temporary buffer that concatenates server directory and file name
-                    char *tempBuffer_rec1 = (char *)malloc((strlen(buffer_rec1) + (strlen(sdirectory) + 1) * sizeof(char)));
-                    strcpy(tempBuffer_rec1, sdirectory);
-                    strcat(tempBuffer_rec1, "/");
-                    strcat(tempBuffer_rec1, buffer_rec1);
-
-                    sendPacket(socket, &myPacket);
-                    printf("[SERVER-CLI] Sending file from %s\n", tempBuffer_rec1);
-                    sendFile(socket, tempBuffer_rec1, strlen(tempBuffer_rec1));
-                    printf("[SERVER-CLI] I Finished sending file!\n");
-                    free(buffer_rec1);
-                    free(tempBuffer_rec1);
-                }
-            }*/
         }
         else if(myPacket.tipo == VERIFICA_BACK)
         {
-            //SERVERDISE
+            // Create buffer
+            char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
+            for(int i = 0; i < myPacket.tamanho; i++)
+            {
+                buffer[i] = myPacket.dados[i];
+            }
+            buffer[myPacket.tamanho] = '\0';
+
+            // Try open file
+            FILE *fp = fopen(buffer, "r");
+            if(fp == NULL)
+            {
+                printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
+                createPacket(&sPacket, 0, 0, ERRO, NULL);
+                sendPacket(socket, &sPacket);
+            }
+            else
+            {
+                // Create a uint8_t array with 16 bytes
+                uint8_t *hash = malloc(16);
+                // Using md5file function to get md5 hash
+                md5File(fp, hash);
+                printf("[CLIENT-CLI] Hash md5 do arquivo SERVER %s: ", buffer);
+                
+                createPacket(&sPacket, 16, 0, MD5, hash);
+                sendPacket(socket, &sPacket);
+
+                free(hash);
+                fclose(fp);
+            }
+
+            free(buffer);
         }
         else if(myPacket.tipo == CH_DIR_SERVER)
         {

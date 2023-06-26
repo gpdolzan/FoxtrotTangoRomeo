@@ -197,9 +197,13 @@ int clientCommands(int socket, char **args, int wordCount)
                     digits++;
                 }
 
+                char * buffer = malloc(sizeof(char));
+
                 // Create BACK_PLUS_1_FILE packet
-                createPacket(&packet, 1, 0, BACK_PLUS_1_FILE, count);
+                createPacket(&packet, 1, 0, BACK_PLUS_1_FILE, buffer);
                 sendPacket(socket, &packet);
+
+                free(buffer);
 
                 // Wait for OK
                 while(1)

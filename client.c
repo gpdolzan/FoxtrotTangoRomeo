@@ -174,6 +174,8 @@ int clientCommands(int socket, char **args, int wordCount)
     }
     else if (strcmp(args[0], "send") == 0)
     {
+        // Create packet
+        struct t_packet packet;
         if(wordCount == 2)
         {
             // Check if string has a * in it
@@ -185,6 +187,47 @@ int clientCommands(int socket, char **args, int wordCount)
                 // Using an integer count how many files were found
                 int count = globbuf.gl_pathc;
                 printf("[CLIENT-CLI] Sending %d files\n", count);
+
+                // count number of digits in count
+                int digits = 0;
+                int temp = count;
+                while(temp != 0)
+                {
+                    temp /= 10;
+                    digits++;
+                }
+
+                // Generate string with with count
+                char countString[digits + 1];
+                sprintf(countString, "%d", count);
+
+                // Create BACK_PLUS_1_FILE packet
+                createPacket(&packet, digits, 0, BACK_PLUS_1_FILE, countString);
+
+                // Wait for OK
+                while(1)
+                {
+                    sendPacket(socket, &packet);
+                    if(receivePacket(socket, &packet) == 0)
+                    {
+                        // Check parity
+                        if(checkParity(&packet) == 0)
+                        {
+                            // Check if packet is OK
+                            if(packet.tipo == OK)
+                            {
+                                printf("[CLIENT-CLI] OK received\n");
+                                break;
+                            }
+                            else
+                            {
+                                printf("[CLIENT-CLI] Error receiving OK\n");
+                                return 1;
+                            }
+                        }
+                    }
+                }
+
                 for(int i = 0; i < count; i++)
                 {
                     // Send each file

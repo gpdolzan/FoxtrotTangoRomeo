@@ -88,12 +88,13 @@ int main(int argc, char const *argv[])
             for(int i = 0; i < nFiles; i++)
             {
                 // Create buffer
-                char *buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
+                char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
                 // Copy data to buffer using for loop
                 for(int i = 0; i < myPacket.tamanho; i++)
                 {
                     buffer[i] = myPacket.dados[i];
                 }
+                buffer[myPacket.tamanho] = '\0';
                 // Create a temporary buffer that concatenates server directory and file name
                 char *tempBuffer = (char *)malloc((strlen(buffer) + (strlen(sdirectory) + 1) * sizeof(char)));
                 strcpy(tempBuffer, sdirectory);
@@ -195,12 +196,14 @@ int main(int argc, char const *argv[])
             else
             {
                 // Create buffer
-                char *buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
+                char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
                 // Copy data to buffer using for loop
                 for(int i = 0; i < myPacket.tamanho; i++)
                 {
                     buffer[i] = myPacket.dados[i];
                 }
+                // Add null terminator
+                buffer[myPacket.tamanho] = '\0';
                 mode_t target_mode = 0777;
                 if(chdir(buffer) == -1)
                 {

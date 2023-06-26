@@ -173,6 +173,7 @@ int sendFile(int socket, char *filename, int filesize)
             else if(serverPacket.tipo == NACK)
             {
                 // Enviar novamente
+                printf("RECEBI NACK\n");
                 sendPacket(socket, &packet);
             }
         }
@@ -346,6 +347,7 @@ int receiveFile(int socket, char* filename, int filesize)
                     expectedSequence++;
                 else
                     expectedSequence = 0;
+                printf("nova sequencia: %d\n", expectedSequence);
             }
             else if(clientPacket.tipo == DATA && expectedSequence < clientPacket.sequencia)
             {

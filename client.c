@@ -280,6 +280,8 @@ int clientCommands(int socket, char **args, int wordCount)
     }
     else if (strcmp(args[0], "get") == 0)
     {
+        struct t_packet packet; // I will send
+        struct t_packet sPacket; // I will receive
         int tries = 8;
         if(wordCount == 2)
         {
@@ -290,8 +292,11 @@ int clientCommands(int socket, char **args, int wordCount)
             }
             else
             {
+                // Create REC_1_FILE
+                createPacket(&packet, strlen(args[1]), 0, REC_1_ARQ, args[1]);
+                sendPacket(socket, &packet);
+
                 // wait for back_1_file
-                struct t_packet packet;
                 while(1)
                 {
                     if(tries <= 0)
@@ -299,13 +304,13 @@ int clientCommands(int socket, char **args, int wordCount)
                         printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
                     }
                     sendPacket(socket, &packet);
-                    if(readPacket(socket, &packet, 1) == 0)
+                    if(readPacket(socket, &sPacket, 1) == 0)
                     {
                         // Check parity
-                        if(checkParity(&packet) == 0)
+                        if(checkParity(&sPacket) == 0)
                         {
                             // Check if packet is OK
-                            if(packet.tipo == BACK_1_FILE)
+                            if(sPacket.tipo == BACK_1_FILE)
                             {
                                 printf("[CLIENT-CLI] BACK_1_ARQ received\n");
                                 break;

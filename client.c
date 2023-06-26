@@ -386,6 +386,9 @@ int clientCommands(int socket, char **args, int wordCount)
             createPacket(&packet, strlen(args[1]), 0, VERIFICA_BACK, args[1]);
             sendPacket(socket, &packet);
 
+            // Receive packet
+            readPacket(socket, &packet, 1);
+
             if(packet.tipo == MD5)
             {
                 printf("[CLIENT-CLI] Hash md5 do arquivo REMOTO %s: ", args[1]);

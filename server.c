@@ -299,8 +299,8 @@ int main(int argc, char const *argv[])
                 }
                 else
                 {
-                    // Send ERRO
-                    createPacket(&sPacket, 0, 0, ERRO, NULL);
+                    // Send OK
+                    createPacket(&sPacket, 0, 0, OK, NULL);
                     sendPacket(socket, &sPacket);
                 }
             }

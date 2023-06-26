@@ -229,7 +229,13 @@ int sendFile(int socket, char *filename, int filesize)
                 tries = 5;
             }
             // Recebeu mensagem, verifica OK ou NACK
-            if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
+            if(serverPacket.tipo == NACK && serverPacket.sequencia != sequence)
+            {
+                    // Enviar novamente
+                    printf("RECEBI NACK, ENVIANDO DADOS DE NOVO!\n");
+                    sendPacket(socket, &packet);
+            }
+            else if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
             {
                 if(serverPacket.tipo == OK)
                 {
@@ -239,12 +245,6 @@ int sendFile(int socket, char *filename, int filesize)
                         sequence = 0;
                     printf("sequencia nova: %d\n", sequence);
                     break;
-                }
-                else if(serverPacket.tipo == NACK && serverPacket.sequencia != sequence)
-                {
-                    // Enviar novamente
-                    printf("RECEBI NACK, ENVIANDO DADOS DE NOVO!\n");
-                    sendPacket(socket, &packet);
                 }
             }
             else if(checkParity(&serverPacket) == 1)

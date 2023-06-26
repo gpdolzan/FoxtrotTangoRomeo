@@ -389,17 +389,13 @@ int clientCommands(int socket, char **args, int wordCount)
             // Receive MD5
             struct t_packet sPacket;
             readPacket(socket, &sPacket, 1);
-
-            if(checkParity(&sPacket) == 0)
+            if(sPacket.tipo == MD5)
             {
-                if(sPacket.tipo == MD5)
-                {
-                    printf("mds5\n");
-                }
-                else
-                {
-                    printf("arq nao existe no servidor\n");
-                }
+                printf("md5\n");
+            }
+            else
+            {
+                printf("arq nao existe no servidor\n");
             }
         }
     }

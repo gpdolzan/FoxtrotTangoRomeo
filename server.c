@@ -295,16 +295,13 @@ int main(int argc, char const *argv[])
                 char *hash = (uint8_t *)malloc(16);
                 md5File(fp, hash);
                 fclose(fp);
-                // print using loop
-                for(int i = 0; i < 16; i++)
-                {
-                    printf("%x", hash[i]);
-                }
-                printf("\n");
                 // Send hash
                 createPacket(&sPacket, 16, 0, MD5, hash);
                 sendPacket(socket, &sPacket);
+                printf("[%s] > Hash do arquivo %s enviado\n", sdirectory, buffer);
             }
+            free(buffer);
+            free(tempBuffer);
         }
         else if(myPacket.tipo == CH_DIR_SERVER)
         {

@@ -231,6 +231,8 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == VERIFICA_BACK)
         {
+            // Create packet
+            struct t_packet packet_md5;
             // Create buffer
             char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
             for(int i = 0; i < myPacket.tamanho; i++)
@@ -239,13 +241,16 @@ int main(int argc, char const *argv[])
             }
             buffer[myPacket.tamanho] = '\0';
 
+            // print which file we are checking
+            printf("[%s] > Verificando arquivo %s\n", sdirectory, buffer);
+
             // Try open file
             FILE *fp = fopen(buffer, "r");
             if(fp == NULL)
             {
                 printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
-                createPacket(&sPacket, 0, 0, ERRO, NULL);
-                sendPacket(socket, &sPacket);
+                createPacket(&packet_md5, 0, 0, ERRO, NULL);
+                sendPacket(socket, &packet_md5);
             }
             else
             {
@@ -255,8 +260,8 @@ int main(int argc, char const *argv[])
                 md5File(fp, hash);
                 printf("[CLIENT-CLI] Hash md5 do arquivo SERVER %s: ", buffer);
                 
-                createPacket(&sPacket, 16, 0, MD5, hash);
-                sendPacket(socket, &sPacket);
+                createPacket(&packet_md5, 16, 0, MD5, hash);
+                sendPacket(socket, &packet_md5);
 
                 free(hash);
                 fclose(fp);

@@ -280,6 +280,7 @@ int clientCommands(int socket, char **args, int wordCount)
     }
     else if (strcmp(args[0], "get") == 0)
     {
+        int tries = 8;
         if(wordCount == 2)
         {
             // Check if string has a * in it
@@ -289,6 +290,34 @@ int clientCommands(int socket, char **args, int wordCount)
             }
             else
             {
+                // wait for back_1_file
+                struct t_packet packet;
+                while(1)
+                {
+                    if(tries <= 0)
+                    {
+                        printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
+                    }
+                    sendPacket(socket, &packet);
+                    if(readPacket(socket, &packet, 1) == 0)
+                    {
+                        // Check parity
+                        if(checkParity(&packet) == 0)
+                        {
+                            // Check if packet is OK
+                            if(packet.tipo == BACK_1_FILE)
+                            {
+                                printf("[CLIENT-CLI] BACK_1_ARQ received\n");
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        tries--;
+                    }
+                }
+
                 if(receiveFileWrapper(socket, args[1], strlen(args[1])) == 0)
                 {
                     printf("[CLIENT-CLI] File received successfully\n");

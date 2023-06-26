@@ -304,7 +304,7 @@ int receiveFile(int socket, char* filename, int filesize)
     while(1)
     {
         // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &clientPacket, 1) == 1)
+        if (readPacket(socket, &clientPacket, 2) == 1)
         {
             if(tries <= 0)
             {

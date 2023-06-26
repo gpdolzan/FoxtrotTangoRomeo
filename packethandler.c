@@ -213,9 +213,9 @@ int sendFile(int socket, char *filename, int filesize)
                     fclose(file);
                     return 1;
                 }
-                printf("Timeout enviar dados do arquivo, enviando sequencia %d\n", sequence);
-                sendPacket(socket, &packet);
                 tries--;
+                printf("Ouvindo!\n");
+                continue;
             }
             else
             {

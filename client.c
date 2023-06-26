@@ -380,7 +380,27 @@ int clientCommands(int socket, char **args, int wordCount)
                 printf("\n");
                 free(hash);
             }
-            // AQUI VAI IMPLEMENTACAO
+            
+            // Send VERIFICA_BACKUP
+            struct t_packet packet;
+            createPacket(&packet, strlen(args[1]), 0, VERIFICA_BACK, args[1]);
+            sendPacket(socket, &packet);
+
+            // Receive MD5
+            struct t_packet sPacket;
+            readPacket(socket, &sPacket, 1);
+
+            if(checkParity(&sPacket) == 0)
+            {
+                if(sPacket.tipo == MD5)
+                {
+                    printf("mds5\n");
+                }
+                else
+                {
+                    printf("arq nao existe no servidor\n");
+                }
+            }
         }
     }
     else if (strcmp(args[0], "help") == 0)

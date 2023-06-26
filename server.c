@@ -208,9 +208,10 @@ int main(int argc, char const *argv[])
                     }
                     else
                     {
-                        // Do chdir to server directory
-                        chdir(sdirectory);
-                        printf("Diretorio mudado com sucesso\n");
+                        // Now concatenate the current directory with the new directory
+                        strcat(sdirectory, "/");
+                        strcat(sdirectory, buffer);
+                        printf("Diretorio atual: %s\n", sdirectory);
                         // Send OK
                         createPacket(&sPacket, 0, 0, OK, NULL);
                         sendPacket(socket, &sPacket);

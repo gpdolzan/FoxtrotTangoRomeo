@@ -317,7 +317,6 @@ int receiveFile(int socket, char* filename, int filesize)
             }
             tries--;
             sendPacket(socket, &serverPacket);
-            continue;
         }
         else
         {

@@ -286,8 +286,8 @@ int main(int argc, char const *argv[])
             {
                 printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
                 // Send NACK
-                /*createPacket(&sPacket, strlen(buffer), 0, ERRO, buffer);
-                sendPacket(socket, &sPacket);*/
+                createPacket(&sPacket, 0, 0, ERRO, NULL);
+                sendPacket(socket, &sPacket);
             }
             else
             {
@@ -297,6 +297,7 @@ int main(int argc, char const *argv[])
                 fclose(fp);
                 // Send hash
                 createPacket(&sPacket, 16, 0, MD5, hash);
+                printPacket(&sPacket);
                 sendPacket(socket, &sPacket);
                 printf("[%s] > Hash do arquivo %s enviado\n", sdirectory, buffer);
             }

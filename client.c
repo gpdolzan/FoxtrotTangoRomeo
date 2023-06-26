@@ -448,6 +448,7 @@ int clientCommands(int socket, char **args, int wordCount)
                             }
                             string[packet.tamanho] = '\0';
                             printf("[CLIENT-CLI] > Hash md5 do arquivo REMOTO %s: %s\n", args[1], string);
+                            break;
                         }
                         else if(packet.tipo == ERRO)
                         {

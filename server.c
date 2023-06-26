@@ -250,14 +250,8 @@ int main(int argc, char const *argv[])
             printf("[TEMP BUFFER] %s\n", tempBuffer);
 
             // Try open file
-            FILE *fp = fopen(buffer, "rb");
-            if(fp == NULL)
-            {
-                printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
-                createPacket(&packet_md5, 0, 0, ERRO, NULL);
-                sendPacket(socket, &packet_md5);
-            }
-            else
+            FILE *fp = fopen(tempBuffer, "rb");
+            if(fp != NULL)
             {
                 // Create a uint8_t array with 16 bytes
                 uint8_t *hash = malloc(16);
@@ -270,6 +264,12 @@ int main(int argc, char const *argv[])
 
                 free(hash);
                 fclose(fp);
+            }
+            else
+            {
+                printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
+                createPacket(&packet_md5, 0, 0, ERRO, NULL);
+                sendPacket(socket, &packet_md5);
             }
             free(buffer);
             free(tempBuffer);

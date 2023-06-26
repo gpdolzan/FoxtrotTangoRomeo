@@ -244,6 +244,7 @@ int main(int argc, char const *argv[])
             // Concatenate sdirectory and buffer
             char *tempBuffer = (char *)malloc((strlen(sdirectory) + strlen(buffer) + 1) * sizeof(char));
             strcpy(tempBuffer, sdirectory);
+            strcat(tempBuffer, "/");
             strcat(tempBuffer, buffer);
 
             printf("[TEMP BUFFER] %s\n", tempBuffer);

@@ -234,6 +234,7 @@ int sendFile(int socket, char *filename, int filesize)
                 else if(serverPacket.tipo == NACK && serverPacket.sequencia == sequence)
                 {
                     // Enviar novamente
+                    printf("RECEBI NACK, ENVIANDO DADOS DE NOVO!\n");
                     sendPacket(socket, &packet);
                 }
             }

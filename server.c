@@ -211,8 +211,13 @@ int main(int argc, char const *argv[])
             {
                 printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
                 // Send NACK
-                createPacket(&sPacket, 2, 0, ERRO, "ne");
+                char *buffer2 = (char *)malloc((3) * sizeof(char));
+                buffer2[0] = 'n';
+                buffer2[1] = 'e';
+                buffer2[2] = '\0';
+                createPacket(&sPacket, strlen(buffer2), 0, ERRO, buffer2);
                 sendPacket(socket, &sPacket);
+                free(buffer2);
             }
             else
             {

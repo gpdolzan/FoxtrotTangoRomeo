@@ -362,18 +362,8 @@ int receiveFile(int socket, char* filename, int filesize)
                 // Send NACK
                 printf("Recebi sequencia %d, esperava %d\n", clientPacket.sequencia, expectedSequence);
                 createPacket(&serverPacket, 0, expectedSequence, NACK, NULL); // Pedido para receber proximo DATA
-                printf("Enviando NACK com sequencia %d\n", expectedSequence);
                 sendPacket(socket, &serverPacket);
-
-                // Ouvir
-                if (readPacket(socket, &clientPacket, 1) == 0)
-                {
-                    if(clientPacket.tipo == DATA)
-                    {
-                        printf("Recebi DATA\n");
-                        skip = 1;
-                    }
-                }
+                printf("Enviando NACK com sequencia %d\n", expectedSequence);
             }
             else if(clientPacket.tipo == FIM_ARQ)
             {

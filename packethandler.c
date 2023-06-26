@@ -222,6 +222,10 @@ int sendFile(int socket, char *filename, int filesize)
             else
             {
                 printf("OUVI\n");
+                if(serverPacket.tipo == NACK)
+                {
+                    printPacket(&serverPacket);
+                }
                 tries = 5;
             }
             // Recebeu mensagem, verifica OK ou NACK

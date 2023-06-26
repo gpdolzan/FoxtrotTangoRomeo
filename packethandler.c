@@ -359,6 +359,13 @@ int receiveFile(int socket, char* filename, int filesize)
                 createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
                 sendPacket(socket, &serverPacket);
             }
+            else if(clientPacket.tipo == ERRO)
+            {
+                printf("Recebi ERRO\n");
+                fclose(file);
+                remove(filename);
+                return 1;
+            }
         }
         else if(checkParity(&clientPacket) == 1)
         {

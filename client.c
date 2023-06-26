@@ -199,7 +199,6 @@ int clientCommands(int socket, char **args, int wordCount)
 
                 // Generate string with with count
                 char countString[digits + 1];
-                sprintf(countString, "%d", count);
 
                 // Create BACK_PLUS_1_FILE packet
                 createPacket(&packet, digits, 0, BACK_PLUS_1_FILE, countString);

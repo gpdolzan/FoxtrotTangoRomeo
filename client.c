@@ -252,7 +252,57 @@ int clientCommands(int socket, char **args, int wordCount)
     }
     else if (strcmp(args[0], "sdir") == 0)
     {
+        if(wordCount >= 2)
+        {
+            if(chdir(args[1]) == 0)
+            {
+                printf("[CLIENT-CLI] Enviando pedido para servidor mudar diretorio para: %s\n", args[1]);
 
+                while (1)
+                {
+                    // Create packet VERIFICA_BACK
+                    struct t_packet packet;
+                    createPacket(&packet, strlen(args[1]), 0, CH_DIR_SERVER, args[1]);
+                    // Send packet
+                    sendPacket(socket, &packet);
+
+                    // Receive packet
+                    readPacket(socket, &packet, 1);
+                    // Check if packet is a MD5
+                    if(packet.tipo == OK)
+                    {
+                        printf("[CLIENT-CLI] Diretorio REMOTO modificado com para %s\n", args[1]);
+                        break;
+                    }
+                    else if(packet.tipo == ERRO)
+                    {
+                        // Check if msg in ERRO is fmd
+                        // Create buffer to store msg with malloc
+                        char *buffer = malloc(packet.tamanho);
+                        // Copy msg to buffer using for loop
+                        for(int i = 0; i < packet.tamanho; i++)
+                        {
+                            buffer[i] = packet.dados[i];
+                        }
+                        // Check if msg is fmd
+                        if(strcmp(buffer, "fmd") == 0)
+                        {
+                            printf("[CLIENT-CLI] Houve uma falha ao tentar mudar o diretorio para %s\n", args[1]);
+                            break;
+                        }
+                    }
+                    else if(packet.tipo == NACK)
+                    {
+                        printf("[CLIENT-CLI] Servidor nao respondeu, tentando novamente\n");
+                        continue;
+                    }
+                }
+            }
+        }
+        else if(wordCount < 2)
+        {
+            printf("[CLIENT-CLI] voce precisa especificar o algum diretorio\n");
+        }
     }
     else if (strcmp(args[0], "ls") == 0)
     {

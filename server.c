@@ -249,11 +249,8 @@ int main(int argc, char const *argv[])
 
             printf("[TEMP BUFFER] %s\n", tempBuffer);
 
-            // print which file we are checking
-            printf("[%s] > Verificando arquivo %s\n", sdirectory, buffer);
-
             // Try open file
-            FILE *fp = fopen(buffer, "r");
+            FILE *fp = fopen(tempBuffer, "r");
             if(fp == NULL)
             {
                 printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
@@ -276,6 +273,7 @@ int main(int argc, char const *argv[])
             }
 
             free(buffer);
+            free(tempBuffer);
         }
         else if(myPacket.tipo == CH_DIR_SERVER)
         {

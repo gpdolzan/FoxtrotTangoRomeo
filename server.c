@@ -253,23 +253,25 @@ int main(int argc, char const *argv[])
             FILE *fp = fopen(tempBuffer, "rb");
             if(fp != NULL)
             {
+                printf("aqui\n");
                 // Create a uint8_t array with 16 bytes
-                uint8_t *hash = malloc(16);
+                //uint8_t *hash = malloc(16);
                 // Using md5file function to get md5 hash
-                md5File(fp, hash);
-                printf("[CLIENT-CLI] Hash md5 do arquivo SERVER %s: ", buffer);
+                //md5File(fp, hash);
+                //printf("[CLIENT-CLI] Hash md5 do arquivo SERVER %s: ", buffer);
                 
-                createPacket(&packet_md5, 16, 0, MD5, hash);
-                sendPacket(socket, &packet_md5);
+                //createPacket(&packet_md5, 16, 0, MD5, hash);
+                //sendPacket(socket, &packet_md5);
 
-                free(hash);
+                //free(hash);
                 fclose(fp);
             }
             else
             {
-                printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
-                createPacket(&packet_md5, 0, 0, ERRO, NULL);
-                sendPacket(socket, &packet_md5);
+                printf("aqui nao\n");
+                //printf("[%s] > Arquivo %s, nao existe\n", sdirectory, buffer);
+                //createPacket(&packet_md5, 0, 0, ERRO, NULL);
+                //sendPacket(socket, &packet_md5);
             }
             free(buffer);
             free(tempBuffer);

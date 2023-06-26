@@ -439,7 +439,20 @@ int clientCommands(int socket, char **args, int wordCount)
                         // Check if packet is OK
                         if(packet.tipo == MD5)
                         {
-                            printf("[CLIENT-CLI] OK received MD5\n");
+                            // Create a uint8_t array with 16 bytes
+                            uint8_t *hash = malloc(16);
+                            // Use for loop to copy hash from packet.data to hash
+                            for(int i = 0; i < 16; i++)
+                            {
+                                hash[i] = packet.dados[i];
+                            }
+                            printf("[CLIENT-CLI] Hash md5 do arquivo REMOTO %s: ", args[1]);
+                            // For loop to print hash
+                            for(int i = 0; i < 16; i++)
+                            {
+                                printf("%02x", hash[i]);
+                            }
+                            printf("\n");
                             break;
                         }
                         else if(packet.tipo == ERRO)

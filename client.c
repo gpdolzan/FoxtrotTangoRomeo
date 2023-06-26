@@ -188,22 +188,9 @@ int clientCommands(int socket, char **args, int wordCount)
                 int count = globbuf.gl_pathc;
                 printf("[CLIENT-CLI] Sending %d files\n", count);
 
-                // count number of digits in count
-                int digits = 0;
-                int temp = count;
-                while(temp != 0)
-                {
-                    temp /= 10;
-                    digits++;
-                }
-
-                char * buffer = malloc(sizeof(char));
-
                 // Create BACK_PLUS_1_FILE packet
-                createPacket(&packet, 1, 0, BACK_PLUS_1_FILE, buffer);
+                createPacket(&packet, 0, count, BACK_PLUS_1_FILE, NULL);
                 sendPacket(socket, &packet);
-
-                free(buffer);
 
                 // Wait for OK
                 while(1)

@@ -85,9 +85,7 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == BACK_PLUS_1_FILE)
         {
-            printPacket(&myPacket);
-            int nFiles = (int)myPacket.dados[0];
-            printf("[%s] > Receber %d arquivos\n", sdirectory, nFiles);
+            int nFiles = myPacket.sequencia;
 
             if(nFiles > 0)
             {

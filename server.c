@@ -18,6 +18,8 @@ int main(int argc, char const *argv[])
     setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
     setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof tv);
 
+    char *buffer;
+
     // Set server directory as /received
     
     const char *dirname = "serverdir";
@@ -34,10 +36,17 @@ int main(int argc, char const *argv[])
 
     printf("[SERVER-CLI] Servidor Funcionando!\n");
     getcwd(sdirectory, sizeof(sdirectory));
-    printf("[SERVER-CLI] Diretorio do servidor: %s\n", sdirectory);
+    printf("[%s] > Esperando comandos\n", sdirectory);
     while(1)
     {
         readPacket(socket, &myPacket, 0);
+
+        // Check parity
+        if(checkParity(&myPacket) == 1)
+        {
+            continue;
+        }
+
         if(myPacket.tipo == BACK_1_FILE)
         {
             if(myPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
@@ -53,27 +62,28 @@ int main(int argc, char const *argv[])
                 else
                 {
                     // Create buffer
-                    char *buffer_bk1_file = (char *)malloc(myPacket.tamanho * sizeof(char));
+                    buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
                     // Copy data to buffer using for loop
                     for(int i = 0; i < myPacket.tamanho; i++)
                     {
-                        buffer_bk1_file[i] = myPacket.dados[i];
+                        buffer[i] = myPacket.dados[i];
                     }
         
-                    if(receiveFile(socket, buffer_bk1_file, strlen(buffer_bk1_file)) == 1)
+                    if(receiveFile(socket, buffer, strlen(buffer)) == 1)
                     {
-                        printf("Erro ao receber arquivo\n");
+                        printf("[%s] > Erro ao receber arquivo\n", sdirectory);
                     }
                     else
                     {
-                        printf("Arquivo recebido com sucesso\n");
+                        printf("[%s] > Arquivo recebido com sucesso\n", sdirectory);
                     }
-                    free(buffer_bk1_file);
+                    free(buffer);
                 }
             }
         }
         else if(myPacket.tipo == BACK_PLUS_1_FILE)
         {
+            printf("[%s] > Receber varios arquivos\n", sdirectory);
             int nFiles = myPacket.sequencia;
             // Send OK
             createPacket(&sPacket, 0, 0, OK, NULL);
@@ -81,22 +91,18 @@ int main(int argc, char const *argv[])
             for(int i = 0; i < nFiles; i++)
             {
                 // Create buffer
-                char *buffer_bk1_plus = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
+                buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
                 // Copy data to buffer using for loop
                 for(int i = 0; i < myPacket.tamanho; i++)
                 {
-                    buffer_bk1_plus[i] = myPacket.dados[i];
+                    buffer[i] = myPacket.dados[i];
                 }
-                buffer_bk1_plus[myPacket.tamanho] = '\0';
-                // Create a temporary buffer that concatenates server directory and file name
-                char *tempBuffer_bk1_plus = (char *)malloc((strlen(buffer_bk1_plus) + (strlen(sdirectory) + 1) * sizeof(char)));
-                strcpy(tempBuffer_bk1_plus, sdirectory);
-                strcat(tempBuffer_bk1_plus, "/");
-                strcat(tempBuffer_bk1_plus, buffer_bk1_plus);
+                buffer[myPacket.tamanho] = '\0';
         
-                printf("Saving file %s on directory %s\n", buffer_bk1_plus, sdirectory);
-                printf("Final directory: %s\n", tempBuffer_bk1_plus);
-                if(receiveFile(socket, tempBuffer_bk1_plus, strlen(tempBuffer_bk1_plus)) == 1)
+                printf("[%s] > Saving file %s\n", sdirectory, buffer);
+
+                // Using sdirectory to save file
+                if(receiveFile(socket, buffer, strlen(buffer)) == 1)
                 {
                     printf("Erro ao receber arquivo\n");
                 }
@@ -104,13 +110,12 @@ int main(int argc, char const *argv[])
                 {
                     printf("Arquivo recebido com sucesso\n");
                 }
-                free(buffer_bk1_plus);
-                free(tempBuffer_bk1_plus);
+                free(buffer);
             }
         }
         else if(myPacket.tipo == REC_1_ARQ)
         {
-            if(myPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
+            /*if(myPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
             {
                 // Check parity
                 if(checkParity(&myPacket) == 1)
@@ -142,24 +147,20 @@ int main(int argc, char const *argv[])
                     free(buffer_rec1);
                     free(tempBuffer_rec1);
                 }
-            }
+            }*/
         }
         else if(myPacket.tipo == VERIFICA_BACK)
         {
             // Calculate hash of file
-            char *buffer_md5 = (char *)malloc(myPacket.tamanho * sizeof(char));
+            buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
             // Copy data to buffer using for loop
             for(int i = 0; i < myPacket.tamanho; i++)
             {
-                buffer_md5[i] = myPacket.dados[i];
+                buffer[i] = myPacket.dados[i];
             }
-            char *tempBuffer_md5 = (char *)malloc((strlen(buffer_md5) + (strlen(sdirectory) + 1) * sizeof(char)));
-            strcpy(tempBuffer_md5, sdirectory);
-            strcat(tempBuffer_md5, "/");
-            strcat(tempBuffer_md5, buffer_md5);
             char *hash = (uint8_t *)malloc(16 * sizeof(uint8_t));
             // Try to open file
-            FILE *fp = fopen(tempBuffer_md5, "rb");
+            FILE *fp = fopen(buffer, "rb");
             if(fp == NULL)
             {
                 printf("Erro ao abrir arquivo\n");
@@ -172,19 +173,11 @@ int main(int argc, char const *argv[])
             {
                 md5File(fp, hash);
 
-                // For loop printing hash
-                printf("Hash: ");
-                for(int i = 0; i < 16; i++)
-                {
-                    printf("%02x", hash[i]);
-                }
-
                 // Send MD5
                 createPacket(&sPacket, 16, 0, MD5, hash);
                 sendPacket(socket, &sPacket);
             }
-            free(buffer_md5);
-            free(tempBuffer_md5);
+            free(buffer);
         }
         else if(myPacket.tipo == CH_DIR_SERVER)
         {

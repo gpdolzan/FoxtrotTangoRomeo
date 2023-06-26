@@ -269,6 +269,7 @@ int main(int argc, char const *argv[])
                 printf("\n");
                 
                 createPacket(&packet_md5, 16, 0, MD5, hash);
+                sendPacket(socket, &packet_md5);
 
                 free(hash);
                 fclose(fp);
@@ -277,9 +278,8 @@ int main(int argc, char const *argv[])
             {
                 printf("aqui nao\n");
                 createPacket(&packet_md5, 0, 0, ERRO, NULL);
+                sendPacket(socket, &packet_md5);
             }
-
-            sendPacket(socket, &packet_md5);
 
             free(buffer);
             free(tempBuffer);

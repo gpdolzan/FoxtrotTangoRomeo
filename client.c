@@ -213,11 +213,14 @@ int clientCommands(int socket, char **args, int wordCount)
                 sprintf(countString, "#%d#", count);
 
                 // Create BACK_PLUS_1_FILE packet
-                createPacket(&packet, strlen(countString), 0, BACK_PLUS_1_FILE, countString);
-                sendPacket(socket, &packet);
+                if(count > 0)
+                {
+                    createPacket(&packet, strlen(countString), 0, BACK_PLUS_1_FILE, countString);
+                    sendPacket(socket, &packet);
+                }
                 
                 // Wait for OK
-                while(1)
+                while(count > 0)
                 {
                     if(tries <= 0)
                     {

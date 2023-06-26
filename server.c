@@ -272,34 +272,23 @@ int main(int argc, char const *argv[])
             {
                 buffer[i] = myPacket.dados[i];
             }
-            char *hash = (uint8_t *)malloc(16 * sizeof(uint8_t));
-            // Try to open file
-            FILE *fp = fopen(buffer, "rb");
-            if(fp == NULL)
+            // print buffer
+            printf("[%s] > Calculando hash do arquivo %s\n", sdirectory, buffer);
+            // Create a temporary buffer that concatenates server directory and file name
+            char *tempBuffer = (char *)malloc((strlen(buffer) + (strlen(sdirectory) + 1) * sizeof(char)));
+            strcpy(tempBuffer, sdirectory);
+            strcat(tempBuffer, "/");
+            strcat(tempBuffer, buffer);
+            // Calculate hash
+            char *hash = (uint8_t *)malloc(16);
+            md5(tempBuffer, hash);
+            // print using loop
+            for(int i = 0; i < 16; i++)
             {
-                printf("Erro ao abrir arquivo\n");
-                // Send ERRO
-                char *msg = "ai"; // arquivo inexistente
-                createPacket(&sPacket, strlen(msg), 0, ERRO, msg);
-                sendPacket(socket, &sPacket);
+                printf("%x", hash[i]);
             }
-            else
-            {
-                md5File(fp, hash);
+            printf("\n");
 
-                // Using for loop print hash
-                printf("Hash: ");
-                for(int i = 0; i < 16; i++)
-                {
-                    printf("%02x", hash[i]);
-                }
-                printf("\n");
-
-                // Send MD5
-                createPacket(&sPacket, 16, 0, MD5, hash);
-                sendPacket(socket, &sPacket);
-            }
-            free(buffer);
         }
         else if(myPacket.tipo == CH_DIR_SERVER)
         {

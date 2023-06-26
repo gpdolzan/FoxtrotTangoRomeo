@@ -281,7 +281,7 @@ int main(int argc, char const *argv[])
             strcat(tempBuffer, buffer);
             // Calculate hash
             char *hash = (uint8_t *)malloc(16);
-            md5(tempBuffer, hash);
+            md5File(tempBuffer, hash);
             // print using loop
             for(int i = 0; i < 16; i++)
             {

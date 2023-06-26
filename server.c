@@ -111,19 +111,46 @@ int main(int argc, char const *argv[])
                 // Send OK
                 createPacket(&sPacket, 0, 0, OK, NULL);
                 sendPacket(socket, &sPacket);
-                for(int i = 0; i < nFiles; i++)
+                // Wait for BACK_1_ARQ
+                while(1)
                 {
-                    // Using sdirectory to save file
-                    if(receiveFile(socket, buffer, strlen(buffer)) == 1)
+                    if(readPacket(socket, &myPacket, 1) == 0)
                     {
-                        printf("[%s] > Erro ao receber arquivo %s\n", sdirectory, buffer);
-                        remove(buffer);
+                        if(checkParity(&myPacket) == 0)
+                        {
+                            if(myPacket.tipo == BACK_1_FILE)
+                            {
+                                // Create buffer
+                                buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
+                                // Copy data to buffer using for loop
+                                for(int i = 0; i < myPacket.tamanho; i++)
+                                {
+                                    buffer[i] = myPacket.dados[i];
+                                }
+
+                                // Using sdirectory to save file
+                                if(receiveFile(socket, buffer, strlen(buffer)) == 1)
+                                {
+                                    printf("[%s] > Erro ao receber arquivo %s\n", sdirectory, buffer);
+                                    remove(buffer);
+                                }
+                                else
+                                {
+                                    nFiles--;
+                                    printf("[%s] > Arquivo %s recebido com sucesso\n", sdirectory, buffer);
+                                    if(nFiles <= 0)
+                                    {
+                                        break;
+                                    }
+                                }
+                                free(buffer);
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
                     }
-                    else
-                    {
-                        printf("[%s] > Arquivo %s recebido com sucesso\n", sdirectory, buffer);
-                    }
-                    free(buffer);
                 }
                 // Wait for FIM_GRUPO_ARQ
                 while(1)

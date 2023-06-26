@@ -197,37 +197,7 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == REC_1_ARQ)
         {
-            int skip = 0;
-            // Get file name from packet dados
-            char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
-            for(int i = 0; i < myPacket.tamanho; i++)
-            {
-                buffer[i] = myPacket.dados[i];
-            }
-            buffer[myPacket.tamanho] = '\0';
-
-            // Check if file exists
-            if(checkFileExists(buffer) == 1)
-            {
-                printf("[SERVER-CLI] Arquivo %s nao existe\n", buffer);
-                // SEND ERRO
-                createPacket(&sPacket, 0, 0, ERRO, NULL);
-                sendPacket(socket, &sPacket);
-                skip = 1;
-            }
-
-            if(skip == 0)
-            {
-                printf("[SERVER-CLI] Enviando arquivo %s!\n", buffer);
-                if (sendFile(socket, buffer, strlen(buffer)) == 0)
-                {
-                    printf("File sent successfully\n");
-                }
-                else
-                {
-                    printf("Error sending file\n");
-                }
-            }
+            printf("Recebi pedido para mandar arquivo para o cliente!\n");
         }
         else if(myPacket.tipo == VERIFICA_BACK)
         {

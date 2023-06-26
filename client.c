@@ -358,42 +358,63 @@ int clientCommands(int socket, char **args, int wordCount)
             // Send packet
             sendPacket(socket, &packet);
 
-            // Receive packet
-            readPacket(socket, &packet, 1);
-            // Check if packet is a MD5
-            if(packet.tipo == MD5)
+            // Add tries to check if server is responding
+            int tries = 5;
+            while (1)
             {
-                printf("[CLIENT-CLI] Hash md5 do arquivo REMOTO %s: ", args[1]);
-                // Create buffer to store hash
-                uint8_t *hash = malloc(16);
-                // For loop
-                for(int i = 0; i < 16; i++)
+                if(tries <= 0)
                 {
-                    hash[i] = packet.dados[i];
+                    printf("[CLIENT-CLI] Servidor nao respondeu\n");
+                    break;
                 }
-                // For loop to print hash
-                for(int i = 0; i < 16; i++)
+                // Receive packet
+                readPacket(socket, &packet, 1);
+                // Check if packet is a MD5
+                if(packet.tipo == MD5)
                 {
+                    printf("[CLIENT-CLI] Hash md5 do arquivo REMOTO %s: ", args[1]);
+                    // Create buffer to store hash
+                    uint8_t *hash = malloc(16);
+                    // For loop
+                    for(int i = 0; i < 16; i++)
+                    {
+                        hash[i] = packet.dados[i];
+                    }
+                    // For loop to print hash
+                    for(int i = 0; i < 16; i++)
+                    {
                         printf("%02x", hash[i]);
+                    }
+                    printf("\n");
+                    free(hash);
+                    break;
                 }
-                printf("\n");
-            }
-            else if(packet.tipo == ERRO)
-            {
-                // Check if data inside packet says "ai"
-                // Create buffer to data
-                char *data = malloc(packet.tamanho + 1);
-                // For loop to copy data
-                for(int i = 0; i < packet.tamanho; i++)
+                else if(packet.tipo == ERRO)
                 {
-                    data[i] = packet.dados[i];
+                    // Check if data inside packet says "ai"
+                    // Create buffer to data
+                    char *data = malloc(packet.tamanho + 1);
+                    // For loop to copy data
+                    for(int i = 0; i < packet.tamanho; i++)
+                    {
+                        data[i] = packet.dados[i];
+                    }
+                    // Check if data is "ai"
+                    if(strcmp(data, "ai") == 0)
+                    {
+                        printf("[CLIENT-CLI] Arquivo REMOTO %s nao encontrado\n", args[1]);
+                        break;
+                    }
                 }
-                // Add null terminator
-                data[packet.tamanho] = '\0';
-                // Check if data is "ai"
-                if(strcmp(data, "ai") == 0)
+                else if(packet.tipo == NACK)
                 {
-                    printf("[CLIENT-CLI] Arquivo %s nao encontrado no servidor\n", args[1]);
+                    printf("[CLIENT-CLI] Servidor nao respondeu, tentando novamente\n");
+                    continue;
+                }
+                else
+                {
+                    tries--;
+                    continue;
                 }
             }
         }

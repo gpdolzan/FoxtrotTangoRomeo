@@ -277,6 +277,8 @@ int main(int argc, char const *argv[])
             }
             buffer[myPacket.tamanho] = '\0';
 
+            printf("CH_DIR_SERVER: %s\n", buffer);
+
             mode_t target_mode = 0777;
             if(chdir(buffer) == -1)
             {

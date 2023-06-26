@@ -188,6 +188,7 @@ int sendFile(int socket, char *filename, int filesize)
     // print file path
     printf("Enviando arquivo: %s\n", filename);
     // Loop de envio de bytes do arquivo
+    int skip = 0;
     while(1)
     {
         // Create buffer
@@ -294,6 +295,7 @@ int receiveFile(int socket, char* filename, int filesize)
     struct t_packet clientPacket;
     struct t_packet serverPacket;
     int tries = 5;
+    int skip = 0;
     // Create file
     FILE *file = fopen(filename, "wb");
 
@@ -305,24 +307,30 @@ int receiveFile(int socket, char* filename, int filesize)
     sendPacket(socket, &serverPacket);
     while(1)
     {
-        // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &clientPacket, 2) == 1)
+        if(skip == 0)
         {
-            if(tries <= 0)
+            // Aguardar resposta (talvez timeout)
+            if (readPacket(socket, &clientPacket, 2) == 1)
             {
-                printPacket(&clientPacket);
-                printf("Timeout dados do arquivo\n");
-                fclose(file);
-                remove(filename);
-                return 1;
+                if(tries <= 0)
+                {
+                    printPacket(&clientPacket);
+                    printf("Timeout dados do arquivo\n");
+                    fclose(file);
+                    remove(filename);
+                    return 1;
+                }
+                tries--;
+                sendPacket(socket, &serverPacket);
             }
-            tries--;
-            sendPacket(socket, &serverPacket);
+            else
+            {
+                tries = 5;
+            }
         }
         else
-        {
-            tries = 5;
-        }
+            skip = 0;
+
         // Recebeu mensagem, verifica OK ou NACK
         if(checkParity(&clientPacket) == 0)
         {
@@ -356,6 +364,16 @@ int receiveFile(int socket, char* filename, int filesize)
                 createPacket(&serverPacket, 0, expectedSequence, NACK, NULL); // Pedido para receber proximo DATA
                 printf("Enviando NACK com sequencia %d\n", expectedSequence);
                 sendPacket(socket, &serverPacket);
+
+                // Ouvir
+                if (readPacket(socket, &clientPacket, 1) == 0)
+                {
+                    if(clientPacket.tipo == DATA)
+                    {
+                        printf("Recebi DATA\n");
+                        skip = 1;
+                    }
+                }
             }
             else if(clientPacket.tipo == FIM_ARQ)
             {

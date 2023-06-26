@@ -1,6 +1,6 @@
 CFLAGS = -Wextra -g 
 
-objs = packethandler.o rawsocket.o md5.o
+objs = packethandler.o rawsocket.o md5hashing.o
 
 # regra default (primeira regra)
 all: client server

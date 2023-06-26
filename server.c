@@ -197,8 +197,6 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == REC_1_ARQ)
         {
-            // Spacket
-            struct t_packet sPacket;
             // Get file name from packet dados
             char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
             for(int i = 0; i < myPacket.tamanho; i++)

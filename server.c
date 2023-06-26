@@ -96,7 +96,7 @@ int main(int argc, char const *argv[])
             // Now ignore the # and get the number
             char *tempBuffer = (char *)malloc((strlen(buffer) + 1) * sizeof(char));
             int j = 0;
-            for(int i = 1; i < strlen(buffer) - 1; i++)
+            for(size_t i = 1; i < strlen(buffer) - 1; i++)
             {
                 tempBuffer[j] = buffer[i];
                 j++;
@@ -106,9 +106,7 @@ int main(int argc, char const *argv[])
             free(tempBuffer);
             free(buffer);
 
-            printf("[%s] > Receber %d arquivos\n", sdirectory, nFiles);
-
-            /*if(nFiles > 0)
+            if(nFiles > 0)
             {
                 // Send OK
                 createPacket(&sPacket, 0, 0, OK, NULL);
@@ -153,7 +151,7 @@ int main(int argc, char const *argv[])
                         }
                     }
                 }
-            }*/
+            }
         }
         else if(myPacket.tipo == REC_1_ARQ)
         {

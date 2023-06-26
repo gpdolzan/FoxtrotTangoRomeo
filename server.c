@@ -265,12 +265,6 @@ int main(int argc, char const *argv[])
                     printf("%02x", hash[i]);
                 }
                 printf("\n");
-                
-                createPacket(&packet_md5, 16, 0, MD5, hash);
-                sendPacket(socket, &packet_md5);
-
-                free(hash);
-                fclose(fp);
             }
             else
             {

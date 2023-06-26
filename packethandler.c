@@ -229,6 +229,7 @@ int sendFile(int socket, char *filename, int filesize)
                         sequence++;
                     else
                         sequence = 0;
+                    printf("sequencia nova: %d\n", sequence);
                     break;
                 }
                 else if(serverPacket.tipo == NACK)
@@ -340,6 +341,7 @@ int receiveFile(int socket, char* filename, int filesize)
                 // Send OK
                 createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
                 sendPacket(socket, &serverPacket);
+                printf("recebi sequencia %d\n", expectedSequence);
                 if(expectedSequence < 63)
                     expectedSequence++;
                 else

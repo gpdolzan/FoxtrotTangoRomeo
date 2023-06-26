@@ -1,7 +1,7 @@
 #include "rawsocket.h"
 #include "packethandler.h"
 #include "client.h"
-#include "md5.h"
+#include "md5hashing.h"
 
 #define BUFFER_SIZE 1024
 

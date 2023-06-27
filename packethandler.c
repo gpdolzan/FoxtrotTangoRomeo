@@ -148,11 +148,17 @@ int sendFileWrapper(int socket, char *filename, int type)
     // Check if file exists
     if(checkFileExists(filename) == 1)
     {
-        printf("[CLIENT-CLI] Arquivo %s nao existe\n", filename);
+        if(type == CLIENT)
+            printf("[CLIENT-CLI] Arquivo %s nao existe\n", filename);
+        else
+            printf("[SERVER-CLI] Arquivo %s nao existe\n", filename);
         return 1;
     }
 
-    printf("[CLIENT-CLI] Enviando arquivo %s!\n", filename);
+    if(type == CLIENT)
+        printf("[CLIENT-CLI] Enviando arquivo %s!\n", filename);
+    else
+        printf("[SERVER-CLI] Enviando arquivo %s!\n", filename);
     if (sendFile(socket, filename, strlen(filename), type) == 0)
     {
         printf("File sent successfully\n");
@@ -178,14 +184,15 @@ int sendFile(int socket, char *filename, int filesize,  int type)
     while(1)
     {
         sendPacket(socket, &packet);
-        if(SERVER == type)
+        if(type == SERVER)
         {
             // Send OK
+            printf("Enviei OK!\n");
             createPacket(&packet, 0, sequence, OK, NULL);
             sendPacket(socket, &packet);
             break;
         }
-        else if(CLIENT == type)
+        else if(type == CLIENT)
         {
             // Receive OK
             if(readPacket(socket, &serverPacket, 1) == 1)

@@ -257,6 +257,7 @@ int sendFile(int socket, FILE *file)
             {
                 if(serverPacket.tipo == OK)
                 {
+                    printf("recebi OK!\n");
                     if(sequence < 63)
                         sequence++;
                     else
@@ -386,13 +387,6 @@ int receiveFile(int socket, FILE* file)
                 createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
                 sendPacket(socket, &serverPacket);
             }
-        }
-        else if(clientPacket.sequencia < expectedSequence)
-        {
-            printf("Recebi pacote duplicado\n");
-            // Send OK
-            createPacket(&serverPacket, 0, (expectedSequence - 1), OK, NULL);
-            sendPacket(socket, &serverPacket);
         }
         else if(checkParity(&clientPacket) == 1)
         {

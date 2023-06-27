@@ -241,7 +241,7 @@ int clientCommands(int socket, char **args, int wordCount)
                         // Check parity
                         if(checkParity(&packet) == 0)
                         {
-                            if(sPacket.tipo == BACK_1_FILE)
+                            if(packet.tipo == BACK_1_FILE)
                             {
                                 printf("[CLIENT-CLI] > Receber arquivo %s\n", args[1]);
                                 // Create buffer

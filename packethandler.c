@@ -393,7 +393,7 @@ int receiveFile(int socket, FILE* file)
                 sendPacket(socket, &serverPacket);
             }
         }
-        else if(expectedSequence > clientPacket.sequencia)
+        else if(expectedSequence < clientPacket.sequencia)
         {
             printf("Sequencia esperada: %d\n", expectedSequence);
             printf("Sequencia recebida: %d\n", clientPacket.sequencia);

@@ -379,6 +379,7 @@ int receiveFile(int socket, char* filename, int filesize, int type)
             }
         }
     }
+    printf("DATA LOOP\n");
     while(1)
     {
         // Aguardar resposta (talvez timeout)

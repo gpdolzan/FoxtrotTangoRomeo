@@ -70,7 +70,7 @@ int main(int argc, char const *argv[])
                         buffer[i] = myPacket.dados[i];
                     }
         
-                    if(receiveFile(socket, buffer, strlen(buffer)) == 1)
+                    if(receiveFile(socket, buffer, strlen(buffer), SERVER) == 1)
                     {
                         printf("[%s] > Erro ao receber arquivo %s\n", sdirectory, buffer);
                         remove(buffer);
@@ -135,7 +135,7 @@ int main(int argc, char const *argv[])
                                 }
 
                                 // Using sdirectory to save file
-                                if(receiveFile(socket, buffer, strlen(buffer)) == 1)
+                                if(receiveFile(socket, buffer, strlen(buffer), SERVER) == 1)
                                 {
                                     printf("[%s] > Erro ao receber arquivo %s\n", sdirectory, buffer);
                                     remove(buffer);

@@ -183,7 +183,7 @@ int clientCommands(int socket, char **args, int wordCount)
                         continue;
                     }
 
-                    if(sendFileWrapper(socket, globbuf.gl_pathv[i]) == 0)
+                    if(sendFileWrapper(socket, globbuf.gl_pathv[i], CLIENT) == 0)
                     {
                         printf("[CLIENT-CLI] Arquivo %s enviado com sucesso!\n", globbuf.gl_pathv[i]);
                     }
@@ -202,7 +202,7 @@ int clientCommands(int socket, char **args, int wordCount)
             }
             else
             {
-                if(sendFileWrapper(socket, args[1]) == 0)
+                if(sendFileWrapper(socket, args[1], CLIENT) == 0)
                     printf("[CLIENT-CLI] Arquivo enviado com sucesso!\n");
                 else
                     printf("[CLIENT-CLI] Falha ao enviar arquivo\n");
@@ -246,7 +246,7 @@ int clientCommands(int socket, char **args, int wordCount)
                             // Check if packet is OK
                             if(packet.tipo == BACK_1_FILE)
                             {
-                                if(receiveFile(socket, args[1], strlen(args[1])) == 1)
+                                if(receiveFile(socket, args[1], strlen(args[1]), CLIENT) == 1)
                                 {
                                     printf("[%s] > Erro ao receber arquivo %s\n", cdirectory, args[1]);
                                     break;

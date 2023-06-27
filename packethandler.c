@@ -143,7 +143,7 @@ int checkFileExists(char *filename)
         return 1;
 }
 
-int sendFileWrapper(int socket, char *filename)
+int sendFileWrapper(int socket, char *filename, int type)
 {
     // Check if file exists
     if(checkFileExists(filename) == 1)
@@ -153,7 +153,7 @@ int sendFileWrapper(int socket, char *filename)
     }
 
     printf("[CLIENT-CLI] Enviando arquivo %s!\n", filename);
-    if (sendFile(socket, filename, strlen(filename)) == 0)
+    if (sendFile(socket, filename, strlen(filename), type) == 0)
     {
         printf("File sent successfully\n");
         return 0;
@@ -165,7 +165,7 @@ int sendFileWrapper(int socket, char *filename)
     }
 }
 
-int sendFile(int socket, char *filename, int filesize)
+int sendFile(int socket, char *filename, int filesize,  int type)
 {
     FILE *file = fopen(filename, "rb");
     struct t_packet packet;
@@ -178,6 +178,14 @@ int sendFile(int socket, char *filename, int filesize)
     while(1)
     {
         sendPacket(socket, &packet);
+        if(SERVER == type)
+        {
+            // Send OK
+            createPacket(&packet, 0, sequence, OK, NULL);
+            sendPacket(socket, &packet);
+            break;
+        }
+
         // Aguardar resposta (talvez timeout)
         if (readPacket(socket, &serverPacket, 1) == 1)
         {
@@ -311,7 +319,7 @@ int sendFile(int socket, char *filename, int filesize)
     return 0;
 }
 
-int receiveFile(int socket, char* filename, int filesize)
+int receiveFile(int socket, char* filename, int filesize, int type)
 {
     int expectedSequence = 0;
     struct t_packet clientPacket;
@@ -320,13 +328,15 @@ int receiveFile(int socket, char* filename, int filesize)
     // Create file
     FILE *file = fopen(filename, "wb");
 
-    // Send OK
-    createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
+    if(type == SERVER)
+    {
+        // Send OK
+        createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
 
-    // Loop de recebimento de bytes do arquivo
-    printf("Loop de bytes de arquivo\n");
-    sendPacket(socket, &serverPacket);
-    expectedSequence++;
+        // Loop de recebimento de bytes do arquivo
+        printf("Loop de bytes de arquivo\n");
+        sendPacket(socket, &serverPacket);
+    }
     while(1)
     {
         // Aguardar resposta (talvez timeout)

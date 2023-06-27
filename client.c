@@ -241,26 +241,41 @@ int clientCommands(int socket, char **args, int wordCount)
                         // Check parity
                         if(checkParity(&packet) == 0)
                         {
-                            // GETCWD cdirectory
-                            getcwd(cdirectory, sizeof(cdirectory));
-                            // Check if packet is OK
-                            if(packet.tipo == BACK_1_FILE)
+                            if(sPacket.tipo == BACK_1_FILE)
                             {
-                                if(receiveFile(socket, args[1], strlen(args[1]), CLIENT) == 1)
+                                printf("[CLIENT-CLI] > Receber arquivo %s\n", args[1]);
+                                if(sPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
                                 {
-                                    printf("[%s] > Erro ao receber arquivo %s\n", cdirectory, args[1]);
-                                    break;
+                                    // Check parity
+                                    if(checkParity(&sPacket) == 1)
+                                    {
+                                        printPacket(&sPacket);
+                                        // Send NACK
+                                        createPacket(&sPacket, 0, 0, NACK, NULL);
+                                        sendPacket(socket, &sPacket);
+                                    }
+                                    else
+                                    {
+                                        // Create buffer
+                                        char *buffer = (char *)malloc(sPacket.tamanho * sizeof(char));
+                                        // Copy data to buffer using for loop
+                                        for(int i = 0; i < sPacket.tamanho; i++)
+                                        {
+                                            buffer[i] = sPacket.dados[i];
+                                        }
+                            
+                                        if(receiveFile(socket, buffer, strlen(buffer), CLIENT) == 1)
+                                        {
+                                            printf("[%s] > Erro ao receber arquivo %s\n", cdirectory, buffer);
+                                            remove(buffer);
+                                        }
+                                        else
+                                        {
+                                            printf("[%s] > Arquivo %s recebido com sucesso\n", cdirectory, buffer);
+                                        }
+                                        free(buffer);
+                                    }
                                 }
-                                else
-                                {
-                                    printf("[%s] > Arquivo %s recebido com sucesso\n", cdirectory, args[1]);
-                                    break;
-                                }
-                            }
-                            else if(packet.tipo == ERRO)
-                            {
-                                printf("[CLIENT-CLI] > Arquivo %s nao se encontra no diretorio REMOTO\n", args[1]);
-                                break;
                             }
                         }
                     }

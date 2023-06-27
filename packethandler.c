@@ -337,6 +337,40 @@ int receiveFile(int socket, char* filename, int filesize, int type)
         printf("Loop de bytes de arquivo\n");
         sendPacket(socket, &serverPacket);
     }
+    else if(type == CLIENT)
+    {
+        // Receive OK
+        while(1)
+        {
+            // Aguardar resposta (talvez timeout)
+            if (readPacket(socket, &serverPacket, 1) == 1)
+            {
+                printf("Timeout receber confirmacao de inicio\n");
+                fclose(file);
+                remove(filename);
+                return 1;
+            }
+            // Recebeu mensagem, verifica OK ou NACK
+            if(serverPacket.sequencia == expectedSequence && checkParity(&serverPacket) == 0)
+            {
+                if(serverPacket.tipo == OK)
+                {
+                    printf("recebi o OK!\n");
+                    break;
+                }
+                else if(serverPacket.tipo == NACK)
+                {
+                    // Enviar novamente
+                    sendPacket(socket, &serverPacket);
+                }
+            }
+            else if(checkParity(&serverPacket) == 1)
+            {
+                // Enviar novamente
+                sendPacket(socket, &serverPacket);
+            }
+        }
+    }
     while(1)
     {
         // Aguardar resposta (talvez timeout)

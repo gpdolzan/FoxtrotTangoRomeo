@@ -244,38 +244,24 @@ int clientCommands(int socket, char **args, int wordCount)
                             if(sPacket.tipo == BACK_1_FILE)
                             {
                                 printf("[CLIENT-CLI] > Receber arquivo %s\n", args[1]);
-                                if(sPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
+                                // Create buffer
+                                char *buffer = (char *)malloc(sPacket.tamanho * sizeof(char));
+                                // Copy data to buffer using for loop
+                                for(int i = 0; i < sPacket.tamanho; i++)
                                 {
-                                    // Check parity
-                                    if(checkParity(&sPacket) == 1)
-                                    {
-                                        printPacket(&sPacket);
-                                        // Send NACK
-                                        createPacket(&sPacket, 0, 0, NACK, NULL);
-                                        sendPacket(socket, &sPacket);
-                                    }
-                                    else
-                                    {
-                                        // Create buffer
-                                        char *buffer = (char *)malloc(sPacket.tamanho * sizeof(char));
-                                        // Copy data to buffer using for loop
-                                        for(int i = 0; i < sPacket.tamanho; i++)
-                                        {
-                                            buffer[i] = sPacket.dados[i];
-                                        }
-                            
-                                        if(receiveFile(socket, buffer, strlen(buffer), CLIENT) == 1)
-                                        {
-                                            printf("[%s] > Erro ao receber arquivo %s\n", cdirectory, buffer);
-                                            remove(buffer);
-                                        }
-                                        else
-                                        {
-                                            printf("[%s] > Arquivo %s recebido com sucesso\n", cdirectory, buffer);
-                                        }
-                                        free(buffer);
-                                    }
+                                    buffer[i] = sPacket.dados[i];
                                 }
+                    
+                                if(receiveFile(socket, buffer, strlen(buffer), CLIENT) == 1)
+                                {
+                                    printf("[%s] > Erro ao receber arquivo %s\n", cdirectory, buffer);
+                                    remove(buffer);
+                                }
+                                else
+                                {
+                                    printf("[%s] > Arquivo %s recebido com sucesso\n", cdirectory, buffer);
+                                }
+                                free(buffer);
                             }
                         }
                     }

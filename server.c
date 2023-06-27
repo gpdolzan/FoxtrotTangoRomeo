@@ -241,7 +241,7 @@ int main(int argc, char const *argv[])
             else
             {
                 // Try to open file
-                FILE* file = fopen(buffer, "rb");
+                FILE* file = fopen(tempBuffer, "rb");
                 // Send BACK_1_FILE
                 createPacket(&packet, strlen(buffer), 0, BACK_1_FILE, buffer);
                 sendPacket(socket, &packet);
@@ -255,6 +255,8 @@ int main(int argc, char const *argv[])
                 {
                     printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, buffer);
                 }
+                free(buffer);
+                free(tempBuffer);
             }
         }
         else if(myPacket.tipo == VERIFICA_BACK)

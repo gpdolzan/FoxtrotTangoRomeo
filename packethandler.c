@@ -388,6 +388,14 @@ int receiveFile(int socket, FILE* file)
                 sendPacket(socket, &serverPacket);
             }
         }
+        else if(expectedSequence != clientPacket.sequencia && checkParity(&clientPacket) == 0)
+        {
+            printf("Sequencia esperada: %d\n", expectedSequence);
+            printf("Sequencia recebida: %d\n", clientPacket.sequencia);
+            // Enviar novamente
+            createPacket(&serverPacket, 0, clientPacket.sequencia, OK, NULL);
+            sendPacket(socket, &serverPacket);
+        }
         else if(checkParity(&clientPacket) == 1)
         {
             printf("Paridade recebida: %d\n", clientPacket.paridade);

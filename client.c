@@ -164,6 +164,12 @@ int clientCommands(int socket, char **args, int wordCount)
                                 printf("[CLIENT-CLI] OK received\n");
                                 break;
                             }
+                            else if(packet.tipo == NACK)
+                            {
+                                // print message and the exit this if
+                                printf("[CLIENT-CLI] NACK recebido como resposta!\n");
+                                tries--;
+                            }
                         }
                     }
                     else
@@ -220,47 +226,11 @@ int clientCommands(int socket, char **args, int wordCount)
             // Check if string has a * in it
             if(strchr(args[1], '*') != NULL)
             {
-
+                // REC_1_ARQ_PLUS
             }
             else
             {
-                // Crete packet REC_1_ARQ
-                createPacket(&packet, strlen(args[1]), 0, REC_1_ARQ, args[1]);
-                sendPacket(socket, &packet);
-
-                // Wait for OK
-                while(1)
-                {
-                    if(tries <= 0)
-                    {
-                        printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
-                        break;
-                    }
-                    if(readPacket(socket, &packet, 1) == 0)
-                    {
-                        // Check parity
-                        if(checkParity(&packet) == 0)
-                        {
-                            if(packet.tipo == BACK_1_FILE)
-                            {
-                                printf("[CLIENT-CLI] > Receber arquivo %s\n", args[1]);
-                    
-                                if(receiveFile(socket, args[1], strlen(args[1]), CLIENT) == 1)
-                                {
-                                    printf("[%s] > Erro ao receber arquivo %s\n", cdirectory, args[1]);
-                                }
-                                else
-                                {
-                                    printf("[%s] > Arquivo %s recebido com sucesso\n", cdirectory, args[1]);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        tries--;
-                    }
-                }
+                // REC_1_ARQ
             }
         }
     }

@@ -49,6 +49,7 @@ int main(int argc, char const *argv[])
 
         if(myPacket.tipo == BACK_1_FILE)
         {
+            struct t_packet packet;
             printf("[%s] > Receber um arquivo\n", sdirectory);
             if(myPacket.sequencia == 0) // Inicio de uma sequencia de pacotes
             {
@@ -69,8 +70,13 @@ int main(int argc, char const *argv[])
                     {
                         buffer[i] = myPacket.dados[i];
                     }
+
+                    // Send OK
+                    FILE* file = fopen(buffer, "wb");
+                    createPacket(&packet, 0, 0, OK, NULL);
+                    sendPacket(socket, &packet);
         
-                    if(receiveFile(socket, buffer, strlen(buffer), SERVER) == 1)
+                    if(receiveFile(socket, file) == 1)
                     {
                         printf("[%s] > Erro ao receber arquivo %s\n", sdirectory, buffer);
                         remove(buffer);
@@ -87,6 +93,7 @@ int main(int argc, char const *argv[])
         {
             // Data has a special format #[number]#
             // Get number
+            struct t_packet serverPacket;
             int tries = 8;
             int nFiles = 0;
             char *buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
@@ -126,6 +133,7 @@ int main(int argc, char const *argv[])
                             }
                             if(myPacket.tipo == BACK_1_FILE)
                             {
+                                FILE* file;
                                 // Create buffer
                                 buffer = (char *)malloc(myPacket.tamanho * sizeof(char));
                                 // Copy data to buffer using for loop
@@ -134,8 +142,13 @@ int main(int argc, char const *argv[])
                                     buffer[i] = myPacket.dados[i];
                                 }
 
+                                file = fopen(buffer, "wb");
+                                // Send OK
+                                createPacket(&serverPacket, 0, 0, OK, NULL);
+                                sendPacket(socket, &serverPacket);
+
                                 // Using sdirectory to save file
-                                if(receiveFile(socket, buffer, strlen(buffer), SERVER) == 1)
+                                if(receiveFile(socket, file) == 1)
                                 {
                                     printf("[%s] > Erro ao receber arquivo %s\n", sdirectory, buffer);
                                     remove(buffer);
@@ -197,24 +210,7 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == REC_1_ARQ)
         {
-            printf("Recebi pedido para mandar arquivo para o cliente!\n");
-
-            // Create buffer
-            char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
-            for(int i = 0; i < myPacket.tamanho; i++)
-            {
-                buffer[i] = myPacket.dados[i];
-            }
-            buffer[myPacket.tamanho] = '\0';
-
-            if(sendFileWrapper(socket, buffer, SERVER) == 0)
-            {
-                printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, buffer);
-            }
-            else
-            {
-                printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, buffer);
-            }
+            // Implementar aqui
         }
         else if(myPacket.tipo == VERIFICA_BACK)
         {

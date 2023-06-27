@@ -178,7 +178,7 @@ int sendFile(int socket, char *filename, int filesize,  int type)
     while(1)
     {
         sendPacket(socket, &packet);
-        if(SERVER == type)
+        if(CLIENT == type)
         {
             // Send OK
             createPacket(&packet, 0, sequence, OK, NULL);

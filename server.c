@@ -242,21 +242,29 @@ int main(int argc, char const *argv[])
             {
                 // Try to open file
                 FILE* file = fopen(tempBuffer, "rb");
-                // Send BACK_1_FILE
-                createPacket(&packet, strlen(buffer), 0, BACK_1_FILE, buffer);
-                sendPacket(socket, &packet);
-                getcwd(sdirectory, sizeof(sdirectory));
-                // Send file
-                if(sendFile(socket, file) == 0)
+
+                if(file != NULL)
                 {
-                    printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, buffer);
+                    // Send BACK_1_FILE
+                    createPacket(&packet, strlen(buffer), 0, BACK_1_FILE, buffer);
+                    sendPacket(socket, &packet);
+                    getcwd(sdirectory, sizeof(sdirectory));
+                    // Send file
+                    if(sendFile(socket, file) == 0)
+                    {
+                        printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, buffer);
+                    }
+                    else
+                    {
+                        printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, buffer);
+                    }
+                    free(buffer);
+                    free(tempBuffer);
                 }
                 else
                 {
-                    printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, buffer);
+                    printf("deu merda patrao\n");
                 }
-                free(buffer);
-                free(tempBuffer);
             }
         }
         else if(myPacket.tipo == VERIFICA_BACK)

@@ -231,7 +231,7 @@ int main(int argc, char const *argv[])
             // print tempBuffer
             printf("Enviando arquivo %s\n", tempBuffer);
 
-            if(checkFileExists(buffer) == 0)
+            if(checkFileExists(tempBuffer) == 0)
             {
                 printf("[%s] > Arquivo %s nao existe!\n", sdirectory, buffer);
                 // Send NACK

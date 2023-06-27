@@ -195,6 +195,7 @@ int sendFile(int socket, char *filename, int filesize)
                 else
                     sequence = 0;
                 break;
+                printf("sequencia: %d\n", sequence);
             }
             else if(serverPacket.tipo == NACK)
             {
@@ -316,7 +317,6 @@ int receiveFile(int socket, char* filename, int filesize)
     struct t_packet clientPacket;
     struct t_packet serverPacket;
     int tries = 5;
-    int skip = 0;
     // Create file
     FILE *file = fopen(filename, "wb");
 
@@ -326,14 +326,14 @@ int receiveFile(int socket, char* filename, int filesize)
     // Loop de recebimento de bytes do arquivo
     printf("Loop de bytes de arquivo\n");
     sendPacket(socket, &serverPacket);
+    expectedSequence++;
     while(1)
     {
         // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &clientPacket, 2) == 1)
+        if (readPacket(socket, &clientPacket, 1) == 1)
         {
             if(tries <= 0)
             {
-                printPacket(&clientPacket);
                 printf("Timeout dados do arquivo\n");
                 fclose(file);
                 remove(filename);
@@ -341,16 +341,16 @@ int receiveFile(int socket, char* filename, int filesize)
             }
             tries--;
             sendPacket(socket, &serverPacket);
+            continue;
         }
         else
         {
             tries = 5;
         }
-
         // Recebeu mensagem, verifica OK ou NACK
-        if(checkParity(&clientPacket) == 0)
+        if(clientPacket.sequencia == expectedSequence && checkParity(&clientPacket) == 0)
         {
-            if(clientPacket.tipo == DATA && expectedSequence == clientPacket.sequencia)
+            if(clientPacket.tipo == DATA)
             {
                 // Create a buffer
                 char *buffer = malloc(clientPacket.tamanho);
@@ -366,20 +366,10 @@ int receiveFile(int socket, char* filename, int filesize)
                 // Send OK
                 createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
                 sendPacket(socket, &serverPacket);
-                printf("recebi sequencia %d\n", expectedSequence);
                 if(expectedSequence < 63)
                     expectedSequence++;
                 else
                     expectedSequence = 0;
-                printf("nova sequencia: %d\n", expectedSequence);
-            }
-            else if(clientPacket.tipo == DATA && expectedSequence > clientPacket.sequencia)
-            {
-                // Send NACK
-                printf("Recebi sequencia %d, esperava %d\n", clientPacket.sequencia, expectedSequence);
-                createPacket(&serverPacket, 0, expectedSequence, NACK, NULL); // Pedido para receber proximo DATA
-                sendPacket(socket, &serverPacket);
-                printf("Enviando NACK com sequencia %d\n", expectedSequence);
             }
             else if(clientPacket.tipo == FIM_ARQ)
             {
@@ -396,13 +386,6 @@ int receiveFile(int socket, char* filename, int filesize)
                 // Enviar novamente
                 createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
                 sendPacket(socket, &serverPacket);
-            }
-            else if(clientPacket.tipo == ERRO)
-            {
-                printf("Recebi ERRO\n");
-                fclose(file);
-                remove(filename);
-                return 1;
             }
         }
         else if(checkParity(&clientPacket) == 1)

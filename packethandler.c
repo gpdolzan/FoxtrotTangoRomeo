@@ -335,6 +335,8 @@ int receiveFile(int socket, FILE* file)
             if(tries <= 0)
             {
                 printf("Timeout dados do arquivo\n");
+                // print expected sequence
+                printf("Expected sequence: %d\n", expectedSequence);
                 printPacket(&clientPacket);
                 fclose(file);
                 return 1;

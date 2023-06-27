@@ -230,7 +230,50 @@ int clientCommands(int socket, char **args, int wordCount)
             }
             else
             {
-                // REC_1_ARQ
+                // Send REC_1_ARQ
+                createPacket(&packet, strlen(args[1]), 0, REC_1_ARQ, args[1]);
+                sendPacket(socket, &packet);
+
+                // Wait for OK
+                while(1)
+                {
+                    if(tries <= 0)
+                    {
+                        printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
+                        break;
+                    }
+                    sendPacket(socket, &packet);
+                    if(readPacket(socket, &sPacket, 1) == 0)
+                    {
+                        // Check parity
+                        if(checkParity(&sPacket) == 0)
+                        {
+                            // Check if packet is OK
+                            if(sPacket.tipo == OK)
+                            {
+                                FILE* file = fopen(args[1], "wb");
+                                if(file == NULL)
+                                {
+                                    printf("[CLIENT-CLI] Erro ao criar arquivo %s\n", args[1]);
+                                    break;
+                                }
+                                receiveFile(socket, file);
+                                break;
+                            }
+                            else if(sPacket.tipo == NACK)
+                            {
+                                // print message and the exit this if
+                                printf("[CLIENT-CLI] NACK recebido como resposta!\n");
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        tries--;
+                    }
+                }
+
             }
         }
     }

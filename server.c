@@ -210,7 +210,41 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == REC_1_ARQ)
         {
-            // Implementar aqui
+            struct t_packet packet;
+
+            // Create buffer
+            char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
+            for(int i = 0; i < myPacket.tamanho; i++)
+            {
+                buffer[i] = myPacket.dados[i];
+            }
+            buffer[myPacket.tamanho] = '\0';
+            
+            if(checkFileExists(buffer) == 0)
+            {
+                printf("[%s] > Arquivo %s nao existe!\n", sdirectory, buffer);
+                // Send NACK
+                createPacket(&packet, 0, 0, NACK, NULL);
+                sendPacket(socket, &packet);
+            }
+            else
+            {
+                // Try to open file
+                FILE* file = fopen(buffer, "rb");
+                // Send BACK_1_FILE
+                createPacket(&packet, strlen(buffer), 0, BACK_1_FILE, buffer);
+                sendPacket(socket, &packet);
+                getcwd(sdirectory, sizeof(sdirectory));
+                // Send file
+                if(sendFile(socket, file) == 0)
+                {
+                    printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, buffer);
+                }
+                else
+                {
+                    printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, buffer);
+                }
+            }
         }
         else if(myPacket.tipo == VERIFICA_BACK)
         {

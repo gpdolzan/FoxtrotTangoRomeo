@@ -178,43 +178,44 @@ int sendFile(int socket, char *filename, int filesize,  int type)
     while(1)
     {
         sendPacket(socket, &packet);
-        if(CLIENT == type)
+        if(SERVER == type)
         {
             // Send OK
             createPacket(&packet, 0, sequence, OK, NULL);
             sendPacket(socket, &packet);
             break;
         }
-
-        // Aguardar resposta (talvez timeout)
-        if (readPacket(socket, &serverPacket, 1) == 1)
+        else if(CLIENT == type)
         {
-            printf("Timeout Receber confirmacao de inicio\n");
-            fclose(file);
-            return 1;
-        }
-        // Recebeu mensagem, verifica OK ou NACK
-        if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
-        {
-            if(serverPacket.tipo == OK)
+            // Receive OK
+            if(readPacket(socket, &serverPacket, 1) == 1)
             {
-                if(sequence < 63)
-                    sequence++;
-                else
-                    sequence = 0;
-                break;
-                printf("sequencia: %d\n", sequence);
+                printf("Timeout Receber confirmacao de inicio\n");
+                fclose(file);
+                return 1;
             }
-            else if(serverPacket.tipo == NACK)
+            else
             {
-                // Enviar novamente
-                sendPacket(socket, &packet);
+                // Recebeu mensagem, verifica OK ou NACK
+                if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
+                {
+                    if(serverPacket.tipo == OK)
+                    {
+                        break;
+                        printf("sequencia: %d\n", sequence);
+                    }
+                    else if(serverPacket.tipo == NACK)
+                    {
+                        // Enviar novamente
+                        sendPacket(socket, &packet);
+                    }
+                }
+                else if(checkParity(&serverPacket) == 1)
+                {
+                    // Enviar novamente
+                    sendPacket(socket, &packet);
+                }
             }
-        }
-        else if(checkParity(&serverPacket) == 1)
-        {
-            // Enviar novamente
-            sendPacket(socket, &packet);
         }
     }
 

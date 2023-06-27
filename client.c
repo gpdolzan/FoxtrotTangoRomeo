@@ -244,24 +244,15 @@ int clientCommands(int socket, char **args, int wordCount)
                             if(packet.tipo == BACK_1_FILE)
                             {
                                 printf("[CLIENT-CLI] > Receber arquivo %s\n", args[1]);
-                                // Create buffer
-                                char *buffer = (char *)malloc(sPacket.tamanho * sizeof(char));
-                                // Copy data to buffer using for loop
-                                for(int i = 0; i < sPacket.tamanho; i++)
-                                {
-                                    buffer[i] = sPacket.dados[i];
-                                }
                     
-                                if(receiveFile(socket, buffer, strlen(buffer), CLIENT) == 1)
+                                if(receiveFile(socket, args[1], strlen(args[1]), CLIENT) == 1)
                                 {
-                                    printf("[%s] > Erro ao receber arquivo %s\n", cdirectory, buffer);
-                                    remove(buffer);
+                                    printf("[%s] > Erro ao receber arquivo %s\n", cdirectory, args[1]);
                                 }
                                 else
                                 {
-                                    printf("[%s] > Arquivo %s recebido com sucesso\n", cdirectory, buffer);
+                                    printf("[%s] > Arquivo %s recebido com sucesso\n", cdirectory, args[1]);
                                 }
-                                free(buffer);
                             }
                         }
                     }

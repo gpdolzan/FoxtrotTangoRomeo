@@ -56,6 +56,7 @@ int sendPacket(int socket, struct t_packet *packet);
 int readPacket(int socket, struct t_packet *packet, unsigned int timeout);
 int checkFileExists(char *filename);
 int sendFile(int socket, char *filename, int filesize); // PROJECT CRITICAL
+int sendFileWrapper(int socket, char *filename);
 int receiveFile(int socket, char* filename, int filesize); // PROJECT CRITICAL
 
 

@@ -143,6 +143,28 @@ int checkFileExists(char *filename)
         return 1;
 }
 
+int sendFileWrapper(int socket, char *filename)
+{
+    // Check if file exists
+    if(checkFileExists(filename) == 1)
+    {
+        printf("[CLIENT-CLI] Arquivo %s nao existe\n", filename);
+        return 1;
+    }
+
+    printf("[CLIENT-CLI] Enviando arquivo %s!\n", filename);
+    if (sendFile(socket, filename, strlen(filename)) == 0)
+    {
+        printf("File sent successfully\n");
+        return 0;
+    }
+    else
+    {
+        printf("Error sending file\n");
+        return 1;
+    }
+}
+
 int sendFile(int socket, char *filename, int filesize)
 {
     FILE *file = fopen(filename, "rb");

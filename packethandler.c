@@ -244,7 +244,7 @@ int sendFile(int socket, char *filename, int filesize)
                 tries = 5;
             }
             // Recebeu mensagem, verifica OK ou NACK
-            if(serverPacket.tipo == NACK && serverPacket.sequencia == sequence)
+            if(serverPacket.tipo == NACK && serverPacket.sequencia != sequence)
             {
                 // Enviar novamente
                 printf("NACK\n");

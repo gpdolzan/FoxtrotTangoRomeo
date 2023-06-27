@@ -352,7 +352,7 @@ int receiveFile(int socket, FILE* file)
         {
             tries = 5;
         }
-        // Recebeu mensagem, verifica OK ou NACK
+
         if(clientPacket.sequencia == expectedSequence && checkParity(&clientPacket) == 0)
         {
             if(clientPacket.tipo == DATA)
@@ -393,17 +393,14 @@ int receiveFile(int socket, FILE* file)
                 sendPacket(socket, &serverPacket);
             }
         }
-        else if(expectedSequence < clientPacket.sequencia)
+        else if(clientPacket.sequencia <= expectedSequence && checkParity(&clientPacket) == 0)
         {
-            printf("Sequencia esperada: %d\n", expectedSequence);
-            printf("Sequencia recebida: %d\n", clientPacket.sequencia);
-            // Enviar novamente
-            createPacket(&serverPacket, 0, clientPacket.sequencia, OK, NULL);
+            // Send OK
+            createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
             sendPacket(socket, &serverPacket);
         }
         else if(checkParity(&clientPacket) == 1)
         {
-            printf("Paridade recebida: %d\n", clientPacket.paridade);
             // Enviar novamente
             createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
             sendPacket(socket, &serverPacket);

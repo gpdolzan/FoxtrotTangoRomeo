@@ -228,7 +228,7 @@ int main(int argc, char const *argv[])
             strcat(tempBuffer, "/");
             strcat(tempBuffer, buffer);
 
-            if(checkFileExists(tempBuffer) == 0)
+            if(checkFileExists(tempBuffer) == 1)
             {
                 printf("[%s] > Arquivo %s nao existe!\n", sdirectory, buffer);
                 // Send NACK

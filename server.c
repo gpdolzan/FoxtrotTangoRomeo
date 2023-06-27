@@ -198,6 +198,23 @@ int main(int argc, char const *argv[])
         else if(myPacket.tipo == REC_1_ARQ)
         {
             printf("Recebi pedido para mandar arquivo para o cliente!\n");
+
+            // Create buffer
+            char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
+            for(int i = 0; i < myPacket.tamanho; i++)
+            {
+                buffer[i] = myPacket.dados[i];
+            }
+            buffer[myPacket.tamanho] = '\0';
+
+            if(sendFileWrapper(socket, buffer, SERVER) == 0)
+            {
+                printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, buffer);
+            }
+            else
+            {
+                printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, buffer);
+            }
         }
         else if(myPacket.tipo == VERIFICA_BACK)
         {

@@ -248,8 +248,17 @@ int clientCommands(int socket, char **args, int wordCount)
                         if(checkParity(&sPacket) == 0)
                         {
                             // Check if packet is OK
-                            if(sPacket.tipo == OK)
+                            if(sPacket.tipo == BACK_1_FILE)
                             {
+                                // Create buffer
+                                char *buffer = (char*)malloc(sPacket.tamanho + 1);
+                                // For loop
+                                for(int i = 0; i < sPacket.tamanho; i++)
+                                {
+                                    buffer[i] = sPacket.dados[i];
+                                }
+                                buffer[sPacket.tamanho] = '\0';
+
                                 FILE* file = fopen(args[1], "wb");
                                 if(file == NULL)
                                 {

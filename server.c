@@ -220,6 +220,14 @@ int main(int argc, char const *argv[])
             }
             buffer[myPacket.tamanho] = '\0';
             
+            getcwd(sdirectory, sizeof(sdirectory));
+
+            // Create temp buffer and allocate cwd with it
+            char *tempBuffer = (char *)malloc((strlen(buffer) + strlen(sdirectory) + 1) * sizeof(char));
+            strcpy(tempBuffer, sdirectory);
+            strcat(tempBuffer, "/");
+            strcat(tempBuffer, buffer);
+
             if(checkFileExists(buffer) == 0)
             {
                 printf("[%s] > Arquivo %s nao existe!\n", sdirectory, buffer);

@@ -242,7 +242,6 @@ int clientCommands(int socket, char **args, int wordCount)
                         printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
                         break;
                     }
-                    sendPacket(socket, &packet);
                     if(readPacket(socket, &sPacket, 1) == 0)
                     {
                         // Check parity

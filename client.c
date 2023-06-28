@@ -136,9 +136,10 @@ int clientCommands(int socket, char **args, int wordCount)
                 for(int i = 0; i < count; i++)
                 {
                     // Check if directory
-                    if(globbuf.gl_pathv[i][strlen(globbuf.gl_pathv[i]) - 1] == '/')
+                    if(chdir(globbuf.gl_pathv[i]) == 0)
                     {
                         count--;
+                        chdir(cdirectory);
                     }
                 }
                 printf("[CLIENT-CLI] Sending %d files\n", count);

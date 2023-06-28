@@ -195,11 +195,6 @@ int clientCommands(int socket, char **args, int wordCount)
                         printf("[CLIENT-CLI] Erro ao enviar arquivo %s\n", globbuf.gl_pathv[i]);
                     }
                 }
-
-                // Send FIM_GRUPO_ARQ
-                createPacket(&packet, 0, 0, FIM_GRUPO_ARQ, NULL);
-                sendPacket(socket, &packet);
-
                 // Free globbuf
                 globfree(&globbuf);
             }

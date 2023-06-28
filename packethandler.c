@@ -23,8 +23,7 @@ int maskPacket(struct t_packet *packet)
 {
     for(int i = 0; i < packet->tamanho; i++)
     {
-        if(packet->dados[i] == 0x0081 ||packet->dados[i] == 0x0088)
-            packet->dados[i] += 0xFF00;
+        packet->dados[i] += 0xFF00;
     }
     return 0;
 }
@@ -34,8 +33,7 @@ int unmaskPacket(struct t_packet *packet)
 {
     for(int i = 0; i < packet->tamanho; i++)
     {
-        if(packet->dados[i] == 0xFF81 ||packet->dados[i] == 0xFF88)
-            packet->dados[i] -= 0xFF00;
+        packet->dados[i] -= 0xFF00;
     }
     return 0;
 }

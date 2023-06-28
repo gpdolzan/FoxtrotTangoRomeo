@@ -244,7 +244,6 @@ int main(int argc, char const *argv[])
                     sendPacket(socket, &packet);
                     getcwd(sdirectory, sizeof(sdirectory));
                     // Send file
-                    printf("BARRA\n");
                     if(sendFile(socket, file) == 0)
                     {
                         printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, buffer);
@@ -331,7 +330,6 @@ int main(int argc, char const *argv[])
                 if(file != NULL)
                 {
                     // Send file
-                    printf("BARRA\n");
                     if(sendFile(socket, file) == 0)
                     {
                         printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, globbuf.gl_pathv[i]);

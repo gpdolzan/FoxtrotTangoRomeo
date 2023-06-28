@@ -224,12 +224,6 @@ int sendFile(int socket, FILE *file)
     int sequence = 0;
     int tries = 8;
 
-    // Get max file size
-    fseek(file, 0L, SEEK_END);
-    int fileSize = ftell(file);
-    fseek(file, 0L, SEEK_SET);
-
-
     // Loop de envio de bytes do arquivo
     while(1)
     {
@@ -274,8 +268,6 @@ int sendFile(int socket, FILE *file)
                             sequence++;
                         else
                             sequence = 0;
-                        printf("\33[2K\r");
-                        printf("Enviando arquivo... %d%%", (int)((float)ftell(file) / (float)fileSize * 100));
                         break;
                     }
                 }

@@ -267,6 +267,9 @@ int main(int argc, char const *argv[])
         }
         else if(myPacket.tipo == REC_GROUP_ARQ)
         {
+            struct t_packet packet;
+            int tries = 8;
+            int skip = 0;
             // Create buffer
             char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
             for(int i = 0; i < myPacket.tamanho; i++)
@@ -285,6 +288,108 @@ int main(int argc, char const *argv[])
             for(int i = 0; i < count; i++)
             {
                 printf("[%s] > %s\n", sdirectory, globbuf.gl_pathv[i]);
+                // Create packet
+                createPacket(&packet, strlen(globbuf.gl_pathv[i]), 0, NOME_ARQ_REC, globbuf.gl_pathv[i]);
+                sendPacket(socket, &packet);
+
+                // Wait for OK
+                tries = 8;
+                while(1)
+                {
+                    if (tries <= 0)
+                    {
+                        printf("[%s] > Time exceeded OK\n", sdirectory);
+                        skip = 1;
+                        break;
+                    }
+
+                    if(readPacket(socket, &myPacket, 1) == 0)
+                    {
+                        if(checkParity(&myPacket) == 1)
+                        {
+                            printf("[%s] > Erro de paridade\n", sdirectory);
+                            // Send NACK
+                            createPacket(&packet, 0, 0, NACK, NULL);
+                            sendPacket(socket, &packet);
+                        }
+                        else
+                        {
+                            if(myPacket.tipo == OK)
+                            {
+                                printf("[%s] > OK recebido\n", sdirectory);
+                                break;
+                            }
+                            else if(myPacket.tipo == NACK)
+                            {
+                                printf("[%s] > NACK recebido\n", sdirectory);
+                                tries--;
+                            }
+                        }
+                    }
+                }
+
+                if(skip == 1)
+                {
+                    skip = 0;
+                    continue;
+                }
+                else
+                {
+                    // Try to open file
+                    FILE* file = fopen(globbuf.gl_pathv[i], "rb");
+
+                    if(file != NULL)
+                    {
+                        // Send file
+                        if(sendFile(socket, file) == 0)
+                        {
+                            printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, globbuf.gl_pathv[i]);
+                        }
+                        else
+                        {
+                            printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, globbuf.gl_pathv[i]);
+                        }
+                        free(buffer);
+                    }
+                }
+            }
+            // Send FIM_GRUPO_ARQ
+            createPacket(&packet, 0, 0, FIM_GRUPO_ARQ, NULL);
+            sendPacket(socket, &packet);
+
+            // Wait for OK
+            tries = 8;
+            while(1)
+            {
+                if (tries <= 0)
+                {
+                    printf("[%s] > Time exceeded OK\n", sdirectory);
+                    break;
+                }
+
+                if(readPacket(socket, &myPacket, 1) == 0)
+                {
+                    if(checkParity(&myPacket) == 1)
+                    {
+                        printf("[%s] > Erro de paridade\n", sdirectory);
+                        // Send NACK
+                        createPacket(&packet, 0, 0, NACK, NULL);
+                        sendPacket(socket, &packet);
+                    }
+                    else
+                    {
+                        if(myPacket.tipo == OK)
+                        {
+                            printf("[%s] > Terminei recuperacao de um grupo de arquivos!\n", sdirectory);
+                            break;
+                        }
+                        else if(myPacket.tipo == NACK)
+                        {
+                            printf("[%s] > NACK recebido\n", sdirectory);
+                            tries--;
+                        }
+                    }
+                }
             }
         }
         else if(myPacket.tipo == VERIFICA_BACK)

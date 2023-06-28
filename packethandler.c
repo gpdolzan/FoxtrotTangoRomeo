@@ -257,16 +257,17 @@ int sendFile(int socket, FILE *file)
             {
                 if(serverPacket.tipo == OK)
                 {
-                    printf("OK!\n");
                     if(serverPacket.sequencia <= packet.sequencia)
                     {
-                        printf("recebi OK!\n");
                         if(sequence < 63)
                             sequence++;
                         else
                             sequence = 0;
+                        printf("recebi OK!\n");
+                        printf("new sequence: %d\n", sequence);
                         break;
                     }
+                    printf("So recebi OK errado!\n")
                 }
                 else if(serverPacket.tipo == NACK)
                 {

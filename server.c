@@ -298,7 +298,6 @@ int main(int argc, char const *argv[])
                     if (tries <= 0)
                     {
                         printf("[%s] > Time exceeded OK\n", sdirectory);
-                        skip = 1;
                         break;
                     }
 
@@ -326,30 +325,21 @@ int main(int argc, char const *argv[])
                         }
                     }
                 }
+                // Try to open file
+                FILE* file = fopen(globbuf.gl_pathv[i], "rb");
 
-                if(skip == 1)
+                if(file != NULL)
                 {
-                    skip = 0;
-                    continue;
-                }
-                else
-                {
-                    // Try to open file
-                    FILE* file = fopen(globbuf.gl_pathv[i], "rb");
-
-                    if(file != NULL)
+                    // Send file
+                    if(sendFile(socket, file) == 0)
                     {
-                        // Send file
-                        if(sendFile(socket, file) == 0)
-                        {
-                            printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, globbuf.gl_pathv[i]);
-                        }
-                        else
-                        {
-                            printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, globbuf.gl_pathv[i]);
-                        }
-                        free(buffer);
+                        printf("[%s] > Arquivo %s enviado com sucesso\n", sdirectory, globbuf.gl_pathv[i]);
                     }
+                    else
+                    {
+                        printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, globbuf.gl_pathv[i]);
+                    }
+                    free(buffer);
                 }
             }
             // Send FIM_GRUPO_ARQ

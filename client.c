@@ -128,17 +128,16 @@ int clientCommands(int socket, char **args, int wordCount)
             {
                 // Use glob to get all files
                 glob_t globbuf;
-                glob(args[1], 0, NULL, &globbuf);
+                glob(args[1], GLOB_MARK, NULL, &globbuf);
                 // Using an integer count how many files were found
                 int count = globbuf.gl_pathc;
 
                 // Now remove from count all directories
                 for(int i = 0; i < count; i++)
                 {
-                    if(isDir(globbuf.gl_pathv[i]) == 0)
-                    {
+                    // Remove from count if glob is a directory
+                    if(globbuf.gl_pathv[i][strlen(globbuf.gl_pathv[i]) - 1] == '/')
                         count--;
-                    }
                 }
                 printf("[CLIENT-CLI] Sending %d files\n", count);
 
@@ -186,15 +185,6 @@ int clientCommands(int socket, char **args, int wordCount)
 
                 for(int i = 0; i < count; i++)
                 {
-                    // Send each file
-                    // Using C function to test if string is a directory
-                    DIR* directory = opendir(globbuf.gl_pathv[i]);
-                    if(directory != NULL)
-                    {
-                        closedir(directory);
-                        continue;
-                    }
-
                     if(sendFileWrapper(socket, globbuf.gl_pathv[i], CLIENT) == 0)
                     {
                         printf("[CLIENT-CLI] Arquivo %s enviado com sucesso!\n", globbuf.gl_pathv[i]);

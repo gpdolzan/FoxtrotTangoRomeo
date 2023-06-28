@@ -128,17 +128,16 @@ int clientCommands(int socket, char **args, int wordCount)
             {
                 // Use glob to get all files
                 glob_t globbuf;
-                glob(args[1], GLOB_MARK, NULL, &globbuf);
+                glob(args[1], GLOB_ONLYDIR, NULL, &globbuf);
+                int numdirs = globbuf.gl_pathc;
+                // Free globbuf
+                globfree(&globbuf);
+                glob(args[1], 0, NULL, &globbuf);
                 // Using an integer count how many files were found
                 int count = globbuf.gl_pathc;
 
                 // Now remove from count all directories
-                for(int i = 0; i < count; i++)
-                {
-                    // Remove from count if glob is a directory
-                    if(globbuf.gl_pathv[i][strlen(globbuf.gl_pathv[i]) - 1] == '/')
-                        count--;
-                }
+                count -= numdirs;
                 printf("[CLIENT-CLI] Sending %d files\n", count);
 
                 // Monta string #[valor]arq

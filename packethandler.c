@@ -276,7 +276,7 @@ int sendFile(int socket, FILE *file)
                         
                         time_t loop = clock();
                         // Check if 0.5 second has passed
-                        if((double)(loop - current) / CLOCKS_PER_SEC >= 0.000001)
+                        if((double)(loop - current) / CLOCKS_PER_SEC >= 0.0001)
                         {
                             current = clock();
                             printProgress((int)((float)ftell(file) / (float)fileSize * 100));

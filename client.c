@@ -132,16 +132,22 @@ int clientCommands(int socket, char **args, int wordCount)
                 // Using an integer count how many files were found
                 int count = globbuf.gl_pathc;
 
+                // Create a string matrix to store all files
+                char **files = malloc(sizeof(char*) * count);
+
                 // Now remove from count all directories
                 for(int i = 0; i < count; i++)
                 {
-                    // print
-                    DIR* directory = opendir(globbuf.gl_pathv[i]);
-                    if(directory != NULL)
+                    if(isDir(globbuf.gl_pathv[i]) == 0)
                     {
-                        printf("[CLIENT-CLI] Dir %s\n", globbuf.gl_pathv[i]);
-                        closedir(directory);
                         count--;
+                    }
+                    else
+                    {
+                        // Allocate memory for each file
+                        files[i] = malloc(sizeof(char) * (strlen(globbuf.gl_pathv[i]) + 1));
+                        // Copy file name to files
+                        strcpy(files[i], globbuf.gl_pathv[i]);
                     }
                 }
                 printf("[CLIENT-CLI] Sending %d files\n", count);
@@ -215,6 +221,12 @@ int clientCommands(int socket, char **args, int wordCount)
 
                 // Free globbuf
                 globfree(&globbuf);
+                // Free files
+                for(int i = 0; i < count; i++)
+                {
+                    free(files[i]);
+                }
+                free(files);
             }
             else
             {

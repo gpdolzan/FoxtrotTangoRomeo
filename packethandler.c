@@ -141,6 +141,15 @@ int checkFileExists(char *filename)
         return 1;
 }
 
+int isDir(const char* fileName)
+{
+    struct stat path;
+
+    stat(fileName, &path);
+
+    return S_ISREG(path.st_mode);
+}
+
 int sendFileWrapper(int socket, char *filename, int type)
 {
     struct t_packet packet;

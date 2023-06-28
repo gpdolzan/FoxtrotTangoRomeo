@@ -280,8 +280,9 @@ int sendFile(int socket, FILE *file)
                         // Check if 0.5 second has passed
                         if((double)(loop - current) / CLOCKS_PER_SEC >= 0.5)
                         {
-                            printf("Enviando %ld/%d bytes\n", ftell(file), fileSize);
                             current = clock();
+                            printf("\33[2K\r");
+                            printf("Enviando arquivo... %d%%", (int)((float)ftell(file) / (float)fileSize * 100));
                         }
                         break;
                     }

@@ -360,7 +360,6 @@ int receiveFile(int socket, FILE* file)
         {
             if(clientPacket.tipo == DATA)
             {
-                printf("DATA\n");
                 // Create a buffer
                 char *buffer = malloc(clientPacket.tamanho);
                 // For loop
@@ -379,6 +378,8 @@ int receiveFile(int socket, FILE* file)
                     expectedSequence++;
                 else
                     expectedSequence = 0;
+                printf("DATA\n");
+                printf("new sequence: %d\n", expectedSequence);
             }
             else if(clientPacket.tipo == FIM_ARQ)
             {

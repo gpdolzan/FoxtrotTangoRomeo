@@ -227,6 +227,76 @@ int clientCommands(int socket, char **args, int wordCount)
             if(strchr(args[1], '*') != NULL)
             {
                 // REC_1_ARQ_PLUS
+                createPacket(&packet, strlen(args[1]), 0, REC_GROUP_ARQ, args[1]);
+                sendPacket(socket, &packet);
+
+                // Wait for OK
+                while(1)
+                {
+                    if(tries <= 0)
+                    {
+                        printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
+                        break;
+                    }
+                    if(readPacket(socket, &sPacket, 1) == 0)
+                    {
+                        // Check parity
+                        if(checkParity(&sPacket) == 0)
+                        {
+                            // Check if packet is OK
+                            if(sPacket.tipo == NOME_ARQ_REC)
+                            {
+                                // Create buffer
+                                char *buffer = (char*)malloc(sPacket.tamanho + 1);
+                                // For loop
+                                for(int i = 0; i < sPacket.tamanho; i++)
+                                {
+                                    buffer[i] = sPacket.dados[i];
+                                }
+                                buffer[sPacket.tamanho] = '\0';
+
+                                // Print buffer
+                                printf("[CLIENT-CLI] Recebendo arquivo %s\n", buffer);
+
+                                FILE *file = fopen(buffer, "wb");
+
+                                if(receiveFile(socket, *file) == 0)
+                                {
+                                    printf("[CLIENT-CLI] Arquivo %s recebido com sucesso!\n", buffer);
+                                }
+                                else
+                                {
+                                    printf("[CLIENT-CLI] Erro ao receber arquivo %s\n", buffer);
+                                }
+
+                                // Free buffer
+                                free(buffer);
+                                break;
+                            }
+                            else if(sPacket.tipo == FIM_GRUPO_ARQ)
+                            {
+                                printf("[CLIENT-CLI] FIM_GRUPO_ARQ recebido\n");
+
+                                // Send OK
+                                createPacket(&packet, 0, 0, OK, NULL);
+                                sendPacket(socket, &packet);
+
+                                break;
+                            }
+                            else if(sPacket.tipo == NACK)
+                            {
+                                // print message and the exit this if
+                                printf("[CLIENT-CLI] NACK recebido como resposta!\n");
+                                tries--;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        tries--;
+                    }
+                }
+
             }
             else
             {

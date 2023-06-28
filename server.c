@@ -264,6 +264,28 @@ int main(int argc, char const *argv[])
                 }
             }
         }
+        else if(myPacket.tipo == REC_GROUP_ARQ)
+        {
+            // Create buffer
+            char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
+            for(int i = 0; i < myPacket.tamanho; i++)
+            {
+                buffer[i] = myPacket.dados[i];
+            }
+            buffer[myPacket.tamanho] = '\0';
+
+            // Use glob to get all using wildcard *
+            glob_t globbuf;
+            glob(buffer, 0, NULL, &globbuf);
+            int count = globbuf.gl_pathc;
+
+            printf("[%s] > %d arquivos encontrados\n", sdirectory, count);
+            // for loop to print all filenames from glob
+            for(int i = 0; i < count; i++)
+            {
+                printf("[%s] > %s\n", sdirectory, globbuf.gl_pathv[i]);
+            }
+        }
         else if(myPacket.tipo == VERIFICA_BACK)
         {
             // Create packet

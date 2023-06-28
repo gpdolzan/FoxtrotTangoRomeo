@@ -276,9 +276,8 @@ int sendFile(int socket, FILE *file)
                             sequence = 0;
                         
                         time_t loop = clock();
-
                         // Check if 0.5 second has passed
-                        if((double)(loop - current) / CLOCKS_PER_SEC >= 0.5)
+                        if((double)(loop - current) / CLOCKS_PER_SEC >= 0.10)
                         {
                             current = clock();
                             printf("\33[2K\r");

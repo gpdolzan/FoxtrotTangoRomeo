@@ -135,7 +135,7 @@ int clientCommands(int socket, char **args, int wordCount)
                 // Now remove from count all directories
                 for(int i = 0; i < count; i++)
                 {
-                    DIR* directory = opendir(name);
+                    DIR* directory = opendir(globbuf.gl_pathv[i]);
                     if(directory != NULL)
                     {
                         closedir(directory);

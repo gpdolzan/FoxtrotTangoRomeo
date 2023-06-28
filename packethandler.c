@@ -275,7 +275,7 @@ int sendFile(int socket, FILE *file)
                         else
                             sequence = 0;
                         printf("\33[2K\r");
-                        printf("Enviando arquivo... %d%%", (int)((float)ftell(file) / (float)fileSize * 100));
+                        printf("Enviando arquivo... %d%%\n", (int)((float)ftell(file) / (float)fileSize * 100));
                         break;
                     }
                 }

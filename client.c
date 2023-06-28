@@ -136,10 +136,10 @@ int clientCommands(int socket, char **args, int wordCount)
                 for(int i = 0; i < count; i++)
                 {
                     // print
-                    printf("[CLIENT-CLI] Sending %s\n", globbuf.gl_pathv[i]);
                     DIR* directory = opendir(globbuf.gl_pathv[i]);
                     if(directory != NULL)
                     {
+                        printf("[CLIENT-CLI] Dir %s\n", globbuf.gl_pathv[i]);
                         closedir(directory);
                         count--;
                     }

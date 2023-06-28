@@ -255,6 +255,10 @@ int clientCommands(int socket, char **args, int wordCount)
                                 }
                                 buffer[sPacket.tamanho] = '\0';
 
+                                // Send OK
+                                createPacket(&packet, 0, 0, OK, NULL);
+                                sendPacket(socket, &packet);
+
                                 // Print buffer
                                 printf("[CLIENT-CLI] Recebendo arquivo %s\n", buffer);
 

@@ -267,7 +267,7 @@ int sendFile(int socket, FILE *file)
                         printf("new sequence: %d\n", sequence);
                         break;
                     }
-                    printf("So recebi OK errado!\n")
+                    printf("So recebi OK errado!\n");
                 }
                 else if(serverPacket.tipo == NACK)
                 {

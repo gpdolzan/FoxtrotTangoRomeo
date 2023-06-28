@@ -257,6 +257,7 @@ int sendFile(int socket, FILE *file)
             {
                 if(serverPacket.tipo == OK)
                 {
+                    printf("OK!\n");
                     if(serverPacket.sequencia <= packet.sequencia)
                     {
                         printf("recebi OK!\n");
@@ -269,6 +270,7 @@ int sendFile(int socket, FILE *file)
                 }
                 else if(serverPacket.tipo == NACK)
                 {
+                    printf("NACK!\n");
                     // Enviar novamente
                     printf("paridade: %d\n", packet.paridade);
                     sendPacket(socket, &packet);
@@ -357,6 +359,7 @@ int receiveFile(int socket, FILE* file)
         {
             if(clientPacket.tipo == DATA)
             {
+                printf("DATA\n");
                 // Create a buffer
                 char *buffer = malloc(clientPacket.tamanho);
                 // For loop
@@ -392,15 +395,21 @@ int receiveFile(int socket, FILE* file)
                 createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
                 sendPacket(socket, &serverPacket);
             }
+            else
+            {
+                printf("else\n");
+            }
         }
         else if(clientPacket.sequencia <= expectedSequence && checkParity(&clientPacket) == 0)
         {
+            printf("Enviei OK\n");
             // Send OK
             createPacket(&serverPacket, 0, expectedSequence, OK, NULL);
             sendPacket(socket, &serverPacket);
         }
         else if(checkParity(&clientPacket) == 1)
         {
+            printf("Enviei NACK\n");
             // Enviar novamente
             createPacket(&serverPacket, 0, expectedSequence, NACK, NULL);
             sendPacket(socket, &serverPacket);

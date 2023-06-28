@@ -131,6 +131,16 @@ int clientCommands(int socket, char **args, int wordCount)
                 glob(args[1], 0, NULL, &globbuf);
                 // Using an integer count how many files were found
                 int count = globbuf.gl_pathc;
+
+                // Now remove from count all directories
+                for(int i = 0; i < count; i++)
+                {
+                    // Check if directory
+                    if(globbuf.gl_pathv[i][strlen(globbuf.gl_pathv[i]) - 1] == '/')
+                    {
+                        count--;
+                    }
+                }
                 printf("[CLIENT-CLI] Sending %d files\n", count);
 
                 // Monta string #[valor]arq
@@ -195,6 +205,11 @@ int clientCommands(int socket, char **args, int wordCount)
                         printf("[CLIENT-CLI] Erro ao enviar arquivo %s\n", globbuf.gl_pathv[i]);
                     }
                 }
+
+                // Send FIM_GRUPO_ARQ
+                createPacket(&packet, 0, 0, FIM_GRUPO_ARQ, NULL);
+                sendPacket(socket, &packet);
+
                 // Free globbuf
                 globfree(&globbuf);
             }

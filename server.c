@@ -169,6 +169,40 @@ int main(int argc, char const *argv[])
                         }
                     }
                 }
+                // Wait for FIM_GRUPO_ARQ
+                tries = 8;
+                while(1)
+                {
+                    if (tries <= 0)
+                    {
+                        printf("[%s] > Time exceeded GROUP_FIM_ARQ\n", sdirectory);
+                        break;
+                    }
+
+                    if(readPacket(socket, &myPacket, 1) == 0)
+                    {
+                        if(checkParity(&myPacket) == 1)
+                        {
+                            printf("[%s] > Erro de paridade\n", sdirectory);
+                            // Send NACK
+                            createPacket(&sPacket, 0, 0, NACK, NULL);
+                            sendPacket(socket, &sPacket);
+                        }
+                        else
+                        {
+                            if(myPacket.tipo == FIM_GRUPO_ARQ)
+                            {
+                                printf("[%s] > FIM_GRUPO_ARQ recebido\n", sdirectory);
+                                break;
+                            }
+                            else
+                            {
+                                tries--;
+                                continue;
+                            }
+                        }
+                    }
+                }
             }
         }
         else if(myPacket.tipo == REC_1_ARQ)

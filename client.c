@@ -144,6 +144,8 @@ int clientCommands(int socket, char **args, int wordCount)
                 char countString[10];
                 sprintf(countString, "#%d#", count);
 
+                count += numdirs;
+
                 // Create BACK_PLUS_1_FILE packet
                 if(count > 0)
                 {
@@ -184,6 +186,9 @@ int clientCommands(int socket, char **args, int wordCount)
 
                 for(int i = 0; i < count; i++)
                 {
+                    if(isDir(globbuf.gl_pathv[i]) == 0)
+                        continue;
+
                     if(sendFileWrapper(socket, globbuf.gl_pathv[i], CLIENT) == 0)
                     {
                         printf("[CLIENT-CLI] Arquivo %s enviado com sucesso!\n", globbuf.gl_pathv[i]);

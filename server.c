@@ -341,7 +341,6 @@ int main(int argc, char const *argv[])
                     {
                         printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, globbuf.gl_pathv[i]);
                     }
-                    free(buffer);
                 }
             }
             // Send FIM_GRUPO_ARQ

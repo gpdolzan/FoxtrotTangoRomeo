@@ -57,7 +57,6 @@ int main(int argc, char const *argv[])
                 // Check parity
                 if(checkParity(&myPacket) == 1)
                 {
-                    printPacket(&myPacket);
                     // Send NACK
                     createPacket(&sPacket, 0, 0, NACK, NULL);
                     sendPacket(socket, &sPacket);

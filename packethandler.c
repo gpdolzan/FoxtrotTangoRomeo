@@ -251,7 +251,6 @@ int sendFile(int socket, FILE *file)
             {
                 if(tries <= 0)
                 {
-                    printPacket(&packet);
                     fclose(file);
                     return 1;
                 }
@@ -280,8 +279,7 @@ int sendFile(int socket, FILE *file)
                         if((double)(loop - current) / CLOCKS_PER_SEC >= 0.000001)
                         {
                             current = clock();
-                            printf("\33[2K\r");
-                            printf("Enviando arquivo... %d%%", (int)((float)ftell(file) / (float)fileSize * 100));
+                            printProgress((int)((float)ftell(file) / (float)fileSize * 100));
                         }
                         break;
                     }
@@ -313,7 +311,6 @@ int sendFile(int socket, FILE *file)
         {
             if(tries <= 0)
             {
-                printPacket(&packet);
                 fclose(file);
                 return 1;
             }
@@ -346,6 +343,34 @@ int sendFile(int socket, FILE *file)
     return 0;
 }
 
+// Function that prints progress bar based on the percentage of the file sent
+void printProgress(int percentage)
+{
+    printf("\33[2K\r");
+    if(percentage <= 9)
+        printf("[                    ]");
+    else if(percentage <= 19)
+        printf("[##                  ]");
+    else if(percentage <= 29)
+        printf("[####                ]");
+    else if(percentage <= 39)
+        printf("[######              ]");
+    else if(percentage <= 49)
+        printf("[########            ]");
+    else if(percentage <= 59)
+        printf("[##########          ]");
+    else if(percentage <= 69)
+        printf("[############        ]");
+    else if(percentage <= 79)
+        printf("[##############      ]");
+    else if(percentage <= 89)
+        printf("[################    ]");
+    else if(percentage <= 99)
+        printf("[##################  ]");
+    else
+        printf("[####################]");
+}
+
 int receiveFile(int socket, FILE* file)
 {
     int expectedSequence = 0;
@@ -363,7 +388,6 @@ int receiveFile(int socket, FILE* file)
             {
                 printf("Timeout dados do arquivo\n");
                 // print expected sequence
-                printPacket(&clientPacket);
                 fclose(file);
                 return 1;
             }

@@ -50,6 +50,7 @@ int createPacket(struct t_packet *packet, unsigned int tamanho, unsigned int seq
 int maskPacket(struct t_packet *packet);
 int unmaskPacket(struct t_packet *packet);
 void printPacket(struct t_packet *packet);
+void printProgress(int percentage);
 unsigned int calculateParity(struct t_packet *packet);
 int checkParity(struct t_packet *packet);
 int sendPacket(int socket, struct t_packet *packet);

@@ -277,7 +277,7 @@ int sendFile(int socket, FILE *file)
                         
                         time_t loop = clock();
                         // Check if 0.5 second has passed
-                        if((double)(loop - current) / CLOCKS_PER_SEC >= 0.0000001)
+                        if((double)(loop - current) / CLOCKS_PER_SEC >= 0.000001)
                         {
                             current = clock();
                             printf("\33[2K\r");
@@ -302,6 +302,7 @@ int sendFile(int socket, FILE *file)
             break;
     }
 
+    printf("\33[2K\r");
     // Enviar solicitacao de fim de envio de arquivo para servidor
     createPacket(&packet, 0, sequence, FIM_ARQ, NULL);
     while(1)

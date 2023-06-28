@@ -269,7 +269,6 @@ int main(int argc, char const *argv[])
         {
             struct t_packet packet;
             int tries = 8;
-            int skip = 0;
             // Create buffer
             char *buffer = (char *)malloc((myPacket.tamanho + 1) * sizeof(char));
             for(int i = 0; i < myPacket.tamanho; i++)

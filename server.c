@@ -282,6 +282,9 @@ int main(int argc, char const *argv[])
             // for loop to print all filenames from glob
             for(int i = 0; i < count; i++)
             {
+                if(isDir(globbuf.gl_pathv[i]) == 0)
+                    continue;
+
                 printf("[%s] > %s\n", sdirectory, globbuf.gl_pathv[i]);
                 // Create packet
                 createPacket(&packet, strlen(globbuf.gl_pathv[i]), 0, NOME_ARQ_REC, globbuf.gl_pathv[i]);

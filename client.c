@@ -233,6 +233,7 @@ int clientCommands(int socket, char **args, int wordCount)
                 // Wait for OK
                 while(1)
                 {
+                    break;
                     if(tries <= 0)
                     {
                         printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
@@ -260,7 +261,7 @@ int clientCommands(int socket, char **args, int wordCount)
 
                                 FILE *file = fopen(buffer, "wb");
 
-                                if(receiveFile(socket, *file) == 0)
+                                if(receiveFile(socket, file) == 0)
                                 {
                                     printf("[CLIENT-CLI] Arquivo %s recebido com sucesso!\n", buffer);
                                 }

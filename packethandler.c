@@ -346,7 +346,7 @@ int sendFile(int socket, FILE *file)
 // Function that prints progress bar based on the percentage of the file sent
 void printProgress(int percentage)
 {
-    printf("\33[2K\r");
+    fflush(stdout);
     if(percentage <= 9)
         printf("[                    ]");
     else if(percentage <= 19)

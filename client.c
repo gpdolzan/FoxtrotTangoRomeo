@@ -135,11 +135,11 @@ int clientCommands(int socket, char **args, int wordCount)
                 // Now remove from count all directories
                 for(int i = 0; i < count; i++)
                 {
-                    // Check if directory
-                    if(chdir(globbuf.gl_pathv[i]) == 0)
+                    DIR* directory = opendir(name);
+                    if(directory != NULL)
                     {
+                        closedir(directory);
                         count--;
-                        chdir(cdirectory);
                     }
                 }
                 printf("[CLIENT-CLI] Sending %d files\n", count);

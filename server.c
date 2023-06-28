@@ -121,7 +121,7 @@ int main(int argc, char const *argv[])
                 createPacket(&sPacket, 0, 0, OK, NULL);
                 sendPacket(socket, &sPacket);
                 // Wait for BACK_1_ARQ
-                while(1)
+                while(nFiles > 0)
                 {
                     if(readPacket(socket, &myPacket, 1) == 0)
                     {
@@ -158,10 +158,6 @@ int main(int argc, char const *argv[])
                                 {
                                     nFiles--;
                                     printf("[%s] > Arquivo %s recebido com sucesso\n", sdirectory, buffer);
-                                    if(nFiles <= 0)
-                                    {
-                                        break;
-                                    }
                                 }
                                 free(buffer);
                             }
@@ -316,12 +312,10 @@ int main(int argc, char const *argv[])
                         {
                             if(myPacket.tipo == OK)
                             {
-                                printf("[%s] > OK recebido\n", sdirectory);
                                 break;
                             }
                             else if(myPacket.tipo == NACK)
                             {
-                                printf("[%s] > NACK recebido\n", sdirectory);
                                 tries--;
                             }
                         }

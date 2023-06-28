@@ -316,12 +316,10 @@ int main(int argc, char const *argv[])
                         {
                             if(myPacket.tipo == OK)
                             {
-                                printf("[%s] > OK recebido\n", sdirectory);
                                 break;
                             }
                             else if(myPacket.tipo == NACK)
                             {
-                                printf("[%s] > NACK recebido\n", sdirectory);
                                 tries--;
                             }
                         }
@@ -341,7 +339,6 @@ int main(int argc, char const *argv[])
                     {
                         printf("[%s] > Erro ao enviar arquivo %s\n", sdirectory, globbuf.gl_pathv[i]);
                     }
-                    free(buffer);
                 }
             }
             // Send FIM_GRUPO_ARQ

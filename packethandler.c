@@ -207,7 +207,6 @@ int sendFileWrapper(int socket, char *filename, int type)
 
     if (sendFile(socket, file) == 0)
     {
-        printf("File sent successfully\n");
         return 0;
     }
     else
@@ -229,6 +228,7 @@ int sendFile(int socket, FILE *file)
     int fileSize = ftell(file);
     fseek(file, 0L, SEEK_SET);
 
+    clock_t current = clock();
 
     // Loop de envio de bytes do arquivo
     while(1)
@@ -274,8 +274,15 @@ int sendFile(int socket, FILE *file)
                             sequence++;
                         else
                             sequence = 0;
-                        printf("\33[2K\r");
-                        printf("Enviando arquivo... %d%%\n", (int)((float)ftell(file) / (float)fileSize * 100));
+                        
+                        time_t loop = clock();
+
+                        // Check if 0.5 second has passed
+                        if((double)(loop - current) / CLOCKS_PER_SEC >= 0.5)
+                        {
+                            printf("Enviando %d/%d bytes\n", ftell(file), fileSize);
+                            current = clock();
+                        }
                         break;
                     }
                 }

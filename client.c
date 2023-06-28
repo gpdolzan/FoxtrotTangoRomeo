@@ -189,7 +189,6 @@ int clientCommands(int socket, char **args, int wordCount)
                     if(isDir(globbuf.gl_pathv[i]) == 0)
                         continue;
 
-                    printf("BARRA\n");
                     if(sendFileWrapper(socket, globbuf.gl_pathv[i], CLIENT) == 0)
                     {
                         printf("[CLIENT-CLI] Arquivo %s enviado com sucesso!\n", globbuf.gl_pathv[i]);
@@ -209,7 +208,6 @@ int clientCommands(int socket, char **args, int wordCount)
             }
             else
             {
-                printf("BARRA\n");
                 if(sendFileWrapper(socket, args[1], CLIENT) == 0)
                     printf("[CLIENT-CLI] Arquivo enviado com sucesso!\n");
                 else

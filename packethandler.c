@@ -213,7 +213,7 @@ int sendFile(int socket, FILE *file)
     struct t_packet packet;
     struct t_packet serverPacket;
     int sequence = 0;
-    int tries = 5;
+    int tries = 8;
 
     printf("Loop de bytes de arquivo\n");
     // Loop de envio de bytes do arquivo
@@ -295,9 +295,18 @@ int sendFile(int socket, FILE *file)
         // Aguardar resposta (talvez timeout)
         if (readPacket(socket, &serverPacket, 1) == 1)
         {
-            printf("Timeout receber confirmacao de fim\n");
-            fclose(file);
-            return 1;
+            if(tries <= 0)
+            {
+                printf("Timeout enviar dados do arquivo\n");
+                printPacket(&packet);
+                fclose(file);
+                return 1;
+            }
+            tries--;
+        }
+        else
+        {
+            tries = 8;
         }
         // Recebeu mensagem, verifica OK ou NACK
         if(serverPacket.sequencia == packet.sequencia && checkParity(&serverPacket) == 0)
@@ -351,7 +360,7 @@ int receiveFile(int socket, FILE* file)
         }
         else
         {
-            tries = 5;
+            tries = 8;
         }
 
         if(clientPacket.sequencia == expectedSequence && checkParity(&clientPacket) == 0)

@@ -295,13 +295,15 @@ int main(int argc, char const *argv[])
                 tries = 8;
                 while(1)
                 {
-                    if (tries <= 0)
+                    if(readPacket(socket, &myPacket, 1) == 1)
                     {
-                        printf("[%s] > Time exceeded OK\n", sdirectory);
-                        break;
+                        if (tries <= 0)
+                        {
+                            printf("[%s] > Time exceeded OK\n", sdirectory);
+                            break;
+                        }
                     }
-
-                    if(readPacket(socket, &myPacket, 1) == 0)
+                    else
                     {
                         if(checkParity(&myPacket) == 1)
                         {

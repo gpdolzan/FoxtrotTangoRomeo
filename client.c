@@ -161,13 +161,10 @@ int clientCommands(int socket, char **args, int wordCount)
                             // Check if packet is OK
                             if(packet.tipo == OK)
                             {
-                                printf("[CLIENT-CLI] OK received\n");
                                 break;
                             }
                             else if(packet.tipo == NACK)
                             {
-                                // print message and the exit this if
-                                printf("[CLIENT-CLI] NACK recebido como resposta!\n");
                                 tries--;
                             }
                         }
@@ -275,7 +272,6 @@ int clientCommands(int socket, char **args, int wordCount)
 
                                 // Free buffer
                                 free(buffer);
-                                break;
                             }
                             else if(sPacket.tipo == FIM_GRUPO_ARQ)
                             {

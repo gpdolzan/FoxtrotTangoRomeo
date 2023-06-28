@@ -233,7 +233,6 @@ int clientCommands(int socket, char **args, int wordCount)
                 // Wait for OK
                 while(1)
                 {
-                    break;
                     if(tries <= 0)
                     {
                         printf("[CLIENT-CLI] > Time exceeded - Server not responding\n");
